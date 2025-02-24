@@ -1,0 +1,32 @@
+services:
+  arcobatrip-db:
+   image: postgres:17.1-alpine
+   container_name: arcobatrip-db
+   ports:
+    - '5433:5432'
+   environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=postgres
+    - POSTGRES_DB=planner-vercel
+   networks:
+    - app-networks
+  
+  arcobatrip-api:
+   build: .
+   container_name: arcobatrip-api
+   ports:
+     - "3000:3000"
+   environment:
+     - API_BASE_URL="http://localhost:3000"
+     - WEB_BASE_URL="http://localhost:3333"
+     - PORT=3000
+     - JWT_SECRET=inhamemaminha
+     - DATABASE_URL="postgresql://postgres:postgres@localhost:5433/planner-vercel"
+   networks:
+    - app-networks
+   depends_on:
+    - arcobatrip-db
+
+networks:
+  app-networks:
+    driver: bridge
