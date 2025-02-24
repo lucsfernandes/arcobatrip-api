@@ -1,0 +1,58 @@
+{
+  "name": "arcobatrip",
+  "version": "1.0.0",
+  "description": "This is Arcobatrip API",
+  "main": "index.js",
+  "scripts": {
+    "build": "",
+    "start": "node dist/server.js",
+    "dev": "tsx --watch src/main/server.ts",
+    "test": "jest --runInBand --silent",
+    "migration:create": "tsx ./node_modules/typeorm/cli.js migration:create ./src/infra/db/migrations/migration",
+    "migration:generate": "tsx ./node_modules/typeorm/cli.js migration:generate --dataSource ./src/infra/db/ormconfig.ts src/infra/db/migrations/migration",
+    "migration:run": "tsx ./node_modules/typeorm/cli.js migration:run --dataSource ./src/infra/db/ormconfig.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucsfernandes/arcobatrip-api.git"
+  },
+  "keywords": [
+    "arcobatrox;",
+    "arcobatrip;",
+    "trip;",
+    "travel;"
+  ],
+  "author": "Lucas Fernandes",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lucsfernandes/arcobatrip-api/issues"
+  },
+  "homepage": "https://github.com/lucsfernandes/arcobatrip-api#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
+    "dotenv-safe": "^9.1.0",
+    "express": "^4.21.1",
+    "pg": "^8.13.1",
+    "reflect-metadata": "^0.2.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "typeorm": "^0.3.20",
+    "winston": "^3.17.0",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.23.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/dotenv-safe": "^8.1.6",
+    "@types/express": "^5.0.0",
+    "@types/express-actuator": "^1.8.3",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.9.1",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.7",
+    "@types/yamljs": "^0.2.34",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

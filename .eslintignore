@@ -1,0 +1,6 @@
+dist
+node_modules
+logs
+k8s
+.vscode
+.idea
