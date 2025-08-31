@@ -20,7 +20,7 @@ RUN npm ci
 COPY . .
 
 # Compilar TypeScript para JavaScript
-RUN npm run build 2>/dev/null || npx tsc
+RUN npm run build || npx tsc
 
 # Estágio de produção
 FROM base AS production
@@ -52,4 +52,4 @@ ENV PORT=3000
 ENTRYPOINT ["dumb-init", "--"]
 
 # Comando para iniciar a aplicação
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/main/server.js"]
