@@ -21,7 +21,14 @@ services:
      - WEB_BASE_URL="http://localhost:3333"
      - PORT=3000
      - JWT_SECRET=${JWT_SECRET}
-     - DATABASE_URL="postgresql://postgres:postgres@localhost:5433/planner-vercel"
+    #  - DATABASE_URL="postgresql://postgres:postgres@localhost:5433/planner-vercel"
+     - TYPEORM_HOST='${TYPEORM_HOST}'
+     - TYPEORM_PORT=5432
+     - TYPEORM_USERNAME='${TYPEORM_USERNAME}'
+     - TYPEORM_PASSWORD='${TYPEORM_PASSWORD}'
+     - TYPEORM_DATABASE='planner-vercel'
+     - TYPEORM_SYNC=true
+     - TYPEORM_LOGGING=true
    networks:
     - app-networks
    depends_on:

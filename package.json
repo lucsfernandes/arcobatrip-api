@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node dist/main/server.js",
     "dev": "tsx --watch src/main/server.ts",
     "test": "jest --runInBand --silent",
     "migration:create": "tsx ./node_modules/typeorm/cli.js migration:create ./src/infra/db/migrations/migration",
