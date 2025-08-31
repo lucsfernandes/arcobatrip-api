@@ -18,6 +18,7 @@ RUN npm ci
 
 # Copiar código fonte
 COPY . .
+COPY .env.example ./
 
 # Compilar TypeScript para JavaScript
 RUN npm run build
