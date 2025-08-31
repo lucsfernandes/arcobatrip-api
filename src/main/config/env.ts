@@ -2,7 +2,8 @@ import dotenv from "dotenv-safe";
 import { z } from "zod";
 
 dotenv.config({
-  allowEmptyValues: true
+  allowEmptyValues: true,
+  example: undefined
 });
 
 const envSchema = z.object({
