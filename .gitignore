@@ -28,5 +28,8 @@ dist/
 .env.production.local
 .env.local
 
+# Keep .env.example for dotenv-safe
+!.env.example
+
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
