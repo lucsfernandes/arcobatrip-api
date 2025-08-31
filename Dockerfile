@@ -20,7 +20,7 @@ RUN npm ci
 COPY . .
 
 # Compilar TypeScript para JavaScript
-RUN npm run build || npx tsc
+RUN npm run build
 
 # Estágio de produção
 FROM base AS production
