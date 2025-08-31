@@ -4,7 +4,7 @@
   "description": "This is Arcobatrip API",
   "main": "index.js",
   "scripts": {
-    "build": "",
+    "build": "tsc",
     "start": "node dist/server.js",
     "dev": "tsx --watch src/main/server.ts",
     "test": "jest --runInBand --silent",

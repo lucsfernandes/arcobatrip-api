@@ -1,0 +1,60 @@
+# Dependências
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de build
+dist
+build
+
+# Arquivos de ambiente (devem ser passados via docker run ou docker-compose)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+
+# Arquivos de teste
+test
+tests
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts
+coverage
+
+# Arquivos do Git
+.git
+.gitignore
+
+# Arquivos do Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Arquivos de IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Arquivos temporários
+.tmp
+.temp
+
+# Documentação
+README.md
+docs
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos do TypeScript (apenas em desenvolvimento)
+tsconfig.json
+*.tsbuildinfo
