@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   arcobatrip-api:
     image: ${DOCKERHUB_USER}/arcobatrip-api:latest

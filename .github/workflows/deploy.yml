@@ -55,15 +55,21 @@ jobs:
            
            # Criar arquivo .env para docker-compose
            cat > .env << EOF
-           NODE_ENV=production
-           PORT=3000
-           TYPEORM_HOST=${{ secrets.TYPEORM_HOST }}
-           TYPEORM_PORT=${{ secrets.TYPEORM_PORT }}
-           TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }}
-           TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }}
-           TYPEORM_DATABASE=${{ secrets.TYPEORM_DATABASE }}
-           TYPEORM_SYNC=${{ secrets.TYPEORM_SYNC }}
-           EOF
+            DOCKERHUB_USER=${{ secrets.DOCKERHUB_USER }}
+            NODE_ENV=production
+            PORT=3000
+            TYPEORM_HOST=${{ secrets.TYPEORM_HOST }}
+            TYPEORM_PORT=${{ secrets.TYPEORM_PORT }}
+            TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }}
+            TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }}
+            TYPEORM_DATABASE=${{ secrets.TYPEORM_DATABASE }}
+            TYPEORM_SYNC=${{ secrets.TYPEORM_SYNC }}
+            EOF
+           
+           # Debug: mostrar conteúdo do .env (sem senhas)
+           echo "=== Arquivo .env criado ==="
+           grep -v PASSWORD .env || true
+           echo "=========================="
            
            # Subir o serviço
            docker compose -f docker-compose.prod.yml up -d
