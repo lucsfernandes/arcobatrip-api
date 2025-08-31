@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  arcobatrip-api:
+    image: ${DOCKERHUB_USER}/arcobatrip-api:latest
+    container_name: arcobatrip-api
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - TYPEORM_HOST=${TYPEORM_HOST}
+      - TYPEORM_PORT=${TYPEORM_PORT}
+      - TYPEORM_USERNAME=${TYPEORM_USERNAME}
+      - TYPEORM_PASSWORD=${TYPEORM_PASSWORD}
+      - TYPEORM_DATABASE=${TYPEORM_DATABASE}
+      - TYPEORM_SYNC=${TYPEORM_SYNC}
+    ports:
+      - "3000:3000"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.arcobatrip.rule=Host(\`arcobatrip.arcobatrox.com.br\`) && PathPrefix(\`/api\`)
+      - traefik.http.routers.arcobatrip.entrypoints=websecure
+      - traefik.http.routers.arcobatrip.service=arcobatrip-api
+      - traefik.http.routers.arcobatrip.tls.certresolver=letsencryptresolver
+      - traefik.http.services.arcobatrip.loadbalancer.passHostHeader=true
+      - traefik.http.services.arcobatrip.loadbalancer.server.port=3000
+      - traefik.http.middlewares.arcobatrip-strip-prefix.stripprefix.prefixes=/api
+      - traefik.http.routers.arcobatrip.middlewares=arcobatrip-strip-prefix
+
+networks:
+  default:
+    name: arcobatroxnet
+    external: true

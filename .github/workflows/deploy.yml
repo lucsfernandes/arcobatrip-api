@@ -28,6 +28,15 @@ jobs:
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
 
+      - name: Copy docker-compose to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "/home/${{ secrets.VPS_USER }}/"
+
       - name: Deploy on VPS via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -35,27 +44,26 @@ jobs:
          username: ${{ secrets.VPS_USER }}
          key: ${{ secrets.VPS_KEY }}
          script: |
+           # Navegar para o diretório correto
+           cd /home/${{ secrets.VPS_USER }}/
+           
+           # Baixar imagem
            docker pull ${{ secrets.DOCKERHUB_USER }}/arcobatrip-api:latest
-           docker stop arcobatrip-api || true
-           docker rm arcobatrip-api || true
-           docker run -d --name arcobatrip-api \
-             -p 3000:3000 \
-             --network arcobatroxnet \
-             --restart unless-stopped \
-             -e PORT=3000 \
-             -e TYPEORM_HOST=${{ secrets.TYPEORM_HOST }} \
-             -e TYPEORM_PORT=${{ secrets.TYPEORM_PORT }} \
-             -e TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }} \
-             -e TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }} \
-             -e TYPEORM_DATABASE=${{ secrets.TYPEORM_DATABASE }} \
-             -e TYPEORM_SYNC=${{ secrets.TYPEORM_SYNC }} \
-             -l "traefik.enable=true" \
-             -l "traefik.http.routers.arcobatrip.rule=Host(\`arcobatrip.arcobatrox.com.br\`) && PathPrefix(\`/api\`)" \
-             -l "traefik.http.routers.arcobatrip.entrypoints=websecure" \
-             -l "traefik.http.routers.arcobatrip.service=arcobatrip-api" \
-             -l "traefik.http.routers.arcobatrip.tls.certresolver=letsencryptresolver" \
-             -l "traefik.http.services.arcobatrip.loadbalancer.passHostHeader=true" \
-             -l "traefik.http.services.arcobatrip.loadbalancer.server.port=3000" \
-             -l "traefik.http.middlewares.arcobatrip-strip-prefix.stripprefix.prefixes=/api" \
-             -l "traefik.http.routers.arcobatrip.middlewares=arcobatrip-strip-prefix" \
-             ${{ secrets.DOCKERHUB_USER }}/arcobatrip-api:latest
+           
+           # Parar e remover container existente
+           docker compose -f docker-compose.prod.yml down || true
+           
+           # Criar arquivo .env para docker-compose
+           cat > .env << EOF
+           NODE_ENV=production
+           PORT=3000
+           TYPEORM_HOST=${{ secrets.TYPEORM_HOST }}
+           TYPEORM_PORT=${{ secrets.TYPEORM_PORT }}
+           TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }}
+           TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }}
+           TYPEORM_DATABASE=${{ secrets.TYPEORM_DATABASE }}
+           TYPEORM_SYNC=${{ secrets.TYPEORM_SYNC }}
+           EOF
+           
+           # Subir o serviço
+           docker compose -f docker-compose.prod.yml up -d
