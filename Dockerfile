@@ -47,6 +47,7 @@ EXPOSE 3000
 
 # Definir variáveis de ambiente padrão
 ENV PORT=3000
+ENV NODE_ENV=production
 
 # Usar dumb-init para gerenciar processos
 ENTRYPOINT ["dumb-init", "--"]
