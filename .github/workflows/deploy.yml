@@ -40,5 +40,22 @@ jobs:
            docker rm arcobatrip-api || true
            docker run -d --name arcobatrip-api \
              -p 3000:3000 \
+             --network arcobatroxnet \
              --restart unless-stopped \
+             -e PORT=3000 \
+             -e TYPEORM_HOST=${{ secrets.TYPEORM_HOST }} \
+             -e TYPEORM_PORT=${{ secrets.TYPEORM_PORT }} \
+             -e TYPEORM_USERNAME=${{ secrets.TYPEORM_USERNAME }} \
+             -e TYPEORM_PASSWORD=${{ secrets.TYPEORM_PASSWORD }} \
+             -e TYPEORM_DATABASE=${{ secrets.TYPEORM_DATABASE }} \
+             -e TYPEORM_SYNC=${{ secrets.TYPEORM_SYNC }} \
+             -l traefik.enable=true \
+             -l traefik.http.routers.arcobatrip.rule=Host\(`arcobatrip.arcobatrox.com.br`\) && PathPrefix\(`/api`\) \
+             -l traefik.http.routers.arcobatrip.entrypoints=websecure \
+             -l traefik.http.routers.arcobatrip.service=arcobatrip-api \
+             -l traefik.http.routers.arcobatrip.tls.certresolver=letsencryptresolver \
+             -l traefik.http.services.arcobatrip.loadbalancer.passHostHeader=true \
+             -l traefik.http.services.arcobatrip.loadbalancer.server.port=3000 \
+             -l traefik.http.middlewares.arcobatrip-strip-prefix.stripprefix.prefixes=/api \
+             -l traefik.http.routers.arcobatrip.middlewares=arcobatrip-strip-prefix \
              ${{ secrets.DOCKERHUB_USER }}/arcobatrip-api:latest
