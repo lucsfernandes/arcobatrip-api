@@ -18,14 +18,18 @@
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
-    "src/**/*",
-    "tests/**/*"
+    "src/**/*"
   ],
   "exclude": [
+    "node_modules",
     "dist",
-    "./tests"
+    "test",
+    "tests",
+    "**/*.test.ts",
+    "**/*.spec.ts"
   ]
 }

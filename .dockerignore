@@ -55,6 +55,5 @@ docs
 .DS_Store
 Thumbs.db
 
-# Arquivos do TypeScript (apenas em desenvolvimento)
-tsconfig.json
+# Arquivos do TypeScript build cache
 *.tsbuildinfo
