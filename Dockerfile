@@ -39,6 +39,7 @@ RUN addgroup -g 1001 -S nodejs && \
 # Copiar arquivos compilados do estágio de build
 COPY --from=development --chown=arcobatrip:nodejs /app/dist ./dist
 COPY --from=development --chown=arcobatrip:nodejs /app/package*.json ./
+COPY --from=development --chown=arcobatrip:nodejs /app/.env.example ./
 
 # Mudar para usuário não-root
 USER arcobatrip
