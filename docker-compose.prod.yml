@@ -11,6 +11,7 @@ services:
       - TYPEORM_PASSWORD=${TYPEORM_PASSWORD}
       - TYPEORM_DATABASE=${TYPEORM_DATABASE}
       - TYPEORM_SYNC=${TYPEORM_SYNC}
+      - TYPEORM_SSLMODE=${TYPEORM_SSLMODE}
     ports:
       - "3000:3000"
     labels:

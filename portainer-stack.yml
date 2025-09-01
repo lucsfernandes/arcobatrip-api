@@ -1,7 +1,8 @@
+version: "3.7"
 services:
+  
   arcobatrip-api:
-    image: ${DOCKERHUB_USER}/arcobatrip-api:latest
-    container_name: arcobatrip-api
+    image: lucsfernandes/arcobatrip-api:latest
     restart: unless-stopped
     environment:
       - NODE_ENV=production
@@ -12,8 +13,21 @@ services:
       - TYPEORM_PASSWORD=${TYPEORM_PASSWORD}
       - TYPEORM_DATABASE=${TYPEORM_DATABASE}
       - TYPEORM_SYNC=${TYPEORM_SYNC}
+      - TYPEORM_SSLMODE=${TYPEORM_SSLMODE}
     ports:
       - "3000:3000"
+    
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1024M
+
     labels:
       - traefik.enable=true
       - traefik.http.routers.arcobatrip.rule=Host(`arcobatrip.arcobatrox.com.br`) && PathPrefix(`/api`)
@@ -23,8 +37,10 @@ services:
       - traefik.http.services.arcobatrip-api.loadbalancer.server.port=3000
       - traefik.http.middlewares.arcobatrip-strip-prefix.stripprefix.prefixes=/api
       - traefik.http.routers.arcobatrip.middlewares=arcobatrip-strip-prefix
+      
     networks:
       - arcobatroxnet
+      
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 30s
