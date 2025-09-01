@@ -25,6 +25,7 @@
 | `TYPEORM_PASSWORD` | `senha_super_segura` | Senha do banco |
 | `TYPEORM_DATABASE` | `arcobatrip` | Nome do banco |
 | `TYPEORM_SYNC` | `false` | Sincronização (sempre false) |
+| `TYPEORM_SSLMODE` | `require` | Modo SSL (require/prefer/disable) |
 
 ## 🔍 Como descobrir o PORTAINER_ENDPOINT_ID
 

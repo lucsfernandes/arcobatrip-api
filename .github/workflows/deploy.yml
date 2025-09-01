@@ -54,7 +54,8 @@ jobs:
             {"name":"TYPEORM_USERNAME","value":"${{ secrets.TYPEORM_USERNAME }}"},
             {"name":"TYPEORM_PASSWORD","value":"${{ secrets.TYPEORM_PASSWORD }}"},
             {"name":"TYPEORM_DATABASE","value":"${{ secrets.TYPEORM_DATABASE }}"},
-            {"name":"TYPEORM_SYNC","value":"${{ secrets.TYPEORM_SYNC }}"}
+            {"name":"TYPEORM_SYNC","value":"${{ secrets.TYPEORM_SYNC }}"},
+            {"name":"TYPEORM_SSLMODE","value":"${{ secrets.TYPEORM_SSLMODE }}"}
           ]'
           
           if [ "$STACK_ID" != "null" ] && [ -n "$STACK_ID" ]; then

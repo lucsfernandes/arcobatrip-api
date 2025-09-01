@@ -27,6 +27,7 @@ Adicione as seguintes variáveis na seção **Environment variables**:
 | `TYPEORM_PASSWORD` | `sua_senha_db` | Senha do banco |
 | `TYPEORM_DATABASE` | `arcobatrip` | Nome do banco |
 | `TYPEORM_SYNC` | `false` | Sincronização (sempre false em produção) |
+| `TYPEORM_SSLMODE` | `require` | Modo SSL (require/prefer/disable) |
 
 ### 5. **Deploy do Stack**
 - Clique em **Deploy the stack**
