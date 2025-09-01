@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1732847451999 implements MigrationInterface {
-    name = 'Migration1732847451999'
+export class Migration1756688988199 implements MigrationInterface {
+    name = 'Migration1756688988199'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "participants" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "deleted_at" TIMESTAMP, "name" character varying NOT NULL, "email" character varying NOT NULL, "is_confirmed" boolean NOT NULL DEFAULT false, "is_owner" boolean NOT NULL DEFAULT false, "trip_id" uuid NOT NULL, CONSTRAINT "PK_1cda06c31eec1c95b3365a0283f" PRIMARY KEY ("id"))`);
@@ -30,7 +30,7 @@ export class Migration1732847451999 implements MigrationInterface {
         await queryRunner.query(`CREATE INDEX "IDX_c9b5b525a96ddc2c5647d7f7fa" ON "users" ("created_at") `);
         await queryRunner.query(`CREATE INDEX "IDX_17d1817f241f10a3dbafb169fd" ON "users" ("phone_number") `);
         await queryRunner.query(`CREATE INDEX "IDX_97672ac88f789774dd47f7c8be" ON "users" ("email") `);
-        await queryRunner.query(`ALTER TABLE "participants" ADD CONSTRAINT "FK_0cc37ab5047fa5c352ce9e095a1" FOREIGN KEY ("trip_id") REFERENCES "trips"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "participants" ADD CONSTRAINT "FK_0cc37ab5047fa5c352ce9e095a1" FOREIGN KEY ("trip_id") REFERENCES "trips"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "activities" ADD CONSTRAINT "FK_e5cb406a82ada9e540a17d91055" FOREIGN KEY ("trip_id") REFERENCES "trips"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "links" ADD CONSTRAINT "FK_14d5cf00656d69c8ea7164b38a8" FOREIGN KEY ("trip_id") REFERENCES "trips"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
     }
