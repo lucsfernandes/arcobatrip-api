@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: arcobatrip-api
+  namespace: arcobatrip
+spec:
+  selector:
+    app: arcobatrip-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+    - protocol: TCP
+      port: 443
+      targetPort: 3000
+  type: ClusterIP
