@@ -8,6 +8,10 @@ app.use(express.json());
 
 app.use(cors());
 
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+
 app.use('/v1', v1Router);
 
 export default app;
