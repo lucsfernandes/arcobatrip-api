@@ -35,6 +35,7 @@ jobs:
         env:
           KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
         run: |
+          mkdir -p $HOME/.kube
           echo "$KUBECONFIG_DATA" | base64 --decode > $HOME/.kube/config
 
       - name: Criar/atualizar secret no cluster
