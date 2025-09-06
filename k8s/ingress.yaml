@@ -10,7 +10,7 @@ spec:
     - host: arcobatrip.arcobatrox.com.br
       http:
         paths:
-          - path: /api/(/|$)(.*)
+          - path: /api
             pathType: Prefix
             backend:
               service:
