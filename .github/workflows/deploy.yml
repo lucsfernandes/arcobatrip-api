@@ -31,6 +31,12 @@ jobs:
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
 
+      - name: Prepare kubeconfig
+        env:
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          echo "$KUBECONFIG_DATA" | base64 --decode > $HOME/.kube/config
+
       - name: Criar/atualizar secret no cluster
         env:
             DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -58,16 +64,10 @@ jobs:
             --from-literal=TYPEORM_SSLMODE="${TYPEORM_SSLMODE}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Prepare kubeconfig
-        env:
-          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
-        run: |
-          echo "$KUBECONFIG_DATA" | base64 --decode > $HOME/.kube/config
-
       - name: Replace image placeholder
         run: |
           IMAGE_NAME=${{ secrets.DOCKERHUB_USER }}/arcobatrip-api:${{ github.sha }}
-          sed -i "s|REPLACE_IMAGE|${IMAGE_NAME}|g" k8s/backend-deployment.yaml
+          sed -i "s|REPLACE_IMAGE|${IMAGE_NAME}|g" k8s/deployment.yaml
 
       - name: kubectl apply
         run: |
