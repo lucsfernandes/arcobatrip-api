@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: arcobatrip-config
+  namespace: arcobatrip
+data:
+  # Example config values. Override with a production ConfigMap or use envFrom
+  APP_NAME: "arcobatrip-api"
+  LOG_LEVEL: "info"
+  PORT: "3000"

@@ -20,6 +20,11 @@ dist/
 # Optional eslint cache
 .eslintcache
 
+# Optional cicd.yml file
+.github/workflows/cicd.yml
+
+# Ignore portainer-stack.yml
+portainer-stack.yml
 
 # dotenv environment variable files
 .env
