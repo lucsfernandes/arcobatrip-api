@@ -4,13 +4,15 @@ metadata:
   name: arcobatrip-api
   namespace: arcobatrip
 spec:
+  type: ClusterIP
   selector:
     app: arcobatrip-api
   ports:
     - protocol: TCP
       port: 80
       targetPort: 3000
+      name: http
     - protocol: TCP
       port: 443
       targetPort: 3000
-  type: ClusterIP
+      name: https

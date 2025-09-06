@@ -80,6 +80,7 @@ jobs:
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/hpa.yaml || true
+          kubectl apply -f k8s/ingress.yaml
 
       # - name: Deploy via Portainer API
       #   run: |
