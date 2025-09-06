@@ -5,6 +5,9 @@ metadata:
   namespace: arcobatrip
   annotations:
     kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   rules:
     - host: arcobatrip.arcobatrox.com.br
@@ -17,3 +20,7 @@ spec:
                 name: arcobatrip-api
                 port:
                   number: 80
+  tls:
+    - hosts:
+        - arcobatrip.arcobatrox.com.br
+      secretName: arcobatrip-tls
