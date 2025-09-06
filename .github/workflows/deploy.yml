@@ -38,6 +38,10 @@ jobs:
           mkdir -p $HOME/.kube
           echo "$KUBECONFIG_DATA" | base64 --decode > $HOME/.kube/config
 
+      - name: Criar namespace se não existir
+        run: |
+          kubectl get namespace arcobatrip || kubectl create namespace arcobatrip
+
       - name: Criar/atualizar secret no cluster
         env:
             DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -72,7 +76,6 @@ jobs:
 
       - name: kubectl apply
         run: |
-          kubectl apply -f k8s/namespace.yaml
           kubectl apply -f k8s/configmap.yaml
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
