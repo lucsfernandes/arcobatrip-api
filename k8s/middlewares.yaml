@@ -1,0 +1,20 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-to-https
+  namespace: arcobatrip
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-www
+  namespace: arcobatrip
+spec:
+  redirectRegex:
+    regex: ^https?://www\.(.*)
+    replacement: https://$1
+    permanent: true
