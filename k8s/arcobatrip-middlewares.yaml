@@ -1,0 +1,39 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: arcobatrip-redirect-to-https
+  namespace: arcobatrip
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: arcobatrip-redirect-www
+  namespace: arcobatrip
+spec:
+  redirectRegex:
+    regex: ^https?://www\.(.*)
+    replacement: https://${1}
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: arcobatrip-cors-headers
+  namespace: arcobatrip
+spec:
+  headers:
+    accessControlAllowMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+    accessControlAllowOriginList:
+      - "*"
+    accessControlAllowHeaders:
+      - "*"
+    accessControlMaxAge: 86400
