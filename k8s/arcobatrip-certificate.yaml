@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: arcobatrip-tls
+  namespace: arcobatrip
+spec:
+  secretName: arcobatrip-tls
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+  dnsNames:
+  - arcobatrip.arcobatrox.com.br
+  - www.arcobatrip.arcobatrox.com.br
