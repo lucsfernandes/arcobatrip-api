@@ -6,7 +6,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    traefik.ingress.kubernetes.io/router.middlewares: arcobatrip-redirect-www@kubernetescrd,arcobatrip-redirect-to-https@kubernetescrd,arcobatrip-cors-headers@kubernetescrd
+    traefik.ingress.kubernetes.io/router.middlewares: arcobatrip-redirect-www@kubernetescrd,arcobatrip-redirect-to-https@kubernetescrd
     traefik.ingress.kubernetes.io/router.tls: "true"
     cert-manager.io/cluster-issuer: letsencrypt
 spec:
