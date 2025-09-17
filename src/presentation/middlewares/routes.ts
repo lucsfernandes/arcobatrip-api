@@ -8,7 +8,7 @@ const v1RouterSwagger = {
 };
 
 v1Router.get("/health", (_req, res) => {
-  // console.info('Health check is OK!');
+  console.info('Health check is OK!');
   res.status(200).json({ status: "ok", uptime: process.uptime() });
 });
 
