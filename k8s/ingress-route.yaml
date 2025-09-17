@@ -1,0 +1,31 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: arcobatrip-api-ingress
+  namespace: arcobatrip
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+    - match: Host(`arcobatrip.arcobatrox.com.br`) && PathPrefix(`/api/v1`)
+      kind: Rule
+      services:
+        - name: arcobatrip-api
+          port: 80
+      # middlewares:
+      #   - name: arcobatrip-redirect-www
+      #     namespace: arcobatrip
+      #   - name: arcobatrip-redirect-to-https
+      #     namespace: arcobatrip
+    - match: Host(`www.arcobatrip.arcobatrox.com.br`) && PathPrefix(`/api/v1`)
+      kind: Rule
+      services:
+        - name: arcobatrip-api
+          port: 80
+      # middlewares:
+      #   - name: arcobatrip-redirect-to-https
+      #     namespace: arcobatrip
+  tls:
+    secretName: arcobatrip-tls
+    certResolver: le

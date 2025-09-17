@@ -82,3 +82,4 @@ jobs:
           kubectl apply -f k8s/hpa.yaml || true
           kubectl apply -f k8s/arcobatrip-middlewares.yaml
           kubectl apply -f k8s/ingress.yaml
+          kubectl apply -f k8s/ingress-route.yaml
