@@ -35,14 +35,17 @@ describe("RegisterUserUseCase", () => {
       expect(result.getValue().user).toBeDefined();
       expect(result.getValue().user.email).toBe(validRequest.email);
       expect(result.getValue().user.fullName).toBe(validRequest.fullName);
-      expect(result.getValue().token).toBeDefined();
+      expect(result.getValue().accessToken).toBeDefined();
+      expect(result.getValue().refreshToken).toBeDefined();
     });
 
-    it("deve gerar um token JWT válido", async () => {
+    it("deve gerar um par de tokens JWT válido", async () => {
       const result = await registerUserUseCase.execute(validRequest);
 
       expect(result.isSuccess).toBe(true);
-      expect(result.getValue().token).toContain("mock-token");
+      expect(result.getValue().accessToken).toContain("mock-token");
+      expect(result.getValue().refreshToken).toContain("mock-refresh-token");
+      expect(result.getValue().expiresIn).toBeDefined();
     });
 
     it("não deve retornar a senha do usuário na resposta", async () => {
