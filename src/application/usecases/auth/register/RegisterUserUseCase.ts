@@ -7,6 +7,7 @@ import { RegisterUserRequestDTO } from "./RegisterUserRequestDTO";
 import { RegisterUserResponseDTO } from "./RegisterUserResponseDTO";
 import { ITokenService } from "../ITokenService";
 import { dayjs } from "../../../../presentation/utils/dayjs";
+import { env } from "../../../../main/config/env";
 
 export class RegisterUserUseCase implements IUseCase<RegisterUserRequestDTO, RegisterUserResponseDTO> {
   constructor(
@@ -58,15 +59,17 @@ export class RegisterUserUseCase implements IUseCase<RegisterUserRequestDTO, Reg
         return Result.fail(new UseCaseError("Não foi possível criar o usuário", 500));
       }
 
-      // Gerar token JWT
-      const token = this.tokenService.generateToken({
+      // Gerar par de tokens JWT
+      const tokenPair = this.tokenService.generateTokenPair({
         userId: user.id,
         email: user.email
       });
 
       return Result.ok({
         user,
-        token
+        accessToken: tokenPair.accessToken,
+        refreshToken: tokenPair.refreshToken,
+        expiresIn: env.JWT_EXPIRES_IN
       });
     } catch (error: any) {
       return Result.fail(new UseCaseError(error.message || "Erro interno do servidor", 500));

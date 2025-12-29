@@ -6,6 +6,7 @@ import { IUserRepo } from "../IUserRepo";
 import { LoginUserRequestDTO } from "./LoginUserRequestDTO";
 import { LoginUserResponseDTO } from "./LoginUserResponseDTO";
 import { ITokenService } from "../ITokenService";
+import { env } from "../../../../main/config/env";
 
 export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUserResponseDTO> {
   constructor(
@@ -35,8 +36,8 @@ export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUser
         return Result.fail(new UseCaseError("Credenciais inválidas", 401));
       }
 
-      // Gerar token JWT
-      const token = this.tokenService.generateToken({
+      // Gerar par de tokens JWT
+      const tokenPair = this.tokenService.generateTokenPair({
         userId: user.id,
         email: user.email
       });
@@ -52,7 +53,9 @@ export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUser
           createdAt: user.createdAt,
           updatedAt: user.updatedAt
         },
-        token
+        accessToken: tokenPair.accessToken,
+        refreshToken: tokenPair.refreshToken,
+        expiresIn: env.JWT_EXPIRES_IN
       });
     } catch (error: any) {
       return Result.fail(new UseCaseError(error.message || "Erro interno do servidor", 500));
