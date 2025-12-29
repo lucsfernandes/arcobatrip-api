@@ -7,7 +7,11 @@
     "build": "tsc",
     "start": "node dist/main/server.js",
     "dev": "tsx --watch src/main/server.ts",
-    "test": "jest --runInBand --silent",
+    "test": "jest --runInBand",
+    "test:unit": "jest --runInBand tests/unit",
+    "test:integration": "jest --runInBand tests/integration",
+    "test:coverage": "jest --runInBand --coverage",
+    "test:watch": "jest --watch",
     "migration:create": "tsx ./node_modules/typeorm/cli.js migration:create ./src/infra/db/migrations/migration",
     "migration:generate": "tsx ./node_modules/typeorm/cli.js migration:generate --dataSource ./src/infra/db/ormconfig.ts src/infra/db/migrations/migration",
     "migration:run": "tsx ./node_modules/typeorm/cli.js migration:run --dataSource ./src/infra/db/ormconfig.ts"
@@ -29,10 +33,12 @@
   },
   "homepage": "https://github.com/lucsfernandes/arcobatrip-api#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
     "dotenv": "^17.2.1",
     "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.2",
     "swagger-jsdoc": "^6.2.8",
@@ -43,15 +49,21 @@
     "zod-to-json-schema": "^3.23.5"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/dotenv-safe": "^8.1.6",
     "@types/express": "^5.0.0",
     "@types/express-actuator": "^1.8.3",
     "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.9.1",
+    "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.7",
     "@types/yamljs": "^0.2.34",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.6",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }
