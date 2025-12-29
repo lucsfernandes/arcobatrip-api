@@ -4,25 +4,25 @@ import { Trip } from "../Trip/trip.entity";
 
 @Entity('users')
 export class User extends BaseEntity {
-  @Column({ name: 'username', type: 'varchar' })
-  public username!: string;
+  @Column({ name: 'full_name', type: 'varchar' })
+  public fullName!: string;
 
-  @Column({ name: 'first_name', type: 'varchar' })
-  public firstName!: string;
-
-  @Column({ name: 'last_name', type: 'varchar' })
-  public lastName!: string;
-
-  @Column({ name: 'phone_number', type: 'varchar' })
+  @Column({ name: 'phone', type: 'varchar' })
   @Index()
-  public phoneNumber!: string;
+  public phone!: string;
 
-  @Column({ name: 'email', type: 'varchar' })
+  @Column({ name: 'email', type: 'varchar', unique: true })
   @Index()
   public email!: string;
 
-  @Column({ name: 'password', type: 'varchar' })
+  @Column({ name: 'password', type: 'varchar', select: false })
   public password!: string;
+
+  @Column({ name: 'birth_date', type: 'date' })
+  public birthDate!: Date;
+
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  public isActive!: boolean;
 
   @ManyToMany(
     () => Trip,
