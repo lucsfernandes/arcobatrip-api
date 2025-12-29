@@ -34,7 +34,13 @@ const loginPayloadValidation = z.object({
     .min(1, "Senha é obrigatória")
 });
 
+const refreshTokenPayloadValidation = z.object({
+  refreshToken: z.string()
+    .min(1, "Token de atualização é obrigatório")
+});
+
 export {
   registerPayloadValidation,
-  loginPayloadValidation
+  loginPayloadValidation,
+  refreshTokenPayloadValidation
 };

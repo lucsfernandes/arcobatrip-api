@@ -2,5 +2,7 @@ import { IUserPublic } from "../../../../domain/entities/User/IUser";
 
 export interface RegisterUserResponseDTO {
   user: IUserPublic;
-  token: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: string;
 }
