@@ -1,4 +1,4 @@
-import { DecodedToken, ITokenService, TokenPair, TokenPayload } from "../../src/application/usecases/auth/ITokenService";
+import { DecodedToken, ITokenService, TokenPair, TokenPayload } from "../../application/usecases/auth/ITokenService";
 
 export class MockTokenService implements ITokenService {
   private blacklistedTokens: Set<string> = new Set();

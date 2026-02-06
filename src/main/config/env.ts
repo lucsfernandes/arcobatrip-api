@@ -13,9 +13,9 @@ const envSchema = z.object({
   TYPEORM_DATABASE: z.string().min(1, "TYPEORM_DATABASE é obrigatório"),
   TYPEORM_SYNC: z.coerce.boolean().default(false),
   TYPEORM_SSLMODE: z.string().optional().default("prefer"),
-  JWT_SECRET: z.string().min(32, "JWT_SECRET deve ter pelo menos 32 caracteres").default("arcobatrip-secret-key-change-in-production-2024"),
+  JWT_SECRET: z.string().min(26, "JWT_SECRET deve ter pelo menos 26 caracteres").default("arcobatrip-secret-key-change-in-production-2024"),
   JWT_EXPIRES_IN: z.string().default("15m"),
-  JWT_REFRESH_SECRET: z.string().min(32, "JWT_REFRESH_SECRET deve ter pelo menos 32 caracteres").default("arcobatrip-refresh-secret-key-change-in-production-2024"),
+  JWT_REFRESH_SECRET: z.string().min(26, "JWT_REFRESH_SECRET deve ter pelo menos 26 caracteres").default("arcobatrip-refresh-secret-key-change-in-production-2024"),
   JWT_REFRESH_EXPIRES_IN: z.string().default("7d")
 });
 

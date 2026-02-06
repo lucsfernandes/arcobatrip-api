@@ -16,7 +16,6 @@ import { UseCaseError } from "../../../errors/UseCaseError";
 export class CreateTripUseCase implements IUseCase<CreateTripRequestDTO, CreateTripResponseDTO> {
   constructor(
     private repo: ITripRepo,
-    private participantRepo: IParticipantRepo
     // private mailService: IMailService
   ) {}
 

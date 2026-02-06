@@ -1,6 +1,6 @@
-import { CreateUserPayload, IUserRepo, UpdateUserPayload } from "../../src/application/usecases/auth/IUserRepo";
-import { IUser, IUserPublic } from "../../src/domain/entities/User/IUser";
-import { User } from "../../src/domain/entities/User/user.entity";
+import { CreateUserPayload, IUserRepo, UpdateUserPayload } from "../../application/usecases/auth/IUserRepo";
+import { IUser, IUserPublic } from "../../domain/entities/User/IUser";
+import { User } from "../../domain/entities/User/user.entity";
 
 export class MockUserRepo implements IUserRepo {
   private users: User[] = [];

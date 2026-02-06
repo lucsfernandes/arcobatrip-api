@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/main/server.js",
-    "dev": "tsx --watch src/main/server.ts",
+    "dev": "tsx watch --clear-screen=true src/main/server.ts",
     "test": "jest --runInBand",
     "test:unit": "jest --runInBand tests/unit",
     "test:integration": "jest --runInBand tests/integration",

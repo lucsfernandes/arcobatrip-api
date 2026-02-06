@@ -1,4 +1,4 @@
-import { RegisterUserUseCase } from "../../../../src/application/usecases/auth/register/RegisterUserUseCase";
+import { RegisterUserUseCase } from "../../../../application/usecases/auth/register/RegisterUserUseCase";
 import { MockUserRepo } from "../../../mocks/mockUserRepo";
 import { MockTokenService } from "../../../mocks/mockTokenService";
 
