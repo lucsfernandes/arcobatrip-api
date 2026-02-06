@@ -1,4 +1,3 @@
-import { EntityManager } from "typeorm";
 import { ITrip } from "../../../domain/entities/Trip/ITrip";
 import { ITransactionRepo } from "../../../infra/repositories/ITransactionRepo";
 import { Trip } from "../../../domain/entities/Trip/trip.entity";
