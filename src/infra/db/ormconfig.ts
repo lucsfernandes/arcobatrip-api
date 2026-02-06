@@ -9,8 +9,8 @@ const AppDataSource = new DataSource({
   username: env.TYPEORM_USERNAME,
   password: env.TYPEORM_PASSWORD,
   database: env.TYPEORM_DATABASE,
-  entities: [path.join(__dirname, '../../domain/entities/**/*.entity{.ts,.js}')],
-  migrations: [path.join(__dirname, '/migrations/*{.ts,.js}')],
+  entities: [path.join(__dirname, '../../domain/entities/**/*.entity.{ts,js}')],
+  migrations: [path.join(__dirname, '/migrations/*.{ts,js}')],
   synchronize: env.TYPEORM_SYNC, // Evite true em produção
   migrationsRun: !env.TYPEORM_SYNC, // Executar migrations automaticamente quando sync está desabilitado
   logging: process.env.NODE_ENV !== 'production' ? ['query', 'error'] : ['error'],
