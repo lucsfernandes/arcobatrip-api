@@ -1,20 +1,20 @@
 import request from "supertest";
 import express, { Express } from "express";
-import { RegisterUserUseCase } from "../../../src/application/usecases/auth/register/RegisterUserUseCase";
-import { LoginUserUseCase } from "../../../src/application/usecases/auth/login/LoginUserUseCase";
-import { LogoutUserUseCase } from "../../../src/application/usecases/auth/logout/LogoutUserUseCase";
-import { RefreshTokenUseCase } from "../../../src/application/usecases/auth/refresh/RefreshTokenUseCase";
-import { RegisterUserController } from "../../../src/presentation/controllers/Auth/RegisterUserController";
-import { LoginUserController } from "../../../src/presentation/controllers/Auth/LoginUserController";
-import { LogoutUserController } from "../../../src/presentation/controllers/Auth/LogoutUserController";
-import { RefreshTokenController } from "../../../src/presentation/controllers/Auth/RefreshTokenController";
-import { GetMeController } from "../../../src/presentation/controllers/Auth/GetMeController";
+import { RegisterUserUseCase } from "../../../application/usecases/auth/register/RegisterUserUseCase";
+import { LoginUserUseCase } from "../../../application/usecases/auth/login/LoginUserUseCase";
+import { LogoutUserUseCase } from "../../../application/usecases/auth/logout/LogoutUserUseCase";
+import { RefreshTokenUseCase } from "../../../application/usecases/auth/refresh/RefreshTokenUseCase";
+import { RegisterUserController } from "../../../presentation/controllers/Auth/RegisterUserController";
+import { LoginUserController } from "../../../presentation/controllers/Auth/LoginUserController";
+import { LogoutUserController } from "../../../presentation/controllers/Auth/LogoutUserController";
+import { RefreshTokenController } from "../../../presentation/controllers/Auth/RefreshTokenController";
+import { GetMeController } from "../../../presentation/controllers/Auth/GetMeController";
 import { MockUserRepo } from "../../mocks/mockUserRepo";
 import { MockTokenService } from "../../mocks/mockTokenService";
-import { authMiddleware } from "../../../src/presentation/middlewares/authMiddleware";
+import { authMiddleware } from "../../../presentation/middlewares/authMiddleware";
 
 // Mock do tokenService global para o middleware
-jest.mock("../../../src/infra/services/TokenService", () => {
+jest.mock("../../../infra/services/TokenService", () => {
   const mockTokenService = new (require("../../mocks/mockTokenService").MockTokenService)();
   return {
     tokenService: mockTokenService,

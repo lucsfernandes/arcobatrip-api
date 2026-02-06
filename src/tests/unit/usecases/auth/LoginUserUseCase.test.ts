@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
-import { LoginUserUseCase } from "../../../../src/application/usecases/auth/login/LoginUserUseCase";
+import { LoginUserUseCase } from "../../../../application/usecases/auth/login/LoginUserUseCase";
 import { MockUserRepo } from "../../../mocks/mockUserRepo";
 import { MockTokenService } from "../../../mocks/mockTokenService";
-import { User } from "../../../../src/domain/entities/User/user.entity";
+import { User } from "../../../../domain/entities/User/user.entity";
 
 describe("LoginUserUseCase", () => {
   let loginUserUseCase: LoginUserUseCase;

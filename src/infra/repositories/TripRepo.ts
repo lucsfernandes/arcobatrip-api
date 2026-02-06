@@ -1,5 +1,5 @@
 import { DataSource, EntityManager, Repository } from "typeorm";
-import { CreateTripPayload, ITripRepo } from "../../application/usecases/trips/ITripRepo";
+import { ConfirmTripResult, CreateTripPayload, ITripRepo } from "../../application/usecases/trips/ITripRepo";
 import { ITrip } from "../../domain/entities/Trip/ITrip";
 import { Trip } from "../../domain/entities/Trip/trip.entity";
 import { Participant } from "../../domain/entities/Participant/participant.entity";
@@ -13,6 +13,10 @@ export class TripRepo implements ITripRepo {
     this.tripRepository = dataSource.getRepository(Trip);
     this.participantRepo = dataSource.getRepository(Participant);
   }
+  confirmTrip(tripId: string): Promise<ConfirmTripResult> {
+    throw new Error("Method not implemented.");
+  }
+
   async create(payload: CreateTripPayload): Promise<ITrip | null> {
     const { destination, startsAt, endsAt, participants } = payload;
     let savedTrip: ITrip | null = null;
@@ -51,6 +55,19 @@ export class TripRepo implements ITripRepo {
     return TripMap.toDomain(savedTrip);
   }
 
+  async getTripDetail(tripId: string): Promise<ITrip | null> {
+    const trip = await this.tripRepository.findOne({
+      where: { id: tripId },
+      relations: ["participants"]
+    });
+
+    if (!trip) {
+      return null;
+    }
+
+    return TripMap.toDomain(trip);
+  }
+
   // async createTripWithParticipants(
   //   tripData: Partial<Trip>,
   //   participantsData: Partial<Participant>[]
@@ -73,10 +90,7 @@ export class TripRepo implements ITripRepo {
   //   })
   // }
 
-  async executeTransaction<T>(
-    action: (manager: EntityManager) => Promise<T>
-  ): Promise<T> {
+  async executeTransaction<T>(action: (manager: EntityManager) => Promise<T>): Promise<T> {
     return await this.dataSource.transaction(action);
   }
-  
 }

@@ -1,4 +1,4 @@
-import { registerPayloadValidation, loginPayloadValidation } from "../../../src/presentation/validators/auth/authPayloadValidation";
+import { registerPayloadValidation, loginPayloadValidation } from "../../../presentation/validators/auth/authPayloadValidation";
 
 describe("authPayloadValidation", () => {
   describe("registerPayloadValidation", () => {

@@ -1,4 +1,4 @@
-import { RefreshTokenUseCase } from "../../../../src/application/usecases/auth/refresh/RefreshTokenUseCase";
+import { RefreshTokenUseCase } from "../../../../application/usecases/auth/refresh/RefreshTokenUseCase";
 import { MockTokenService } from "../../../mocks/mockTokenService";
 
 describe("RefreshTokenUseCase", () => {

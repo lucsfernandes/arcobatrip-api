@@ -1,4 +1,4 @@
-import { LogoutUserUseCase } from "../../../../src/application/usecases/auth/logout/LogoutUserUseCase";
+import { LogoutUserUseCase } from "../../../../application/usecases/auth/logout/LogoutUserUseCase";
 import { MockTokenService } from "../../../mocks/mockTokenService";
 
 describe("LogoutUserUseCase", () => {
