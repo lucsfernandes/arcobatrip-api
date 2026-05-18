@@ -3,6 +3,9 @@ kind: IngressRoute
 metadata:
   name: arcobatrip-api-ingress
   namespace: arcobatrip
+  labels:
+    app.kubernetes.io/name: arcobatrip-api
+    app.kubernetes.io/part-of: arcobatrox
 spec:
   entryPoints:
     - web
@@ -13,19 +16,24 @@ spec:
       services:
         - name: arcobatrip-api
           port: 80
-      # middlewares:
-      #   - name: arcobatrip-redirect-www
-      #     namespace: arcobatrip
-      #   - name: arcobatrip-redirect-to-https
-      #     namespace: arcobatrip
+      middlewares:
+        - name: security-headers
+          namespace: traefik
+        - name: compress
+          namespace: traefik
+        - name: rate-limit
+          namespace: traefik
     - match: Host(`www.arcobatrip.arcobatrox.com.br`) && PathPrefix(`/api/v1`)
       kind: Rule
       services:
         - name: arcobatrip-api
           port: 80
-      # middlewares:
-      #   - name: arcobatrip-redirect-to-https
-      #     namespace: arcobatrip
+      middlewares:
+        - name: security-headers
+          namespace: traefik
+        - name: compress
+          namespace: traefik
+        - name: rate-limit
+          namespace: traefik
   tls:
     secretName: arcobatrip-tls
-    certResolver: le
