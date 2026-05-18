@@ -17,7 +17,7 @@ spec:
     name: letsencrypt-prod
     kind: ClusterIssuer
     group: cert-manager.io
-  commonName: arcobatrip.arcobatrox.com
+  commonName: arcobatrip.arcobatrox.com.br
   dnsNames:
   - arcobatrip.arcobatrox.com.br
   - www.arcobatrip.arcobatrox.com.br
