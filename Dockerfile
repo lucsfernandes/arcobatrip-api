@@ -1,5 +1,5 @@
-# Usar imagem oficial do Node.js LTS Alpine para menor tamanho
-FROM node:21-alpine AS base
+# Usar imagem oficial do Node.js 22 LTS Alpine para menor tamanho
+FROM node:22-alpine AS base
 
 # Instalar dumb-init para gerenciamento de processos
 RUN apk add --no-cache dumb-init
