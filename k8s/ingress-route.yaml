@@ -16,24 +16,10 @@ spec:
       services:
         - name: arcobatrip-api
           port: 80
-      middlewares:
-        - name: security-headers
-          namespace: traefik
-        - name: compress
-          namespace: traefik
-        - name: rate-limit
-          namespace: traefik
     - match: Host(`www.arcobatrip.arcobatrox.com.br`) && PathPrefix(`/api/v1`)
       kind: Rule
       services:
         - name: arcobatrip-api
           port: 80
-      middlewares:
-        - name: security-headers
-          namespace: traefik
-        - name: compress
-          namespace: traefik
-        - name: rate-limit
-          namespace: traefik
   tls:
     secretName: arcobatrip-tls
