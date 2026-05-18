@@ -3,8 +3,12 @@ kind: ConfigMap
 metadata:
   name: arcobatrip-config
   namespace: arcobatrip
+  labels:
+    app.kubernetes.io/name: arcobatrip-api
+    app.kubernetes.io/part-of: arcobatrox
 data:
-  # Example config values. Override with a production ConfigMap or use envFrom
-  APP_NAME: "arcobatrip-api"
-  LOG_LEVEL: "info"
+  NODE_ENV: "production"
   PORT: "3000"
+  TZ: "America/Sao_Paulo"
+  LOG_LEVEL: "info"
+  APP_NAME: "arcobatrip-api"

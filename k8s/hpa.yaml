@@ -3,17 +3,31 @@ kind: HorizontalPodAutoscaler
 metadata:
   name: arcobatrip-api-hpa
   namespace: arcobatrip
+  labels:
+    app.kubernetes.io/name: arcobatrip-api
+    app.kubernetes.io/part-of: arcobatrox
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
     name: arcobatrip-api
   minReplicas: 1
-  maxReplicas: 1
+  maxReplicas: 2
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+    scaleUp:
+      stabilizationWindowSeconds: 60
   metrics:
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 60
+          averageUtilization: 75
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
