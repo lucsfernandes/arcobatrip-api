@@ -1,13 +1,23 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: arcobatrip-tls
+  name: arcobatrip-api
   namespace: arcobatrip
+  labels:
+    app.kubernetes.io/part-of: arcobatrox
 spec:
   secretName: arcobatrip-tls
+  duration: 2160h
+  renewBefore: 360h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
   issuerRef:
-    name: letsencrypt
+    name: letsencrypt-prod
     kind: ClusterIssuer
+    group: cert-manager.io
+  commonName: arcobatrip.arcobatrox.com
   dnsNames:
   - arcobatrip.arcobatrox.com.br
   - www.arcobatrip.arcobatrox.com.br
