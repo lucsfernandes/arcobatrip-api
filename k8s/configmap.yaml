@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: arcobatrip-config
-  namespace: arcobatrip
+  name: zarpa-config
+  namespace: zarpa
   labels:
-    app.kubernetes.io/name: arcobatrip-api
+    app.kubernetes.io/name: zarpa-api
     app.kubernetes.io/part-of: arcobatrox
 data:
   NODE_ENV: "production"
   PORT: "3000"
   TZ: "America/Sao_Paulo"
   LOG_LEVEL: "info"
-  APP_NAME: "arcobatrip-api"
+  APP_NAME: "zarpa-api"

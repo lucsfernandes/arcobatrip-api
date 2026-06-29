@@ -1,14 +1,14 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: arcobatrip-api
-  namespace: arcobatrip
+  name: zarpa-api
+  namespace: zarpa
   labels:
     app.kubernetes.io/part-of: arcobatrox
 spec:
   podSelector:
     matchLabels:
-      app.kubernetes.io/name: arcobatrip-api
+      app.kubernetes.io/name: zarpa-api
   policyTypes:
     - Ingress
     - Egress

@@ -33,10 +33,7 @@ spec:
       - DELETE
       - OPTIONS
     accessControlAllowOriginList:
-      - "https://zarpa.arcobatrox.com.br"
-      - "https://www.zarpa.arcobatrox.com.br"
+      - "*"
     accessControlAllowHeaders:
-      - Content-Type
-      - Authorization
-      - X-Requested-With
-    accessControlAllowCredentials: true
+      - "*"
+    accessControlMaxAge: 86400
