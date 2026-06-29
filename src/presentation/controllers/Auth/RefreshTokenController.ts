@@ -18,6 +18,6 @@ export class RefreshTokenController extends BaseController {
       return this.fail(res, result.errorValue());
     }
 
-    return this.ok(res, { data: result.getValue() });
+    return this.ok(res, result.getValue());
   }
 }

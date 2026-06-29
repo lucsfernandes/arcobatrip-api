@@ -7,9 +7,9 @@ export class User extends BaseEntity {
   @Column({ name: 'full_name', type: 'varchar' })
   public fullName!: string;
 
-  @Column({ name: 'phone', type: 'varchar' })
+  @Column({ name: 'phone', type: 'varchar', nullable: true })
   @Index()
-  public phone!: string;
+  public phone?: string | null;
 
   @Column({ name: 'email', type: 'varchar', unique: true })
   @Index()
@@ -18,8 +18,14 @@ export class User extends BaseEntity {
   @Column({ name: 'password', type: 'varchar', select: false })
   public password!: string;
 
-  @Column({ name: 'birth_date', type: 'date' })
-  public birthDate!: Date;
+  @Column({ name: 'birth_date', type: 'date', nullable: true })
+  public birthDate?: Date | null;
+
+  @Column({ name: 'avatar_url', type: 'varchar', nullable: true })
+  public avatarUrl?: string | null;
+
+  @Column({ name: 'accent', type: 'varchar', nullable: true })
+  public accent?: string | null;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })
   public isActive!: boolean;

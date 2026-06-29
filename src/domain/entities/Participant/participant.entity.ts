@@ -25,6 +25,12 @@ export class Participant extends BaseEntity {
   })
   public isOwner!: boolean
 
+  @Column({ name: 'avatar_url', type: 'varchar', nullable: true })
+  public avatarUrl?: string | null
+
+  @Column({ name: 'accent', type: 'varchar', nullable: true })
+  public accent?: string | null
+
   @Column({ name: 'trip_id', type: 'varchar' })
   @Index()
   public tripId!: string
