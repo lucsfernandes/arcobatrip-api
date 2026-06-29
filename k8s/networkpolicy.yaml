@@ -20,6 +20,17 @@ spec:
       ports:
         - port: 3000
           protocol: TCP
+    # Chamadas internas (SSR / route handlers) do pod do frontend, no mesmo
+    # namespace `zarpa`. A porta é a do container da API (3000), pois a
+    # NetworkPolicy é avaliada na porta do pod de destino mesmo passando pelo
+    # Service (kube-proxy faz DNAT 80 -> 3000 antes de chegar ao pod).
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: zarpa-frontend
+      ports:
+        - port: 3000
+          protocol: TCP
   egress:
     - to:
         - namespaceSelector: {}
