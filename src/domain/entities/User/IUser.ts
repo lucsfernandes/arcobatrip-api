@@ -3,10 +3,12 @@ import { ITrip } from "../Trip/ITrip";
 export interface IUser {
   id: string;
   fullName: string;
-  phone: string;
+  phone?: string | null;
   email: string;
   password?: string;
-  birthDate: Date;
+  birthDate?: Date | null;
+  avatarUrl?: string | null;
+  accent?: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -16,9 +18,11 @@ export interface IUser {
 export interface IUserPublic {
   id: string;
   fullName: string;
-  phone: string;
+  phone?: string | null;
   email: string;
-  birthDate: Date;
+  birthDate?: Date | null;
+  avatarUrl?: string | null;
+  accent?: string | null;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
