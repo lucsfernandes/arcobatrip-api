@@ -27,7 +27,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USER }}/arcobatrip-api:${{ github.sha }}
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USER }}/zarpa-api:${{ github.sha }}
           docker build -t $IMAGE_NAME .
           docker push $IMAGE_NAME
 
@@ -40,7 +40,7 @@ jobs:
 
       - name: Criar namespace se não existir
         run: |
-          kubectl get namespace arcobatrip || kubectl create namespace arcobatrip
+          kubectl get namespace zarpa || kubectl create namespace zarpa
 
       - name: Criar/atualizar secret no cluster
         env:
@@ -56,7 +56,7 @@ jobs:
             TYPEORM_SSLMODE: 'require'
 
         run: |
-          kubectl create secret generic arcobatrip-secret -n arcobatrip \
+          kubectl create secret generic zarpa-secret -n zarpa \
             --from-literal=DATABASE_URL="${DATABASE_URL}" \
             --from-literal=JWT_SECRET="${JWT_SECRET}" \
             --from-literal=TYPEORM_HOST="${TYPEORM_HOST}" \
@@ -71,7 +71,7 @@ jobs:
 
       - name: Replace image placeholder
         run: |
-          IMAGE_NAME=${{ secrets.DOCKERHUB_USER }}/arcobatrip-api:${{ github.sha }}
+          IMAGE_NAME=${{ secrets.DOCKERHUB_USER }}/zarpa-api:${{ github.sha }}
           sed -i "s|REPLACE_IMAGE|${IMAGE_NAME}|g" k8s/deployment.yaml
 
       - name: kubectl apply
