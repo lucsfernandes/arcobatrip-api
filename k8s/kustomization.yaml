@@ -15,7 +15,9 @@ resources:
   # - secret.yaml
   - deployment.yaml
   - service.yaml
-  - zarpa-certificate.yaml
+  # zarpa-certificate.yaml removido: o cert do host zarpa.arcobatrox.com.br é
+  # emitido uma única vez pelo Certificate `zarpa-frontend` (repo do frontend).
+  # O ingress-route.yaml referencia o secret `zarpa-frontend-tls`.
   - ingress-route.yaml
   - hpa.yaml
   - networkpolicy.yaml

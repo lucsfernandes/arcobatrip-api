@@ -11,15 +11,25 @@ spec:
     - web
     - websecure
   routes:
+    # priority explícita: o IngressRoute do frontend (zarpa-frontend) casa o mesmo
+    # Host SEM PathPrefix e, por ter regra mais longa, ganharia a prioridade
+    # padrão (= comprimento da regra) do Traefik, capturando /api/v1/* e devolvendo
+    # 404 do Next.js. Fixar priority alta garante que a rota da API seja avaliada
+    # primeiro para /api/v1.
     - match: Host(`zarpa.arcobatrox.com.br`) && PathPrefix(`/api/v1`)
       kind: Rule
+      priority: 100
       services:
         - name: zarpa-api
           port: 80
     - match: Host(`www.zarpa.arcobatrox.com.br`) && PathPrefix(`/api/v1`)
       kind: Rule
+      priority: 100
       services:
         - name: zarpa-api
           port: 80
   tls:
-    secretName: zarpa-tls
+    # Cert único do host é emitido pelo Certificate `zarpa-frontend` (repo do
+    # frontend). Esta rota apenas referencia o mesmo secret para evitar duas
+    # emissões ACME para o mesmo domínio (risco de rate-limit / cert ambíguo).
+    secretName: zarpa-frontend-tls
