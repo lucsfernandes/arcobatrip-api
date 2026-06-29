@@ -10,6 +10,9 @@ export class Activity extends BaseEntity {
   @Column({ name: 'occurs_at', type: 'timestamp', precision: 6 })
   public occursAt!: Date;
 
+  @Column({ name: 'status', type: 'varchar', default: 'pending' })
+  public status!: string;
+
   @Column({ name: 'trip_id', type: 'varchar' })
   @Index()
   public tripId!: string;
