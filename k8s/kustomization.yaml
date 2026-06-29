@@ -15,7 +15,7 @@ resources:
   # - secret.yaml
   - deployment.yaml
   - service.yaml
-  - arcobatrip-certificate.yaml
+  - zarpa-certificate.yaml
   - ingress-route.yaml
   - hpa.yaml
   - networkpolicy.yaml

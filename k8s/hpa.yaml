@@ -1,16 +1,16 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: arcobatrip-api-hpa
-  namespace: arcobatrip
+  name: zarpa-api-hpa
+  namespace: zarpa
   labels:
-    app.kubernetes.io/name: arcobatrip-api
+    app.kubernetes.io/name: zarpa-api
     app.kubernetes.io/part-of: arcobatrox
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: arcobatrip-api
+    name: zarpa-api
   minReplicas: 1
   maxReplicas: 2
   behavior:
