@@ -23,13 +23,16 @@ export class Trip extends BaseEntity {
   })
   public isConfirmed!: boolean;
 
+  @Column({ name: "cover_url", type: "varchar", nullable: true })
+  public coverUrl?: string | null;
+
   @OneToMany(() => Participant, (participant) => participant.trip, { cascade: ["insert"] })
   participants!: Participant[];
 
-  @OneToMany(() => Activity, (activity) => activity.id, { cascade: true })
+  @OneToMany(() => Activity, (activity) => activity.trip, { cascade: true })
   activities!: Activity[];
 
-  @OneToMany(() => Link, (link) => link.id, { cascade: true })
+  @OneToMany(() => Link, (link) => link.trip, { cascade: true })
   links!: Link[];
 
   @ManyToMany(() => User, (user) => user.trips)

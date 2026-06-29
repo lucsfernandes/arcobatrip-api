@@ -6,6 +6,11 @@ export interface AuthenticatedRequest extends Request {
   userEmail?: string;
 }
 
+/** Emit the contract error envelope for a 401. */
+function unauthorized(res: Response, message: string): void {
+  res.status(401).json({ error: { code: "unauthorized", message } });
+}
+
 export const authMiddleware = async (
   req: AuthenticatedRequest,
   res: Response,
@@ -15,53 +20,35 @@ export const authMiddleware = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-      res.status(401).json({
-        success: false,
-        message: "Token de autenticação não fornecido"
-      });
+      unauthorized(res, "Token de autenticação não fornecido");
       return;
     }
 
     const [bearer, token] = authHeader.split(" ");
 
     if (bearer !== "Bearer" || !token) {
-      res.status(401).json({
-        success: false,
-        message: "Formato de token inválido."
-      });
+      unauthorized(res, "Formato de token inválido");
       return;
     }
 
-    // Verificar se o token está na blacklist
     const isBlacklisted = await tokenService.isTokenBlacklisted(token);
     if (isBlacklisted) {
-      res.status(401).json({
-        success: false,
-        message: "Token inválido ou expirado"
-      });
+      unauthorized(res, "Token inválido ou expirado");
       return;
     }
 
-    // Verificar e decodificar o token
     const decoded = tokenService.verifyToken(token);
 
     if (!decoded) {
-      res.status(401).json({
-        success: false,
-        message: "Token inválido ou expirado"
-      });
+      unauthorized(res, "Token inválido ou expirado");
       return;
     }
 
-    // Adicionar informações do usuário à requisição
     req.userId = decoded.userId;
     req.userEmail = decoded.email;
 
     next();
-  } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: "Erro ao verificar token de autenticação"
-    });
+  } catch {
+    unauthorized(res, "Erro ao verificar token de autenticação");
   }
 };

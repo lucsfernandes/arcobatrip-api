@@ -1,38 +1,38 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: arcobatrip-api-ingress
-  namespace: arcobatrip
+  name: zarpa-api-ingress
+  namespace: zarpa
   annotations:
     kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
-    # traefik.ingress.kubernetes.io/router.middlewares: arcobatrip-redirect-www@kubernetescrd,arcobatrip-redirect-to-https@kubernetescrd
+    # traefik.ingress.kubernetes.io/router.middlewares: zarpa-redirect-www@kubernetescrd,zarpa-redirect-to-https@kubernetescrd
     traefik.ingress.kubernetes.io/router.tls: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls:
     - hosts:
-        - arcobatrip.arcobatrox.com.br
-        - www.arcobatrip.arcobatrox.com.br
-      secretName: arcobatrip-tls
+        - zarpa.arcobatrox.com.br
+        - www.zarpa.arcobatrox.com.br
+      secretName: zarpa-tls
   rules:
-    - host: arcobatrip.arcobatrox.com.br
+    - host: zarpa.arcobatrox.com.br
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: arcobatrip-api
+                name: zarpa-api
                 port:
                   number: 80
-    - host: www.arcobatrip.arcobatrox.com.br
+    - host: www.zarpa.arcobatrox.com.br
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: arcobatrip-api
+                name: zarpa-api
                 port:
                   number: 80
