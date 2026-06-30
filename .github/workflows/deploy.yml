@@ -54,6 +54,7 @@ jobs:
             TYPEORM_SYNC: ${{ secrets.TYPEORM_SYNC }}
             TYPEORM_LOGGING: ${{ secrets.TYPEORM_LOGGING }}
             TYPEORM_SSLMODE: 'require'
+            RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
         run: |
           kubectl create secret generic zarpa-secret -n zarpa \
@@ -67,6 +68,7 @@ jobs:
             --from-literal=TYPEORM_SYNC="${TYPEORM_SYNC}" \
             --from-literal=TYPEORM_LOGGING="${TYPEORM_LOGGING}" \
             --from-literal=TYPEORM_SSLMODE="${TYPEORM_SSLMODE}" \
+            --from-literal=RESEND_API_KEY="${RESEND_API_KEY}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Replace image placeholder

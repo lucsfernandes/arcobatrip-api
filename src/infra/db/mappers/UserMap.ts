@@ -12,6 +12,7 @@ const toDomain = (model: User): IUser => ({
   avatarUrl: model.avatarUrl,
   accent: model.accent,
   isActive: model.isActive,
+  emailVerifiedAt: model.emailVerifiedAt,
   createdAt: model.createdAt,
   updatedAt: model.updatedAt,
 });
@@ -25,6 +26,7 @@ const toPublic = (model: User): IUserPublic => ({
   avatarUrl: model.avatarUrl,
   accent: model.accent,
   isActive: model.isActive,
+  emailVerifiedAt: model.emailVerifiedAt,
   createdAt: model.createdAt,
   updatedAt: model.updatedAt,
 });

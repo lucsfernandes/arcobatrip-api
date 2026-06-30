@@ -57,6 +57,7 @@ yarn start
 - ✅ Cadastro de usuário para o planejamento de viagens
 - ✅ Cadastro de planejamento de viagens
 - ✅ Vincular pessoas para contribuir no planejamento de viagem 
+- ✅ Fluxos de autenticação por email com confirmação, reenvio e recuperação de senha
 
 ## 📄 Licença
 

@@ -30,6 +30,9 @@ export class User extends BaseEntity {
   @Column({ name: 'is_active', type: 'boolean', default: true })
   public isActive!: boolean;
 
+  @Column({ name: 'email_verified_at', type: 'timestamp', nullable: true })
+  public emailVerifiedAt?: Date | null;
+
   @ManyToMany(
     () => Trip,
     trip => trip.users,
