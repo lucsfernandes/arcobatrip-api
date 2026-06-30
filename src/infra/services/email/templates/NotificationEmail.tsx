@@ -66,10 +66,10 @@ const container: React.CSSProperties = {
 };
 
 const brand: React.CSSProperties = {
-  color: "#7c3aed",
+  color: "#12fda4",
   fontSize: "20px",
   fontWeight: 700,
-  margin: "0 0 24px",
+  margin: "0 0 24px"
 };
 
 const heading: React.CSSProperties = {
@@ -87,7 +87,7 @@ const paragraph: React.CSSProperties = {
 };
 
 const button: React.CSSProperties = {
-  backgroundColor: "#7c3aed",
+  backgroundColor: "#12fda4",
   borderRadius: "8px",
   color: "#ffffff",
   fontSize: "16px",
