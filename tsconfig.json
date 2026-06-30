@@ -7,6 +7,7 @@
       "es2022"
     ],
     "module": "commonjs",
+    "jsx": "react-jsx",
     "rootDir": "src",
     "resolveJsonModule": true,
     "allowJs": true,
@@ -24,7 +25,9 @@
       "node",
       "express",
       "cors",
-      "jest"
+      "jest",
+      "react",
+      "react-dom"
     ],
     "typeRoots": [
       "./node_modules/@types"

@@ -1,5 +1,6 @@
 import { IUserRepo } from "../usecases/auth/IUserRepo";
 import { INotificationRepo } from "../usecases/notifications/INotificationRepo";
+import { emailService } from "../../infra/services/email/ResendEmailService";
 import logger from "../../main/logger";
 
 /**
@@ -25,6 +26,11 @@ export class NotificationEmitter {
         body: `Você foi convidado para a viagem para ${destination}.`,
         tripId,
       });
+      await emailService.sendNotification(user.email, {
+        name: user.fullName,
+        title: "Novo convite de viagem",
+        body: `Você foi convidado para a viagem para ${destination}.`,
+      });
     } catch (error) {
       logger.error("[NotificationEmitter.invite]", error);
     }
@@ -46,6 +52,11 @@ export class NotificationEmitter {
         title: "Convidado confirmado",
         body: `${guestName} confirmou presença na viagem para ${destination}.`,
         tripId,
+      });
+      await emailService.sendNotification(host.email, {
+        name: host.fullName,
+        title: "Convidado confirmado",
+        body: `${guestName} confirmou presença na viagem para ${destination}.`,
       });
     } catch (error) {
       logger.error("[NotificationEmitter.confirmation]", error);
@@ -96,6 +107,11 @@ export class NotificationEmitter {
           title: payload.title,
           body: payload.body,
           tripId,
+        });
+        await emailService.sendNotification(user.email, {
+          name: user.fullName,
+          title: payload.title,
+          body: payload.body,
         });
       } catch (error) {
         logger.error("[NotificationEmitter.fanOut]", error);

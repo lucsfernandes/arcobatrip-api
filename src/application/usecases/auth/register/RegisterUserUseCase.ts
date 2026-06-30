@@ -8,11 +8,13 @@ import { RegisterUserResponseDTO } from "./RegisterUserResponseDTO";
 import { ITokenService } from "../ITokenService";
 import { dayjs } from "../../../../presentation/utils/dayjs";
 import { env } from "../../../../main/config/env";
+import { AccountEmailEmitter } from "../../../services/AccountEmailEmitter";
 
 export class RegisterUserUseCase implements IUseCase<RegisterUserRequestDTO, RegisterUserResponseDTO> {
   constructor(
     private userRepo: IUserRepo,
-    private tokenService: ITokenService
+    private tokenService: ITokenService,
+    private readonly accountEmailEmitter?: AccountEmailEmitter
   ) {}
 
   async execute(request: RegisterUserRequestDTO): Promise<Result<RegisterUserResponseDTO>> {
@@ -63,6 +65,12 @@ export class RegisterUserUseCase implements IUseCase<RegisterUserRequestDTO, Reg
       const tokenPair = this.tokenService.generateTokenPair({
         userId: user.id,
         email: user.email
+      });
+
+      await this.accountEmailEmitter?.onSignup({
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
       });
 
       return Result.ok({

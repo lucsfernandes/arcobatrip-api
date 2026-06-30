@@ -10,6 +10,7 @@ export interface IUser {
   avatarUrl?: string | null;
   accent?: string | null;
   isActive: boolean;
+  emailVerifiedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
   trips?: ITrip[];
@@ -24,6 +25,7 @@ export interface IUserPublic {
   avatarUrl?: string | null;
   accent?: string | null;
   isActive: boolean;
+  emailVerifiedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

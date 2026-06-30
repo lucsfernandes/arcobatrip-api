@@ -7,16 +7,20 @@ import { ITokenService } from "../ITokenService";
 import { SignupRequestDTO } from "./SignupRequestDTO";
 import { SignupResponseDTO } from "./SignupResponseDTO";
 import { UserMap } from "../../../../infra/db/mappers/UserMap";
+import { AccountEmailEmitter } from "../../../services/AccountEmailEmitter";
 
 /**
  * Register a new account and start a session. Contract: `POST /auth/signup`.
  * Validates the password length, rejects duplicate emails with `email_conflict`,
  * hashes the password (bcryptjs), persists the user and issues a bearer token.
+ * After the user is created, fires the welcome + verification emails
+ * (best-effort — failures never break signup).
  */
 export class SignupUseCase implements IUseCase<SignupRequestDTO, SignupResponseDTO> {
   constructor(
     private readonly userRepo: IUserRepo,
-    private readonly tokenService: ITokenService
+    private readonly tokenService: ITokenService,
+    private readonly accountEmailEmitter?: AccountEmailEmitter
   ) {}
 
   async execute(request: SignupRequestDTO): Promise<Result<SignupResponseDTO>> {
@@ -50,6 +54,13 @@ export class SignupUseCase implements IUseCase<SignupRequestDTO, SignupResponseD
       const token = this.tokenService.generateToken({
         userId: user.id,
         email: user.email,
+      });
+
+      // Best-effort welcome + verification emails — must not fail the signup.
+      await this.accountEmailEmitter?.onSignup({
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
       });
 
       return Result.ok({
