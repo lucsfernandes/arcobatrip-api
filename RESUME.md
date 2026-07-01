@@ -1,4 +1,4 @@
-Pronto — parei por aqui. Todos os processos encerrados, portas 3000/3001 livres. Nada foi commitado (as mudanças estão no working tree dos repositórios).
+# Pronto — parei por aqui. Todos os processos encerrados, portas 3000/3001 livres. Nada foi commitado (as mudanças estão no working tree dos repositórios)
 
 Resumo do processo
 
@@ -9,12 +9,12 @@ Resumo do processo
 - Migration reconciliada: removi as 2 migrations inconsistentes (backup no scratchpad) e gerei 1 migration limpa a partir das entidades.
 - Criei um banco zarpa isolado no seu Postgres do WSL (porta 5433), rodei a migration, subi a API e fiz smoke test HTTP real: 28/28 + 71/71 testes unitários + tsc limpo.
 
-2. Frontend web (Next.js) — ✅ conectado e validado no navegador
+1. Frontend web (Next.js) — ✅ conectado e validado no navegador
 
 - Liguei as telas ao seam de dados (apiClient/queries/mutations): auth real com token JWT, leituras via useQuery e escritas via mutation hooks — preservando o modo mock e os testes.
 - Validei no navegador contra a API real: signup → POST /auth/signup 201 (JWT real gravado), criar viagem → POST /trips 201, e a viagem apareceu no dashboard (GET /trips) com status derivado. tsc limpo, vitest 89/89, 0 erros de lint, 0 erros no console.
 
-3. Frontend mobile (Expo) — ✅ validado ao vivo via Expo web (react-native-web) + Playwright
+1. Frontend mobile (Expo) — ✅ validado ao vivo via Expo web (react-native-web) + Playwright
 
 - Apliquei o mesmo padrão (token via useAuthStore.getState().token, leituras/escritas pelo seam, guest-id tratado). tsc limpo, jest 127/127, 0 erros de lint.
 - Validação ao vivo (29/06/2026) contra a API real, dirigindo o app no navegador:
@@ -39,7 +39,7 @@ Bug de fuso horário — CORRIGIDO com date-fns (mobile)
 
 Configuração de ambiente (estado atual — tudo NO AR)
 
-- .env.local (gitignored) em web e mobile apontando para http://localhost:3000/api/v1.
+- .env.local (gitignored) em web e mobile apontando para <http://localhost:3000/api/v1>.
 - Banco recriado do zero: container Docker `zarpa-db` (postgres:17.1-alpine) no WSL, porta 5433, db `zarpa`. O volume tinha schema antigo (migration deletada 1756688988199) → dropei/recriei o database e a API aplicou a migration limpa 1782669726595 no boot.
 - API rodando no host (tsx) na porta 3000, apontada ao banco local via env inline (TYPEORM_HOST=localhost PORT=5433 DB=zarpa SSLMODE=prefer) — o `.env` em disco continua apontando para produção (Neon), intocado.
 - Bundler Expo web no ar na porta 8081 (`npx expo start --web`).
