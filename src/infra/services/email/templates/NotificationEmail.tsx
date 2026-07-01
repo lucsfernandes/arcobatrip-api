@@ -32,7 +32,7 @@ export default function NotificationEmail({
       <Body style={main}>
         <Container style={container}>
           <Section>
-            <Heading style={brand}>Arcobatrip</Heading>
+            <Heading style={brand}>Zarpa</Heading>
             <Heading style={heading}>{title}</Heading>
             <Text style={paragraph}>Olá, {name}!</Text>
             <Text style={paragraph}>{body}</Text>
@@ -42,7 +42,7 @@ export default function NotificationEmail({
               </Button>
             ) : null}
             <Text style={footer}>
-              Você está recebendo este email porque tem uma conta no Arcobatrip.
+              Você está recebendo este email porque tem uma conta no Zarpa.
             </Text>
           </Section>
         </Container>

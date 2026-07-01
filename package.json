@@ -1,7 +1,7 @@
 {
-  "name": "arcobatrip",
+  "name": "zarpa",
   "version": "1.0.0",
-  "description": "This is Arcobatrip API",
+  "description": "This is Zarpa API",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
@@ -18,20 +18,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lucsfernandes/arcobatrip-api.git"
+    "url": "git+https://github.com/lucsfernandes/zarpa-api.git"
   },
   "keywords": [
     "arcobatrox;",
-    "arcobatrip;",
+    "zarpa;",
     "trip;",
     "travel;"
   ],
   "author": "Lucas Fernandes",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/lucsfernandes/arcobatrip-api/issues"
+    "url": "https://github.com/lucsfernandes/zarpa-api/issues"
   },
-  "homepage": "https://github.com/lucsfernandes/arcobatrip-api#readme",
+  "homepage": "https://github.com/lucsfernandes/zarpa-api#readme",
   "dependencies": {
     "@react-email/components": "^0.0.32",
     "@react-email/render": "^1.0.5",

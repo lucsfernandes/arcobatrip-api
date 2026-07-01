@@ -19,11 +19,11 @@ export default function WelcomeEmail({ name }: WelcomeEmailProps): React.ReactEl
   return (
     <Html lang="pt-BR">
       <Head />
-      <Preview>Bem-vindo(a) ao Arcobatrip!</Preview>
+      <Preview>Bem-vindo(a) ao Zarpa!</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section>
-            <Heading style={brand}>Arcobatrip</Heading>
+            <Heading style={brand}>Zarpa</Heading>
             <Heading style={heading}>Bem-vindo(a), {name}!</Heading>
             <Text style={paragraph}>
               Sua conta foi criada com sucesso. Agora você pode planejar suas viagens,
@@ -33,7 +33,7 @@ export default function WelcomeEmail({ name }: WelcomeEmailProps): React.ReactEl
               Boa viagem! ✈️
             </Text>
             <Text style={footer}>
-              Equipe Arcobatrip
+              Equipe Zarpa
             </Text>
           </Section>
         </Container>
@@ -57,10 +57,10 @@ const container: React.CSSProperties = {
 };
 
 const brand: React.CSSProperties = {
-  color: "#7c3aed",
+  color: "#12fda4",
   fontSize: "20px",
   fontWeight: 700,
-  margin: "0 0 24px",
+  margin: "0 0 24px"
 };
 
 const heading: React.CSSProperties = {
