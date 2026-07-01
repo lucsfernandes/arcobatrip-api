@@ -1,10 +1,10 @@
-# 🚀 Arcobatrip API by [Arcobatrox Tech](https://arcobatrox.com.br)
+# 🚀 Zarpa API by [Arcobatrox Tech](https://arcobatrox.com.br)
 
 ### Este é um projeto desenvolvido pela equipe Arcobatrox Tech com intuito de construir uma aplicação de planejamento de viagens em grupo para que os participantes tenham um checklist e/ou uma lista de pontos turísticos para visitar durante a temporada planejada
 
 ![Licença](https://img.shields.io/badge/licença-MIT%20License-blue.svg)
-![Estrelas](https://img.shields.io/github/stars/lucsfernandes/arcobatrip-api.svg)
-![Forks](https://img.shields.io/github/forks/lucsfernandes/arcobatrip-api.svg)
+![Estrelas](https://img.shields.io/github/stars/lucsfernandes/zarpa-api.svg)
+![Forks](https://img.shields.io/github/forks/lucsfernandes/zarpa-api.svg)
 
 ## 📋 Tabela de Conteúdos
 
@@ -18,7 +18,7 @@
 
 ## 📖 Visão Geral
 
-Este repositório contém o código-fonte para arcobatrip-api. Para acessar o layout do projeto, use o [Arcobatrip - By Arcobatrox](https://www.figma.com/design/EnvyN2rvs39m8Zw3yiXNPL/Arcobatrip---By-Arcobatrox-Tech?node-id=3-376&t=9YqByv73tLjFbkq0-1)
+Este repositório contém o código-fonte para zarpa-api. Para acessar o layout do projeto, use o [Zarpa - By Arcobatrox](https://www.figma.com/design/EnvyN2rvs39m8Zw3yiXNPL/Zarpa---By-Arcobatrox-Tech?node-id=3-376&t=9YqByv73tLjFbkq0-1)
 
 
 ## 💻 Tecnologias
@@ -32,10 +32,10 @@ Este repositório contém o código-fonte para arcobatrip-api. Para acessar o la
 
 ```bash
 # Clone o repositório
-git clone https://github.com/lucsfernandes/arcobatrip-api.git
+git clone https://github.com/lucsfernandes/zarpa-api.git
 
 # Entre no diretório do repositório
-cd arcobatrip-api
+cd zarpa-api
 
 # Instale as dependências
 npm install

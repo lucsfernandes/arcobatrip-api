@@ -1,19 +1,19 @@
 services:
-  arcobatrip-db:
+  zarpa-db:
    image: postgres:17.1-alpine
-   container_name: arcobatrip-db
+   container_name: zarpa-db
    ports:
     - '5433:5432'
    environment:
     - POSTGRES_USER=postgres
     - POSTGRES_PASSWORD=postgres
-    - POSTGRES_DB=arcobatrip
+    - POSTGRES_DB=zarpa
    networks:
     - app-networks
   
-  arcobatrip-api:
+  zarpa-api:
    build: .
-   container_name: arcobatrip-api
+   container_name: zarpa-api
    ports:
      - "3000:3000"
    environment:
@@ -32,7 +32,7 @@ services:
    networks:
     - app-networks
    depends_on:
-    - arcobatrip-db
+    - zarpa-db
 
 networks:
   app-networks:
