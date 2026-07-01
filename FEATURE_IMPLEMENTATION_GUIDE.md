@@ -1,6 +1,6 @@
 # 🚀 Guia de Implementação de Features
 
-Este guia descreve o fluxo completo para implementar uma nova feature no projeto Arcobatrip API, seguindo os princípios de Clean Architecture e DDD.
+Este guia descreve o fluxo completo para implementar uma nova feature no projeto Zarpa API, seguindo os princípios de Clean Architecture e DDD.
 
 ---
 

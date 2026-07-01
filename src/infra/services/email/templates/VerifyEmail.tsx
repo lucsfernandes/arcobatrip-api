@@ -22,11 +22,11 @@ export default function VerifyEmail({ name, verifyUrl }: VerifyEmailProps): Reac
   return (
     <Html lang="pt-BR">
       <Head />
-      <Preview>Confirme seu endereço de email no Arcobatrip</Preview>
+      <Preview>Confirme seu endereço de email no Zarpa</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section>
-            <Heading style={brand}>Arcobatrip</Heading>
+            <Heading style={brand}>Zarpa</Heading>
             <Heading style={heading}>Confirme seu email</Heading>
             <Text style={paragraph}>Olá, {name}!</Text>
             <Text style={paragraph}>
@@ -42,7 +42,7 @@ export default function VerifyEmail({ name, verifyUrl }: VerifyEmailProps): Reac
               {verifyUrl}
             </Link>
             <Text style={footer}>
-              Se você não criou uma conta no Arcobatrip, ignore este email.
+              Se você não criou uma conta no Zarpa, ignore este email.
             </Text>
           </Section>
         </Container>
@@ -66,10 +66,10 @@ const container: React.CSSProperties = {
 };
 
 const brand: React.CSSProperties = {
-  color: "#7c3aed",
+  color: "#12fda4",
   fontSize: "20px",
   fontWeight: 700,
-  margin: "0 0 24px",
+  margin: "0 0 24px"
 };
 
 const heading: React.CSSProperties = {
@@ -87,7 +87,7 @@ const paragraph: React.CSSProperties = {
 };
 
 const button: React.CSSProperties = {
-  backgroundColor: "#7c3aed",
+  backgroundColor: "#12fda4",
   borderRadius: "8px",
   color: "#ffffff",
   fontSize: "16px",
@@ -96,13 +96,13 @@ const button: React.CSSProperties = {
   textAlign: "center",
   display: "inline-block",
   padding: "12px 24px",
-  margin: "8px 0 24px",
+  margin: "8px 0 24px"
 };
 
 const link: React.CSSProperties = {
-  color: "#7c3aed",
+  color: "#12fda4",
   fontSize: "14px",
-  wordBreak: "break-all",
+  wordBreak: "break-all"
 };
 
 const footer: React.CSSProperties = {

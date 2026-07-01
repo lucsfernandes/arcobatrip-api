@@ -26,7 +26,7 @@ export class ResendEmailService implements IEmailService {
 
   async sendWelcome(to: string, params: { name: string }): Promise<void> {
     const html = await render(React.createElement(WelcomeEmail, params));
-    await this.send(to, "Bem-vindo(a) ao Arcobatrip!", html);
+    await this.send(to, "Bem-vindo(a) ao Zarpa!", html);
   }
 
   async sendEmailVerification(
@@ -34,7 +34,7 @@ export class ResendEmailService implements IEmailService {
     params: { name: string; verifyUrl: string }
   ): Promise<void> {
     const html = await render(React.createElement(VerifyEmail, params));
-    await this.send(to, "Confirme seu email no Arcobatrip", html);
+    await this.send(to, "Confirme seu email no Zarpa", html);
   }
 
   async sendPasswordReset(
@@ -42,7 +42,7 @@ export class ResendEmailService implements IEmailService {
     params: { name: string; resetUrl: string }
   ): Promise<void> {
     const html = await render(React.createElement(ResetPasswordEmail, params));
-    await this.send(to, "Redefinição de senha do Arcobatrip", html);
+    await this.send(to, "Redefinição de senha do Zarpa", html);
   }
 
   async sendNotification(

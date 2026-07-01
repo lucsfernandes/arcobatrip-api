@@ -25,11 +25,11 @@ export default function ResetPasswordEmail({
   return (
     <Html lang="pt-BR">
       <Head />
-      <Preview>Redefina sua senha do Arcobatrip</Preview>
+      <Preview>Redefina sua senha do Zarpa</Preview>
       <Body style={main}>
         <Container style={container}>
           <Section>
-            <Heading style={brand}>Arcobatrip</Heading>
+            <Heading style={brand}>Zarpa</Heading>
             <Heading style={heading}>Redefinição de senha</Heading>
             <Text style={paragraph}>Olá, {name}!</Text>
             <Text style={paragraph}>

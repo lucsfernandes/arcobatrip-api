@@ -33,14 +33,14 @@ RUN npm ci --only=production && npm cache clean --force
 
 # Criar usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S arcobatrip -u 1001
+    adduser -S zarpa -u 1001
 
 # Copiar arquivos compilados do estágio de build
-COPY --from=development --chown=arcobatrip:nodejs /app/dist ./dist
-COPY --from=development --chown=arcobatrip:nodejs /app/package*.json ./
+COPY --from=development --chown=zarpa:nodejs /app/dist ./dist
+COPY --from=development --chown=zarpa:nodejs /app/package*.json ./
 
 # Mudar para usuário não-root
-USER arcobatrip
+USER zarpa
 
 # Expor porta da aplicação
 EXPOSE 3000

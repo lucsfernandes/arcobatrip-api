@@ -1,8 +1,8 @@
-# 🏗️ Arquitetura do Projeto Arcobatrip API
+# 🏗️ Arquitetura do Projeto Zarpa API
 
 ## 📖 Visão Geral
 
-O **Arcobatrip API** é uma aplicação backend desenvolvida em **Node.js** com **TypeScript**, seguindo os princípios da **Clean Architecture** e **Domain-Driven Design (DDD)**. A aplicação é um sistema de planejamento de viagens em grupo que permite aos participantes gerenciar checklists e pontos turísticos.
+O **Zarpa API** é uma aplicação backend desenvolvida em **Node.js** com **TypeScript**, seguindo os princípios da **Clean Architecture** e **Domain-Driven Design (DDD)**. A aplicação é um sistema de planejamento de viagens em grupo que permite aos participantes gerenciar checklists e pontos turísticos.
 
 ---
 
