@@ -10,25 +10,24 @@ services:
     - POSTGRES_DB=zarpa
    networks:
     - app-networks
-  
+
   zarpa-api:
    build: .
    container_name: zarpa-api
    ports:
      - "3000:3000"
    environment:
-     - API_BASE_URL="http://localhost:3000"
-     - WEB_BASE_URL="http://localhost:3333"
+     - API_BASE_URL=${API_BASE_URL:-http://localhost:3000}
+     - WEB_BASE_URL=${WEB_BASE_URL:-http://localhost:3333}
      - PORT=3000
      - JWT_SECRET=${JWT_SECRET}
-    #  - DATABASE_URL="postgresql://postgres:postgres@localhost:5433/planner-vercel"
-     - TYPEORM_HOST='${TYPEORM_HOST}'
-     - TYPEORM_PORT=5432
-     - TYPEORM_USERNAME='${TYPEORM_USERNAME}'
-     - TYPEORM_PASSWORD='${TYPEORM_PASSWORD}'
-     - TYPEORM_DATABASE='planner-vercel'
-     - TYPEORM_SYNC=true
-     - TYPEORM_LOGGING=true
+     - TYPEORM_HOST=${TYPEORM_HOST:-zarpa-db}
+     - TYPEORM_PORT=${TYPEORM_PORT:-5432}
+     - TYPEORM_USERNAME=${TYPEORM_USERNAME:-postgres}
+     - TYPEORM_PASSWORD=${TYPEORM_PASSWORD:-postgres}
+     - TYPEORM_DATABASE=${TYPEORM_DATABASE:-zarpa}
+     - TYPEORM_SYNC=${TYPEORM_SYNC:-false}
+     - TYPEORM_LOGGING=${TYPEORM_LOGGING:-false}
    networks:
     - app-networks
    depends_on:
