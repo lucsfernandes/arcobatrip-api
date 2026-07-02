@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { CreateDateColumn, DeleteDateColumn, Index, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import 'reflect-metadata';
 
 export class BaseEntity {
@@ -24,11 +24,8 @@ export class BaseEntity {
   @Index()
   public createdAt!: Date;
 
-  @Column({
-    name: 'deleted_at',
-    type: 'timestamp',
-    select: false,
-    nullable: true
+  @DeleteDateColumn({
+    name: 'deleted_at'
   })
   public deletedAt?: Date;
 }
