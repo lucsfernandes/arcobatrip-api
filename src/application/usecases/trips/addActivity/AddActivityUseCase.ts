@@ -24,6 +24,7 @@ export class AddActivityUseCase implements IUseCase<AddActivityRequestDTO, AddAc
       title: request.title,
       at: request.at,
       status: request.status,
+      createdBy: request.createdBy ?? null,
     });
 
     await this.emitter.activityAdded(

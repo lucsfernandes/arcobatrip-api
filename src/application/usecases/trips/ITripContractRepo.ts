@@ -22,6 +22,15 @@ export interface NewActivityData {
   title: string;
   at: string;
   status: string;
+  /** User who created the activity (authenticated request). */
+  createdBy?: string | null;
+}
+
+/** Partial patch for an existing activity. Only provided fields are updated. */
+export interface UpdateActivityData {
+  title?: string;
+  at?: string;
+  status?: string;
 }
 
 export interface NewLinkData {
@@ -44,6 +53,11 @@ export interface ITripContractRepo {
   findTripsForUserEmail(email: string): Promise<Trip[]>;
   findTripById(id: string): Promise<Trip | null>;
   addActivity(tripId: string, data: NewActivityData): Promise<Activity>;
+  /** Finds an activity scoped to a trip; returns null when it belongs to another trip. */
+  findActivity(tripId: string, activityId: string): Promise<Activity | null>;
+  updateActivity(activity: Activity, data: UpdateActivityData): Promise<Activity>;
+  /** Soft-deletes the activity (sets `deleted_at`). */
+  softDeleteActivity(activityId: string): Promise<void>;
   addLink(tripId: string, data: NewLinkData): Promise<Link>;
   addGuest(tripId: string, data: NewGuestData): Promise<Participant>;
   findGuest(tripId: string, guestId: string): Promise<Participant | null>;

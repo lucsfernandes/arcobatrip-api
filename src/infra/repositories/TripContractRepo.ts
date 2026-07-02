@@ -5,6 +5,7 @@ import {
   NewActivityData,
   NewGuestData,
   NewLinkData,
+  UpdateActivityData,
 } from "../../application/usecases/trips/ITripContractRepo";
 import { Trip } from "../../domain/entities/Trip/trip.entity";
 import { Participant } from "../../domain/entities/Participant/participant.entity";
@@ -79,8 +80,26 @@ export class TripContractRepo implements ITripContractRepo {
       occursAt: new Date(data.at),
       status: data.status,
       tripId,
+      createdBy: data.createdBy ?? null,
     });
     return this.activityRepository.save(activity);
+  }
+
+  async findActivity(tripId: string, activityId: string): Promise<Activity | null> {
+    return this.activityRepository.findOne({
+      where: { id: activityId, tripId },
+    });
+  }
+
+  async updateActivity(activity: Activity, data: UpdateActivityData): Promise<Activity> {
+    if (data.title !== undefined) activity.title = data.title;
+    if (data.at !== undefined) activity.occursAt = new Date(data.at);
+    if (data.status !== undefined) activity.status = data.status;
+    return this.activityRepository.save(activity);
+  }
+
+  async softDeleteActivity(activityId: string): Promise<void> {
+    await this.activityRepository.softDelete(activityId);
   }
 
   async addLink(tripId: string, data: NewLinkData): Promise<Link> {

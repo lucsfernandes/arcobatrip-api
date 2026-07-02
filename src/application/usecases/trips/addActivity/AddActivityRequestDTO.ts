@@ -6,4 +6,6 @@ export interface AddActivityRequestDTO {
   /** ISO datetime. */
   at: string;
   status: ActivityStatus;
+  /** Authenticated user creating the activity (persisted as `created_by`). */
+  createdBy?: string | null;
 }
