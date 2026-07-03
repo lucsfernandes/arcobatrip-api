@@ -49,6 +49,7 @@ export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUser
           phone: user.phone,
           email: user.email,
           birthDate: user.birthDate,
+          phoneVerified: user.phoneVerified ?? false,
           isActive: user.isActive,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt

@@ -6,3 +6,5 @@ export { default as ResetPasswordEmail } from "./ResetPasswordEmail";
 export type { ResetPasswordEmailProps } from "./ResetPasswordEmail";
 export { default as NotificationEmail } from "./NotificationEmail";
 export type { NotificationEmailProps } from "./NotificationEmail";
+export { default as PhoneVerificationEmail } from "./PhoneVerificationEmail";
+export type { PhoneVerificationEmailProps } from "./PhoneVerificationEmail";

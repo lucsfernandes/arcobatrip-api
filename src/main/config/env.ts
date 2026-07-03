@@ -21,7 +21,15 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().default("Zarpa <no-reply@zarpa.com>"),
   APP_URL: z.string().default("http://localhost:5173"),
   EMAIL_VERIFICATION_TOKEN_TTL_MIN: z.coerce.number().default(1440),
-  PASSWORD_RESET_TOKEN_TTL_MIN: z.coerce.number().default(60)
+  PASSWORD_RESET_TOKEN_TTL_MIN: z.coerce.number().default(60),
+  // Verificação de celular por email (código numérico de 6 dígitos)
+  PHONE_VERIFICATION_CODE_TTL_MIN: z.coerce.number().default(15),
+  PHONE_VERIFICATION_RESEND_COOLDOWN_SEC: z.coerce.number().default(60),
+  PHONE_VERIFICATION_MAX_ATTEMPTS: z.coerce.number().default(5),
+  // Cloudinary (upload de avatar). Deixe vazio para desabilitar o upload em dev.
+  CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
+  CLOUDINARY_API_KEY: z.string().optional().default(""),
+  CLOUDINARY_API_SECRET: z.string().optional().default(""),
 });
 
 // Validar variáveis de ambiente

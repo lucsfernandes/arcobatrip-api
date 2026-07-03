@@ -38,8 +38,38 @@ export class VerificationTokenRepo implements IVerificationTokenRepo {
     });
   }
 
+  async findLatestForUser(
+    userId: string,
+    type: VerificationTokenType
+  ): Promise<VerificationToken | null> {
+    return this.verificationTokenRepository.findOne({
+      where: { userId, type },
+      order: { createdAt: "DESC" },
+    });
+  }
+
+  async findActiveForUser(
+    userId: string,
+    type: VerificationTokenType
+  ): Promise<VerificationToken | null> {
+    return this.verificationTokenRepository.findOne({
+      where: {
+        userId,
+        type,
+        usedAt: IsNull(),
+        expiresAt: MoreThan(new Date()),
+      },
+      order: { createdAt: "DESC" },
+    });
+  }
+
   async markUsed(token: VerificationToken): Promise<VerificationToken> {
     token.usedAt = new Date();
+    return this.verificationTokenRepository.save(token);
+  }
+
+  async incrementAttempts(token: VerificationToken): Promise<VerificationToken> {
+    token.attempts += 1;
     return this.verificationTokenRepository.save(token);
   }
 

@@ -62,6 +62,32 @@ export interface UserContract {
   memberSince: string;
 }
 
+/**
+ * Rich profile view of the authenticated user, returned by the `/users/me`
+ * resource (GET / PATCH / avatar / phone). Superset of {@link UserContract} —
+ * `UserContract` stays minimal for the auth flows (login/signup/me), while this
+ * shape carries the editable profile fields plus verification flags. Optional
+ * string fields are `null` (not omitted) when unset so the frontend can bind a
+ * form field directly.
+ */
+export interface UserProfileContract {
+  id: ID;
+  name: string;
+  email: string;
+  phone: string | null;
+  phoneVerified: boolean;
+  emailVerified: boolean;
+  /** ISO date ("YYYY-MM-DD") or null. */
+  birthDate: string | null;
+  bio: string | null;
+  city: string | null;
+  country: string | null;
+  avatarUrl: string | null;
+  accent: string | null;
+  /** ISO date ("YYYY-MM-DD") the user joined. */
+  memberSince: string;
+}
+
 export interface GuestContract {
   id: ID;
   name: string;

@@ -1,4 +1,7 @@
-export type VerificationTokenType = "password_reset" | "email_verification";
+export type VerificationTokenType =
+  | "password_reset"
+  | "email_verification"
+  | "phone_verification";
 
 export interface IVerificationToken {
   id: string;
@@ -7,6 +10,8 @@ export interface IVerificationToken {
   type: VerificationTokenType;
   expiresAt: Date;
   usedAt?: Date | null;
+  /** Failed validation attempts — used to lock short numeric codes (phone). */
+  attempts: number;
   createdAt: Date;
   updatedAt: Date;
 }
