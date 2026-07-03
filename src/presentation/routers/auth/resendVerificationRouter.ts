@@ -1,6 +1,7 @@
 import { Router } from "express";
 import zodToJsonSchema from "zod-to-json-schema";
 import { validateBody } from "../../utils/validator";
+import { emailLimiter } from "../../middlewares/rateLimiters";
 import { resendVerificationValidation } from "../../validators/auth/resendVerificationValidation";
 import { resendVerificationController } from "../../../main/factories/auth/authFactory";
 
@@ -30,7 +31,7 @@ const resendVerificationSwagger = {
   },
 };
 
-resendVerificationRouter.post("/", validateBody(resendVerificationValidation), async (req, res) => {
+resendVerificationRouter.post("/", emailLimiter, validateBody(resendVerificationValidation), async (req, res) => {
   await resendVerificationController.execute(req, res);
 });
 

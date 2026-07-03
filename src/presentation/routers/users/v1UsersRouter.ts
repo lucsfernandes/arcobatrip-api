@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authMiddleware } from "../../middlewares/authMiddleware";
+import { emailLimiter } from "../../middlewares/rateLimiters";
 import { rejectEmailMutation } from "../../middlewares/rejectEmailMutation";
 import { uploadAvatarMiddleware } from "../../middlewares/uploadAvatar";
 import { validateBody } from "../../utils/validator";
@@ -46,6 +47,7 @@ v1UsersRouter.delete("/me/avatar", async (req, res) => {
 // Phone verification (by email).
 v1UsersRouter.post(
   "/me/phone",
+  emailLimiter,
   validateBody(requestPhoneValidation),
   async (req, res) => {
     await requestPhoneVerificationController.execute(req, res);

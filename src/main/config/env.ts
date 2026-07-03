@@ -20,6 +20,10 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional().default(""),
   EMAIL_FROM: z.string().default("Zarpa <no-reply@zarpa.com>"),
   APP_URL: z.string().default("http://localhost:5173"),
+  // CORS: lista de origens permitidas separadas por vírgula
+  // (ex.: "http://localhost:3001,http://localhost:8081").
+  // Vazio => modo dev: reflete uma allowlist de localhosts conhecidos (ver app.ts).
+  CORS_ORIGINS: z.string().optional().default(""),
   EMAIL_VERIFICATION_TOKEN_TTL_MIN: z.coerce.number().default(1440),
   PASSWORD_RESET_TOKEN_TTL_MIN: z.coerce.number().default(60),
   // Verificação de celular por email (código numérico de 6 dígitos)
