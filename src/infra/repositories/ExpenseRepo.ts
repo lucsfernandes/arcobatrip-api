@@ -24,6 +24,7 @@ export class ExpenseRepo implements IExpenseRepo {
       category: data.category,
       paidById: data.paidById,
       splitBetween: data.splitBetween,
+      activityId: data.activityId ?? null,
     });
     return this.expenseRepository.save(expense);
   }

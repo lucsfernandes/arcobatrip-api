@@ -14,6 +14,14 @@ export class Link extends BaseEntity {
   @Index()
   public tripId!: string;
 
+  /**
+   * OPTIONAL activity this link belongs to. `null` for trip-level links
+   * (existing behavior); set for per-activity links.
+   */
+  @Column({ name: 'activity_id', type: 'varchar', nullable: true })
+  @Index()
+  public activityId?: string | null;
+
   @ManyToOne(() => Trip)
   @JoinColumn({ name: 'trip_id' })
   trip?: Trip;

@@ -16,6 +16,7 @@ export class CreateExpenseController extends BaseController {
       category: body.category,
       paidById: body.paidById,
       splitBetween: body.splitBetween,
+      activityId: body.activityId,
     });
     if (result.isFailure) return this.fail(res, result.errorValue());
     return this.created(res, result.getValue());

@@ -38,6 +38,15 @@ export class Expense extends BaseEntity {
   @Index()
   public tripId!: string;
 
+  /**
+   * OPTIONAL link to an activity of the same trip. A general trip expense has
+   * this `null`. Activity-tagged expenses still count in the trip-wide
+   * settlement aggregation — the tag is metadata, not a scoping boundary.
+   */
+  @Column({ name: 'activity_id', type: 'varchar', nullable: true })
+  @Index()
+  public activityId?: string | null;
+
   @ManyToOne(() => Trip, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'trip_id' })
   trip?: Trip;

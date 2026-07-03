@@ -103,12 +103,28 @@ export interface ActivityContract {
   /** ISO datetime. */
   at: string;
   status: ActivityStatus;
+  /** Free-form description; omitted when unset. */
+  description?: string;
+  /** Cloudinary banner URL; omitted when unset. */
+  bannerUrl?: string;
 }
 
 export interface TripLinkContract {
   id: ID;
   label: string;
   url: string;
+  /** OPTIONAL activity this link belongs to; omitted for trip-level links. */
+  activityId?: ID;
+}
+
+export interface ActivityCommentContract {
+  id: ID;
+  activityId: ID;
+  authorId: ID;
+  authorName: string;
+  body: string;
+  /** ISO datetime. */
+  createdAt: string;
 }
 
 export interface TripContract {
@@ -132,6 +148,8 @@ export interface ExpenseContract {
   category: ExpenseCategory;
   paidById: ID;
   splitBetween: ID[];
+  /** OPTIONAL activity this expense is tagged to; omitted for general expenses. */
+  activityId?: ID;
 }
 
 /** A "who pays whom" settlement line (computed, never persisted). */

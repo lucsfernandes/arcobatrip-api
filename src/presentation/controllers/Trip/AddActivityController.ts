@@ -15,6 +15,7 @@ export class AddActivityController extends BaseController {
       title: body.title,
       at: body.at,
       status: body.status,
+      description: body.description,
       createdBy: req.userId ?? null,
     });
     if (result.isFailure) return this.fail(res, result.errorValue());

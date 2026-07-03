@@ -8,4 +8,6 @@ export interface AddActivityRequestDTO {
   status: ActivityStatus;
   /** Authenticated user creating the activity (persisted as `created_by`). */
   createdBy?: string | null;
+  /** Optional free-form description. */
+  description?: string | null;
 }

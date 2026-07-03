@@ -52,6 +52,25 @@ export class CreateExpenseUseCase
       );
     }
 
+    // When tagged to an activity, it MUST belong to this trip. The tag is
+    // metadata only — the expense still counts in the trip-wide settlement.
+    if (request.activityId) {
+      const activity = await this.tripRepo.findActivity(
+        request.tripId,
+        request.activityId
+      );
+      if (!activity) {
+        return Result.fail(
+          AppError.validation("Atividade inválida para a despesa", [
+            {
+              path: "activityId",
+              message: "A atividade informada não pertence a esta viagem",
+            },
+          ])
+        );
+      }
+    }
+
     await this.expenseRepo.create({
       tripId: request.tripId,
       title: request.title,
@@ -59,6 +78,7 @@ export class CreateExpenseUseCase
       category: request.category,
       paidById: request.paidById,
       splitBetween: request.splitBetween,
+      activityId: request.activityId ?? null,
     });
 
     const expenses = (await this.expenseRepo.findByTrip(request.tripId)).map(

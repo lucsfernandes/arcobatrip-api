@@ -7,7 +7,7 @@ import { NotificationEmitter } from "../../../services/NotificationEmitter";
 import { CreateTripContractRequestDTO } from "./CreateTripContractRequestDTO";
 import { CreateTripContractResponseDTO } from "./CreateTripContractResponseDTO";
 import { TripContractMap } from "../../../../infra/db/mappers/TripContractMap";
-import { localPartOf } from "../../../utils/email";
+import { displayNameFromEmail } from "../../../utils/email";
 
 /**
  * Contract: `POST /trips`. The authenticated user becomes the host
@@ -44,7 +44,7 @@ export class CreateTripContractUseCase
         isConfirmed: true,
       },
       ...invitedEmails.map((email) => ({
-        name: localPartOf(email),
+        name: displayNameFromEmail(email),
         email,
         isOwner: false,
         isConfirmed: false,

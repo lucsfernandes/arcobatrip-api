@@ -18,6 +18,7 @@ export class UpdateActivityController extends BaseController {
       title: body.title,
       at: body.at,
       status: body.status,
+      description: body.description,
     });
     if (result.isFailure) return this.fail(res, result.errorValue());
     return this.ok(res, result.getValue());

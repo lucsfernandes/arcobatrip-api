@@ -11,6 +11,7 @@ export class AddGuestController extends BaseController {
     const result = await this.addGuestUseCase.execute({
       tripId: req.params.id,
       email: req.body.email,
+      name: req.body.name,
     });
     if (result.isFailure) return this.fail(res, result.errorValue());
     return this.created(res, result.getValue());

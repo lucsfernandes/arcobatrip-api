@@ -8,6 +8,8 @@ export interface CreateExpenseData {
   category: ExpenseCategory;
   paidById: string;
   splitBetween: string[];
+  /** OPTIONAL activity tag (must belong to the same trip; validated upstream). */
+  activityId?: string | null;
 }
 
 export interface IExpenseRepo {

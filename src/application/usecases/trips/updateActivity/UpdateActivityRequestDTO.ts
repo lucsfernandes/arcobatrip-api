@@ -11,4 +11,5 @@ export interface UpdateActivityRequestDTO {
   /** ISO datetime. */
   at?: string;
   status?: ActivityStatus;
+  description?: string;
 }

@@ -31,7 +31,12 @@ const toContract = (model: Trip): TripContract => {
     activities: (model.activities ?? [])
       .map(ActivityContractMap.toContract)
       .sort((a, b) => a.at.localeCompare(b.at)),
-    links: (model.links ?? []).map(TripLinkContractMap.toContract),
+    // Only trip-level links here. Activity-tagged links (activity_id set) share
+    // the same table/relation but are exposed via the per-activity links
+    // endpoint, so the trip detail stays backward-compatible.
+    links: (model.links ?? [])
+      .filter((link) => !link.activityId)
+      .map(TripLinkContractMap.toContract),
   };
   if (model.coverUrl) trip.coverUrl = model.coverUrl;
   return trip;

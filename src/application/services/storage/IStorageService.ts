@@ -14,6 +14,13 @@ export interface StoredImage {
 export interface UploadImageOptions {
   /** Logical folder/namespace, e.g. `"zarpa/avatars"`. */
   folder?: string;
+  /**
+   * Target dimensions (px) for the normalizing `fill` crop. When omitted the
+   * implementation applies its square avatar default (512x512). Banners pass a
+   * wide aspect (e.g. 1200x400).
+   */
+  width?: number;
+  height?: number;
 }
 
 export interface IStorageService {
