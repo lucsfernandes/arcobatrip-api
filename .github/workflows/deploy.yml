@@ -46,6 +46,7 @@ jobs:
         env:
             DATABASE_URL: ${{ secrets.DATABASE_URL }}
             JWT_SECRET: ${{ secrets.JWT_SECRET }}
+            JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
             TYPEORM_HOST: ${{ secrets.TYPEORM_HOST }}
             TYPEORM_PORT: ${{ secrets.TYPEORM_PORT }}
             TYPEORM_USERNAME: ${{ secrets.TYPEORM_USERNAME }}
@@ -59,11 +60,16 @@ jobs:
             APP_URL: ${{ secrets.APP_URL }}
             EMAIL_VERIFICATION_TOKEN_TTL_MIN: ${{ secrets.EMAIL_VERIFICATION_TOKEN_TTL_MIN }}
             PASSWORD_RESET_TOKEN_TTL_MIN: ${{ secrets.PASSWORD_RESET_TOKEN_TTL_MIN }}
+            CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+            CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+            CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+            CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
 
         run: |
           kubectl create secret generic zarpa-secret -n zarpa \
             --from-literal=DATABASE_URL="${DATABASE_URL}" \
             --from-literal=JWT_SECRET="${JWT_SECRET}" \
+            --from-literal=JWT_REFRESH_SECRET="${JWT_REFRESH_SECRET}" \
             --from-literal=TYPEORM_HOST="${TYPEORM_HOST}" \
             --from-literal=TYPEORM_PORT="${TYPEORM_PORT}" \
             --from-literal=TYPEORM_USERNAME="${TYPEORM_USERNAME}" \
@@ -77,6 +83,10 @@ jobs:
             --from-literal=APP_URL="${APP_URL}" \
             --from-literal=EMAIL_VERIFICATION_TOKEN_TTL_MIN="${EMAIL_VERIFICATION_TOKEN_TTL_MIN}" \
             --from-literal=PASSWORD_RESET_TOKEN_TTL_MIN="${PASSWORD_RESET_TOKEN_TTL_MIN}" \
+            --from-literal=CLOUDINARY_CLOUD_NAME="${CLOUDINARY_CLOUD_NAME}" \
+            --from-literal=CLOUDINARY_API_KEY="${CLOUDINARY_API_KEY}" \
+            --from-literal=CLOUDINARY_API_SECRET="${CLOUDINARY_API_SECRET}" \
+            --from-literal=CLOUDINARY_URL="${CLOUDINARY_URL}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Replace image placeholder
