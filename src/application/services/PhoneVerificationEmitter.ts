@@ -1,6 +1,6 @@
 import { IEmailService } from "./email/IEmailService";
 import { IVerificationTokenRepo } from "../usecases/auth/IVerificationTokenRepo";
-import { generateNumericCode, hashToken } from "../utils/token";
+import { generateNumericCode, hashPhoneCode } from "../utils/token";
 import { env } from "../../main/config/env";
 
 /** Minimal account shape the phone-verification flow needs. */
@@ -59,7 +59,7 @@ export class PhoneVerificationEmitter {
 
     await this.verificationTokenRepo.create({
       userId: user.id,
-      tokenHash: hashToken(code),
+      tokenHash: hashPhoneCode(code),
       type: "phone_verification",
       expiresAt,
     });

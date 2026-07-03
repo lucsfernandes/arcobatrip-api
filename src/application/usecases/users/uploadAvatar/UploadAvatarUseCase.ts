@@ -1,3 +1,4 @@
+import { fromBuffer } from "file-type";
 import { IUseCase } from "../../IUseCase";
 import { Result } from "../../Result";
 import { AppError } from "../../../errors/AppError";
@@ -9,6 +10,14 @@ import { UploadAvatarRequestDTO } from "./UploadAvatarRequestDTO";
 import { UploadAvatarResponseDTO } from "./UploadAvatarResponseDTO";
 
 const AVATAR_FOLDER = "zarpa/avatars";
+
+/** Real image mimetypes accepted for an avatar, inferred from the buffer's magic
+ * bytes (the multipart header mimetype is spoofable and NOT trusted here). */
+const ALLOWED_AVATAR_MIMES: ReadonlySet<string> = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 /**
  * Replace the authenticated user's avatar. Contract: `POST /users/me/avatar`.
@@ -29,6 +38,22 @@ export class UploadAvatarUseCase
     const { userId, fileBuffer } = request;
 
     try {
+      // Validate the REAL content type from the buffer's magic bytes. The multer
+      // fileFilter only checks the client-supplied mimetype header, which is
+      // trivially spoofable — a non-image payload must be rejected before it ever
+      // reaches storage.
+      const detected = await fromBuffer(fileBuffer);
+      if (!detected || !ALLOWED_AVATAR_MIMES.has(detected.mime)) {
+        return Result.fail(
+          AppError.validation("Formato inválido. Envie uma imagem JPEG, PNG ou WebP.", [
+            {
+              path: "file",
+              message: "O conteúdo do arquivo não é uma imagem JPEG, PNG ou WebP válida.",
+            },
+          ])
+        );
+      }
+
       const current = await this.userRepo.findById(userId);
       if (!current) {
         return Result.fail(AppError.notFound("Usuário não encontrado"));

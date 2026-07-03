@@ -8,6 +8,13 @@ import { LoginUserResponseDTO } from "./LoginUserResponseDTO";
 import { ITokenService } from "../ITokenService";
 import { env } from "../../../../main/config/env";
 
+/**
+ * Fixed bcrypt hash (cost 12) of an arbitrary throwaway string. Used ONLY as a
+ * timing decoy: when the email does not exist we still run a bcrypt.compare
+ * against this so the response time does not reveal account existence.
+ */
+const DUMMY_PASSWORD_HASH = "$2b$12$oR9QqvF1EZt.hQgZS7zTluwOKxb0SfcVlgK35MGC2j.BW.1fOP.qG";
+
 export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUserResponseDTO> {
   constructor(
     private userRepo: IUserRepo,
@@ -21,19 +28,25 @@ export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUser
       // Buscar usuário com senha
       const user = await this.userRepo.findByEmailWithPassword(email);
 
+      // Anti-enumeração: mesma resposta 401 e mesmo custo de tempo quer o email
+      // exista ou não. Quando não existe, comparamos contra um hash fixo (decoy)
+      // para nivelar o timing do bcrypt e não revelar a existência da conta.
       if (!user) {
+        await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
         return Result.fail(new UseCaseError("Credenciais inválidas", 401));
       }
 
-      // Verificar se usuário está ativo
-      if (!user.isActive) {
-        return Result.fail(new UseCaseError("Usuário inativo. Entre em contato com o suporte", 403));
-      }
-
-      // Verificar senha
+      // Verificar senha ANTES de qualquer distinção de estado da conta: só quem
+      // já provou conhecer as credenciais válidas pode observar o status "inativo".
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         return Result.fail(new UseCaseError("Credenciais inválidas", 401));
+      }
+
+      // Conta desativada — só revelado após credenciais corretas (não vaza
+      // existência a quem não conhece a senha).
+      if (!user.isActive) {
+        return Result.fail(new UseCaseError("Usuário inativo. Entre em contato com o suporte", 403));
       }
 
       // Gerar par de tokens JWT

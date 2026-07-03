@@ -42,6 +42,7 @@
     "dotenv": "^17.2.1",
     "express": "^4.21.1",
     "express-rate-limit": "^8.5.2",
+    "file-type": "^16.5.4",
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",

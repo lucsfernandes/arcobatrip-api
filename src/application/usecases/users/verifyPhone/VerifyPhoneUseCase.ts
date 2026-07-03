@@ -3,7 +3,7 @@ import { Result } from "../../Result";
 import { AppError } from "../../../errors/AppError";
 import { IUserRepo } from "../../auth/IUserRepo";
 import { IVerificationTokenRepo } from "../../auth/IVerificationTokenRepo";
-import { hashToken } from "../../../utils/token";
+import { hashPhoneCode } from "../../../utils/token";
 import { env } from "../../../../main/config/env";
 import { VerifyPhoneRequestDTO } from "./VerifyPhoneRequestDTO";
 import { VerifyPhoneResponseDTO } from "./VerifyPhoneResponseDTO";
@@ -45,9 +45,12 @@ export class VerifyPhoneUseCase
         return Result.fail(AppError.tooManyAttempts());
       }
 
-      if (hashToken(code) !== token.tokenHash) {
-        await this.verificationTokenRepo.incrementAttempts(token);
-        if (token.attempts >= this.maxAttempts) {
+      if (hashPhoneCode(code) !== token.tokenHash) {
+        // Atomic increment (UPDATE ... SET attempts = attempts + 1 RETURNING) so
+        // concurrent requests cannot both read the same pre-increment value and
+        // slip past the ceiling. Gate on the value the DB actually settled on.
+        const attempts = await this.verificationTokenRepo.incrementAttempts(token);
+        if (attempts >= this.maxAttempts) {
           await this.verificationTokenRepo.markUsed(token);
           return Result.fail(AppError.tooManyAttempts());
         }

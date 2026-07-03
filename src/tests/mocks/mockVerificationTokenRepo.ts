@@ -77,9 +77,9 @@ export class MockVerificationTokenRepo implements IVerificationTokenRepo {
     return token;
   }
 
-  async incrementAttempts(token: VerificationToken): Promise<VerificationToken> {
+  async incrementAttempts(token: VerificationToken): Promise<number> {
     token.attempts += 1;
-    return token;
+    return token.attempts;
   }
 
   async invalidateAllForUser(

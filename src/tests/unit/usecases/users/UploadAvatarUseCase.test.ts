@@ -2,6 +2,12 @@ import { UploadAvatarUseCase } from "../../../../application/usecases/users/uplo
 import { MockUserRepo } from "../../../mocks/mockUserRepo";
 import { MockStorageService } from "../../../mocks/mockStorageService";
 
+/** Real 1x1 PNG — valid magic bytes so the use case's file-type check passes. */
+const VALID_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "base64"
+);
+
 describe("UploadAvatarUseCase", () => {
   let userRepo: MockUserRepo;
   let storage: MockStorageService;
@@ -29,7 +35,7 @@ describe("UploadAvatarUseCase", () => {
   it("uploads the image and persists url + public_id", async () => {
     const result = await useCase.execute({
       userId,
-      fileBuffer: Buffer.from("img"),
+      fileBuffer: VALID_PNG,
     });
 
     expect(result.isSuccess).toBe(true);
@@ -40,8 +46,8 @@ describe("UploadAvatarUseCase", () => {
   });
 
   it("deletes the previous avatar when replacing", async () => {
-    await useCase.execute({ userId, fileBuffer: Buffer.from("first") });
-    const result = await useCase.execute({ userId, fileBuffer: Buffer.from("second") });
+    await useCase.execute({ userId, fileBuffer: VALID_PNG });
+    const result = await useCase.execute({ userId, fileBuffer: VALID_PNG });
 
     expect(result.isSuccess).toBe(true);
     expect(storage.uploads).toHaveLength(2);
@@ -49,10 +55,23 @@ describe("UploadAvatarUseCase", () => {
     expect(storage.deleted).toEqual(["zarpa/avatars/asset-1"]);
   });
 
+  it("rejects a non-image buffer (spoofed content) with 400 validation_error", async () => {
+    const result = await useCase.execute({
+      userId,
+      fileBuffer: Buffer.from("this is definitely not an image"),
+    });
+
+    expect(result.isFailure).toBe(true);
+    expect(result.errorValue().statusCode).toBe(400);
+    expect(result.errorValue().code).toBe("validation_error");
+    // Rejected by magic-byte inspection BEFORE touching storage.
+    expect(storage.uploads).toHaveLength(0);
+  });
+
   it("returns 404 when the user does not exist", async () => {
     const result = await useCase.execute({
       userId: "ghost",
-      fileBuffer: Buffer.from("img"),
+      fileBuffer: VALID_PNG,
     });
 
     expect(result.isFailure).toBe(true);
@@ -65,7 +84,7 @@ describe("UploadAvatarUseCase", () => {
 
     const result = await useCase.execute({
       userId,
-      fileBuffer: Buffer.from("img"),
+      fileBuffer: VALID_PNG,
     });
 
     expect(result.isFailure).toBe(true);

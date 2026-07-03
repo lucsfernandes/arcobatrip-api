@@ -1,5 +1,5 @@
 import { VerifyPhoneUseCase } from "../../../../application/usecases/users/verifyPhone/VerifyPhoneUseCase";
-import { hashToken } from "../../../../application/utils/token";
+import { hashPhoneCode } from "../../../../application/utils/token";
 import { MockUserRepo } from "../../../mocks/mockUserRepo";
 import { MockVerificationTokenRepo } from "../../../mocks/mockVerificationTokenRepo";
 
@@ -32,7 +32,7 @@ describe("VerifyPhoneUseCase", () => {
   function seedActiveCode(attempts = 0): void {
     tokenRepo.seed({
       userId,
-      tokenHash: hashToken(CODE),
+      tokenHash: hashPhoneCode(CODE),
       type: "phone_verification",
       expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       attempts,
@@ -72,7 +72,7 @@ describe("VerifyPhoneUseCase", () => {
   it("returns 410 when the code has expired", async () => {
     tokenRepo.seed({
       userId,
-      tokenHash: hashToken(CODE),
+      tokenHash: hashPhoneCode(CODE),
       type: "phone_verification",
       expiresAt: new Date(Date.now() - 60 * 1000),
     });
@@ -92,6 +92,26 @@ describe("VerifyPhoneUseCase", () => {
     expect(result.isFailure).toBe(true);
     expect(result.errorValue().statusCode).toBe(429);
     expect(result.errorValue().code).toBe("too_many_attempts");
+    expect(tokenRepo.tokens[0].usedAt).not.toBeNull();
+  });
+
+  it("locks the code on the Nth (5th) sequential invalid attempt via atomic increment", async () => {
+    seedActiveCode(0);
+
+    // Attempts 1..4 stay 400 invalid_code and bump the counter one at a time.
+    for (let i = 1; i <= 4; i++) {
+      const r = await useCase.execute({ userId, code: "000000" });
+      expect(r.errorValue().statusCode).toBe(400);
+      expect(r.errorValue().code).toBe("invalid_code");
+      expect(tokenRepo.tokens[0].attempts).toBe(i);
+      expect(tokenRepo.tokens[0].usedAt).toBeNull();
+    }
+
+    // The 5th invalid attempt reaches the ceiling: 429 + code invalidated.
+    const fifth = await useCase.execute({ userId, code: "000000" });
+    expect(fifth.errorValue().statusCode).toBe(429);
+    expect(fifth.errorValue().code).toBe("too_many_attempts");
+    expect(tokenRepo.tokens[0].attempts).toBe(5);
     expect(tokenRepo.tokens[0].usedAt).not.toBeNull();
   });
 

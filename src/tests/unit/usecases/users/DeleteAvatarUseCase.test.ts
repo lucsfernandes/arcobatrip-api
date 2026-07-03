@@ -3,6 +3,12 @@ import { UploadAvatarUseCase } from "../../../../application/usecases/users/uplo
 import { MockUserRepo } from "../../../mocks/mockUserRepo";
 import { MockStorageService } from "../../../mocks/mockStorageService";
 
+/** Real 1x1 PNG — valid magic bytes so the upload seeding passes validation. */
+const VALID_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+  "base64"
+);
+
 describe("DeleteAvatarUseCase", () => {
   let userRepo: MockUserRepo;
   let storage: MockStorageService;
@@ -30,7 +36,7 @@ describe("DeleteAvatarUseCase", () => {
   });
 
   it("deletes the stored asset and clears the columns", async () => {
-    await uploadAvatar.execute({ userId, fileBuffer: Buffer.from("img") });
+    await uploadAvatar.execute({ userId, fileBuffer: VALID_PNG });
 
     const result = await deleteAvatar.execute({ userId });
 

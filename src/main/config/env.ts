@@ -30,6 +30,11 @@ const envSchema = z.object({
   PHONE_VERIFICATION_CODE_TTL_MIN: z.coerce.number().default(15),
   PHONE_VERIFICATION_RESEND_COOLDOWN_SEC: z.coerce.number().default(60),
   PHONE_VERIFICATION_MAX_ATTEMPTS: z.coerce.number().default(5),
+  // Segredo HMAC para o hash do código de celular (6 dígitos, força-brutável em
+  // SHA-256 puro). OPCIONAL: quando ausente, deriva-se um fallback determinístico
+  // a partir de JWT_SECRET (ver hashPhoneCode) para não adicionar uma env
+  // obrigatória que quebre o boot. Defina em produção para desacoplar do JWT.
+  PHONE_CODE_SECRET: z.string().min(16).optional(),
   // Cloudinary (upload de avatar). Deixe vazio para desabilitar o upload em dev.
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
   CLOUDINARY_API_KEY: z.string().optional().default(""),
