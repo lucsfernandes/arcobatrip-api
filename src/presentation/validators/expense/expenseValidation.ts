@@ -14,4 +14,5 @@ export const createExpenseValidation = z.object({
   ]),
   paidById: z.string().min(1, "paidById é obrigatório"),
   splitBetween: z.array(z.string().min(1)).min(1, "Informe ao menos um participante"),
+  activityId: z.string().min(1).optional(),
 });

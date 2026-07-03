@@ -13,6 +13,15 @@ export class Activity extends BaseEntity {
   @Column({ name: 'status', type: 'varchar', default: 'pending' })
   public status!: string;
 
+  @Column({ name: 'description', type: 'text', nullable: true })
+  public description?: string | null;
+
+  @Column({ name: 'banner_url', type: 'varchar', nullable: true })
+  public bannerUrl?: string | null;
+
+  @Column({ name: 'banner_public_id', type: 'varchar', nullable: true })
+  public bannerPublicId?: string | null;
+
   @Column({ name: 'trip_id', type: 'varchar' })
   @Index()
   public tripId!: string;

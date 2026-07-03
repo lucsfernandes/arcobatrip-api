@@ -6,7 +6,7 @@ import { NotificationEmitter } from "../../../services/NotificationEmitter";
 import { AddGuestRequestDTO } from "./AddGuestRequestDTO";
 import { AddGuestResponseDTO } from "./AddGuestResponseDTO";
 import { GuestContractMap } from "../../../../infra/db/mappers/GuestContractMap";
-import { localPartOf } from "../../../utils/email";
+import { displayNameFromEmail } from "../../../utils/email";
 
 /**
  * Contract: `POST /trips/{id}/guests`. Invites a guest (status pending) by email
@@ -24,8 +24,11 @@ export class AddGuestUseCase implements IUseCase<AddGuestRequestDTO, AddGuestRes
       return Result.fail(AppError.notFound("Viagem não encontrada"));
     }
 
+    const providedName = request.name?.trim();
     const guest = await this.tripRepo.addGuest(request.tripId, {
-      name: localPartOf(request.email),
+      name: providedName && providedName.length > 0
+        ? providedName
+        : displayNameFromEmail(request.email),
       email: request.email,
     });
 

@@ -1,28 +1,34 @@
 import { DataSource, Repository } from "typeorm";
 import {
+  ActivityBannerData,
   CreateTripData,
   ITripContractRepo,
+  NewActivityCommentData,
   NewActivityData,
   NewGuestData,
   NewLinkData,
+  TripCoverData,
   UpdateActivityData,
 } from "../../application/usecases/trips/ITripContractRepo";
 import { Trip } from "../../domain/entities/Trip/trip.entity";
 import { Participant } from "../../domain/entities/Participant/participant.entity";
 import { Activity } from "../../domain/entities/Activity/activity.entity";
 import { Link } from "../../domain/entities/Link/link.entity";
+import { ActivityComment } from "../../domain/entities/ActivityComment/activityComment.entity";
 
 export class TripContractRepo implements ITripContractRepo {
   private tripRepository: Repository<Trip>;
   private participantRepository: Repository<Participant>;
   private activityRepository: Repository<Activity>;
   private linkRepository: Repository<Link>;
+  private commentRepository: Repository<ActivityComment>;
 
   constructor(private readonly dataSource: DataSource) {
     this.tripRepository = dataSource.getRepository(Trip);
     this.participantRepository = dataSource.getRepository(Participant);
     this.activityRepository = dataSource.getRepository(Activity);
     this.linkRepository = dataSource.getRepository(Link);
+    this.commentRepository = dataSource.getRepository(ActivityComment);
   }
 
   async createTrip(data: CreateTripData): Promise<Trip> {
@@ -74,6 +80,18 @@ export class TripContractRepo implements ITripContractRepo {
     });
   }
 
+  async updateTripCover(tripId: string, data: TripCoverData): Promise<Trip> {
+    await this.tripRepository.update(tripId, {
+      coverUrl: data.coverUrl,
+      coverPublicId: data.coverPublicId,
+    });
+    const hydrated = await this.findTripById(tripId);
+    if (!hydrated) {
+      throw new Error(`Trip ${tripId} não encontrada após atualizar o banner`);
+    }
+    return hydrated;
+  }
+
   async addActivity(tripId: string, data: NewActivityData): Promise<Activity> {
     const activity = this.activityRepository.create({
       title: data.title,
@@ -81,6 +99,7 @@ export class TripContractRepo implements ITripContractRepo {
       status: data.status,
       tripId,
       createdBy: data.createdBy ?? null,
+      description: data.description ?? null,
     });
     return this.activityRepository.save(activity);
   }
@@ -95,6 +114,16 @@ export class TripContractRepo implements ITripContractRepo {
     if (data.title !== undefined) activity.title = data.title;
     if (data.at !== undefined) activity.occursAt = new Date(data.at);
     if (data.status !== undefined) activity.status = data.status;
+    if (data.description !== undefined) activity.description = data.description;
+    return this.activityRepository.save(activity);
+  }
+
+  async updateActivityBanner(
+    activity: Activity,
+    data: ActivityBannerData
+  ): Promise<Activity> {
+    activity.bannerUrl = data.bannerUrl;
+    activity.bannerPublicId = data.bannerPublicId;
     return this.activityRepository.save(activity);
   }
 
@@ -130,5 +159,73 @@ export class TripContractRepo implements ITripContractRepo {
 
   async saveGuest(guest: Participant): Promise<Participant> {
     return this.participantRepository.save(guest);
+  }
+
+  // --- Activity links (Item 7c) ---
+
+  async addActivityLink(
+    tripId: string,
+    activityId: string,
+    data: NewLinkData
+  ): Promise<Link> {
+    const link = this.linkRepository.create({
+      title: data.label,
+      url: data.url,
+      tripId,
+      activityId,
+    });
+    return this.linkRepository.save(link);
+  }
+
+  async findActivityLinks(activityId: string): Promise<Link[]> {
+    return this.linkRepository.find({
+      where: { activityId },
+      order: { createdAt: "ASC" },
+    });
+  }
+
+  async findActivityLink(activityId: string, linkId: string): Promise<Link | null> {
+    return this.linkRepository.findOne({
+      where: { id: linkId, activityId },
+    });
+  }
+
+  async softDeleteLink(linkId: string): Promise<void> {
+    await this.linkRepository.softDelete(linkId);
+  }
+
+  // --- Activity comments (Item 7b) ---
+
+  async addComment(
+    activityId: string,
+    data: NewActivityCommentData
+  ): Promise<ActivityComment> {
+    const comment = this.commentRepository.create({
+      activityId,
+      authorId: data.authorId,
+      authorName: data.authorName,
+      body: data.body,
+    });
+    return this.commentRepository.save(comment);
+  }
+
+  async findComments(activityId: string): Promise<ActivityComment[]> {
+    return this.commentRepository.find({
+      where: { activityId },
+      order: { createdAt: "ASC" },
+    });
+  }
+
+  async findComment(
+    activityId: string,
+    commentId: string
+  ): Promise<ActivityComment | null> {
+    return this.commentRepository.findOne({
+      where: { id: commentId, activityId },
+    });
+  }
+
+  async softDeleteComment(commentId: string): Promise<void> {
+    await this.commentRepository.softDelete(commentId);
   }
 }

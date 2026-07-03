@@ -28,6 +28,7 @@ portainer-stack.yml
 
 # Local notes with real credentials — never commit
 CLOUDINARY.md
+SECURITY_REVIEW.md
 .claude/
 
 # dotenv environment variable files

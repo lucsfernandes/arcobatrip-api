@@ -1,15 +1,19 @@
 import {
+  ActivityBannerData,
   CreateTripData,
   ITripContractRepo,
+  NewActivityCommentData,
   NewActivityData,
   NewGuestData,
   NewLinkData,
+  TripCoverData,
   UpdateActivityData,
 } from "../../application/usecases/trips/ITripContractRepo";
 import { Trip } from "../../domain/entities/Trip/trip.entity";
 import { Participant } from "../../domain/entities/Participant/participant.entity";
 import { Activity } from "../../domain/entities/Activity/activity.entity";
 import { Link } from "../../domain/entities/Link/link.entity";
+import { ActivityComment } from "../../domain/entities/ActivityComment/activityComment.entity";
 
 /**
  * In-memory {@link ITripContractRepo} for use-case unit tests. Only the methods
@@ -19,8 +23,14 @@ import { Link } from "../../domain/entities/Link/link.entity";
 export class MockTripContractRepo implements ITripContractRepo {
   private trips: Trip[] = [];
   private activities: Activity[] = [];
+  private links: Link[] = [];
+  private comments: ActivityComment[] = [];
   /** ids passed to softDeleteActivity, for assertions. */
   public softDeleted: string[] = [];
+  /** ids passed to softDeleteLink, for assertions. */
+  public softDeletedLinks: string[] = [];
+  /** ids passed to softDeleteComment, for assertions. */
+  public softDeletedComments: string[] = [];
 
   seedTrip(trip: Trip): void {
     this.trips.push(trip);
@@ -30,10 +40,23 @@ export class MockTripContractRepo implements ITripContractRepo {
     this.activities.push(activity);
   }
 
+  seedLink(link: Link): void {
+    this.links.push(link);
+  }
+
+  seedComment(comment: ActivityComment): void {
+    this.comments.push(comment);
+  }
+
   clear(): void {
     this.trips = [];
     this.activities = [];
+    this.links = [];
+    this.comments = [];
     this.softDeleted = [];
+    this.softDeletedLinks = [];
+    this.softDeletedComments = [];
+    this.addedGuests = [];
   }
 
   async findTripById(id: string): Promise<Trip | null> {
@@ -48,10 +71,28 @@ export class MockTripContractRepo implements ITripContractRepo {
     );
   }
 
+  async updateTripCover(tripId: string, data: TripCoverData): Promise<Trip> {
+    const trip = this.trips.find((t) => t.id === tripId);
+    if (!trip) throw new Error("trip not found in mock");
+    trip.coverUrl = data.coverUrl;
+    trip.coverPublicId = data.coverPublicId;
+    return trip;
+  }
+
   async updateActivity(activity: Activity, data: UpdateActivityData): Promise<Activity> {
     if (data.title !== undefined) activity.title = data.title;
     if (data.at !== undefined) activity.occursAt = new Date(data.at);
     if (data.status !== undefined) activity.status = data.status;
+    if (data.description !== undefined) activity.description = data.description;
+    return activity;
+  }
+
+  async updateActivityBanner(
+    activity: Activity,
+    data: ActivityBannerData
+  ): Promise<Activity> {
+    activity.bannerUrl = data.bannerUrl;
+    activity.bannerPublicId = data.bannerPublicId;
     return activity;
   }
 
@@ -69,6 +110,7 @@ export class MockTripContractRepo implements ITripContractRepo {
       status: data.status,
       tripId,
       createdBy: data.createdBy ?? null,
+      description: data.description ?? null,
     } as Activity;
     this.activities.push(activity);
     return activity;
@@ -84,8 +126,95 @@ export class MockTripContractRepo implements ITripContractRepo {
   async addLink(_tripId: string, _data: NewLinkData): Promise<Link> {
     throw new Error("not implemented in mock");
   }
-  async addGuest(_tripId: string, _data: NewGuestData): Promise<Participant> {
-    throw new Error("not implemented in mock");
+
+  // --- Activity links (Item 7c) ---
+  async addActivityLink(
+    tripId: string,
+    activityId: string,
+    data: NewLinkData
+  ): Promise<Link> {
+    const link = {
+      id: `link-${this.links.length + 1}`,
+      title: data.label,
+      url: data.url,
+      tripId,
+      activityId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as Link;
+    this.links.push(link);
+    return link;
+  }
+
+  async findActivityLinks(activityId: string): Promise<Link[]> {
+    return this.links.filter((l) => l.activityId === activityId && !l.deletedAt);
+  }
+
+  async findActivityLink(activityId: string, linkId: string): Promise<Link | null> {
+    return (
+      this.links.find(
+        (l) => l.id === linkId && l.activityId === activityId && !l.deletedAt
+      ) ?? null
+    );
+  }
+
+  async softDeleteLink(linkId: string): Promise<void> {
+    this.softDeletedLinks.push(linkId);
+    const link = this.links.find((l) => l.id === linkId);
+    if (link) link.deletedAt = new Date();
+  }
+
+  // --- Activity comments (Item 7b) ---
+  async addComment(
+    activityId: string,
+    data: NewActivityCommentData
+  ): Promise<ActivityComment> {
+    const comment = {
+      id: `comment-${this.comments.length + 1}`,
+      activityId,
+      authorId: data.authorId,
+      authorName: data.authorName,
+      body: data.body,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as ActivityComment;
+    this.comments.push(comment);
+    return comment;
+  }
+
+  async findComments(activityId: string): Promise<ActivityComment[]> {
+    return this.comments.filter((c) => c.activityId === activityId && !c.deletedAt);
+  }
+
+  async findComment(
+    activityId: string,
+    commentId: string
+  ): Promise<ActivityComment | null> {
+    return (
+      this.comments.find(
+        (c) => c.id === commentId && c.activityId === activityId && !c.deletedAt
+      ) ?? null
+    );
+  }
+
+  async softDeleteComment(commentId: string): Promise<void> {
+    this.softDeletedComments.push(commentId);
+    const comment = this.comments.find((c) => c.id === commentId);
+    if (comment) comment.deletedAt = new Date();
+  }
+  /** Guests recorded by addGuest, for assertions. */
+  public addedGuests: { tripId: string; data: NewGuestData }[] = [];
+
+  async addGuest(tripId: string, data: NewGuestData): Promise<Participant> {
+    this.addedGuests.push({ tripId, data });
+    return {
+      id: `guest-${this.addedGuests.length}`,
+      name: data.name,
+      email: data.email,
+      isOwner: false,
+      isConfirmed: false,
+      tripId,
+    } as Participant;
   }
   async findGuest(_tripId: string, _guestId: string): Promise<Participant | null> {
     throw new Error("not implemented in mock");

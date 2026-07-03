@@ -47,6 +47,8 @@ export class CloudinaryStorageService implements IStorageService {
     }
 
     const folder = options?.folder ?? DEFAULT_FOLDER;
+    const width = options?.width ?? 512;
+    const height = options?.height ?? 512;
 
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
@@ -55,7 +57,7 @@ export class CloudinaryStorageService implements IStorageService {
           resource_type: "image",
           overwrite: true,
           transformation: [
-            { width: 512, height: 512, crop: "fill", gravity: "auto" },
+            { width, height, crop: "fill", gravity: "auto" },
             { fetch_format: "auto", quality: "auto" },
           ],
         },

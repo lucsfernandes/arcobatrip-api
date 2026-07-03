@@ -7,4 +7,6 @@ export interface CreateExpenseRequestDTO {
   category: ExpenseCategory;
   paidById: string;
   splitBetween: string[];
+  /** OPTIONAL activity to tag the expense to; must belong to the trip. */
+  activityId?: string;
 }

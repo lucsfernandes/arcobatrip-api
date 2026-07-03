@@ -26,6 +26,9 @@ export class Trip extends BaseEntity {
   @Column({ name: "cover_url", type: "varchar", nullable: true })
   public coverUrl?: string | null;
 
+  @Column({ name: "cover_public_id", type: "varchar", nullable: true })
+  public coverPublicId?: string | null;
+
   @OneToMany(() => Participant, (participant) => participant.trip, { cascade: ["insert"] })
   participants!: Participant[];
 

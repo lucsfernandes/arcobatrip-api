@@ -45,6 +45,7 @@ export class UpdateActivityUseCase
       title: request.title,
       at: request.at,
       status: request.status,
+      description: request.description,
     });
 
     return Result.ok(ActivityContractMap.toContract(updated));
