@@ -1,6 +1,7 @@
 import { Router } from "express";
 import zodToJsonSchema from "zod-to-json-schema";
 import { validateBody } from "../../utils/validator";
+import { authLimiter } from "../../middlewares/rateLimiters";
 import { registerPayloadValidation } from "../../validators/auth/authPayloadValidation";
 import { registerUserController } from "../../../main/factories/auth/authFactory";
 
@@ -39,7 +40,7 @@ const registerSwagger = {
   },
 };
 
-registerRouter.post("/", validateBody(registerPayloadValidation), async (req, res) => {
+registerRouter.post("/", authLimiter, validateBody(registerPayloadValidation), async (req, res) => {
   await registerUserController.execute(req, res);
 });
 

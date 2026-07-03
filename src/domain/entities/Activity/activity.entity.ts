@@ -17,6 +17,14 @@ export class Activity extends BaseEntity {
   @Index()
   public tripId!: string;
 
+  /**
+   * User who created the activity. Nullable to accommodate rows created before
+   * this column existed. Used to authorize edit/delete ("creator OR trip owner").
+   */
+  @Column({ name: 'created_by', type: 'uuid', nullable: true })
+  @Index()
+  public createdBy?: string | null;
+
   @ManyToOne(() => Trip)
   @JoinColumn({ name: 'trip_id' })
   trip?: Trip;

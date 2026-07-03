@@ -15,6 +15,20 @@ export const createActivityValidation = z.object({
   status: z.enum(["done", "pending"]),
 });
 
+/**
+ * Body for `PATCH /trips/{id}/activities/{activityId}`. All fields optional
+ * (partial update); at least one must be provided.
+ */
+export const updateActivityValidation = z
+  .object({
+    title: z.string().min(1, "Título é obrigatório").optional(),
+    at: z.string().min(1, "Data/hora é obrigatória").optional(),
+    status: z.enum(["done", "pending"]).optional(),
+  })
+  .refine((data) => Object.values(data).some((v) => v !== undefined), {
+    message: "Informe ao menos um campo para atualizar",
+  });
+
 /** Body for `POST /trips/{id}/links`. */
 export const createLinkValidation = z.object({
   label: z.string().min(1, "Rótulo é obrigatório"),

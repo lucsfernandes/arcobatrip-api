@@ -1,6 +1,7 @@
 import { Router } from "express";
 import zodToJsonSchema from "zod-to-json-schema";
 import { validateBody } from "../../utils/validator";
+import { emailLimiter } from "../../middlewares/rateLimiters";
 import { forgotPasswordValidation } from "../../validators/auth/forgotPasswordValidation";
 import { forgotPasswordController } from "../../../main/factories/auth/authFactory";
 
@@ -30,7 +31,7 @@ const forgotPasswordSwagger = {
   },
 };
 
-forgotPasswordRouter.post("/", validateBody(forgotPasswordValidation), async (req, res) => {
+forgotPasswordRouter.post("/", emailLimiter, validateBody(forgotPasswordValidation), async (req, res) => {
   await forgotPasswordController.execute(req, res);
 });
 

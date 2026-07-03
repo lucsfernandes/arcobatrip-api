@@ -13,15 +13,32 @@ const envSchema = z.object({
   TYPEORM_DATABASE: z.string().min(1, "TYPEORM_DATABASE é obrigatório"),
   TYPEORM_SYNC: z.coerce.boolean().default(false),
   TYPEORM_SSLMODE: z.string().optional().default("prefer"),
-  JWT_SECRET: z.string().min(26, "JWT_SECRET deve ter pelo menos 26 caracteres").default("zarpa-secret-key-change-in-production-2024"),
+  JWT_SECRET: z.string().min(32, "JWT_SECRET é obrigatório e deve ter pelo menos 32 caracteres"),
   JWT_EXPIRES_IN: z.string().default("15m"),
-  JWT_REFRESH_SECRET: z.string().min(26, "JWT_REFRESH_SECRET deve ter pelo menos 26 caracteres").default("zarpa-refresh-secret-key-change-in-production-2024"),
+  JWT_REFRESH_SECRET: z.string().min(32, "JWT_REFRESH_SECRET é obrigatório e deve ter pelo menos 32 caracteres"),
   JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
   RESEND_API_KEY: z.string().optional().default(""),
   EMAIL_FROM: z.string().default("Zarpa <no-reply@zarpa.com>"),
   APP_URL: z.string().default("http://localhost:5173"),
+  // CORS: lista de origens permitidas separadas por vírgula
+  // (ex.: "http://localhost:3001,http://localhost:8081").
+  // Vazio => modo dev: reflete uma allowlist de localhosts conhecidos (ver app.ts).
+  CORS_ORIGINS: z.string().optional().default(""),
   EMAIL_VERIFICATION_TOKEN_TTL_MIN: z.coerce.number().default(1440),
-  PASSWORD_RESET_TOKEN_TTL_MIN: z.coerce.number().default(60)
+  PASSWORD_RESET_TOKEN_TTL_MIN: z.coerce.number().default(60),
+  // Verificação de celular por email (código numérico de 6 dígitos)
+  PHONE_VERIFICATION_CODE_TTL_MIN: z.coerce.number().default(15),
+  PHONE_VERIFICATION_RESEND_COOLDOWN_SEC: z.coerce.number().default(60),
+  PHONE_VERIFICATION_MAX_ATTEMPTS: z.coerce.number().default(5),
+  // Segredo HMAC para o hash do código de celular (6 dígitos, força-brutável em
+  // SHA-256 puro). OPCIONAL: quando ausente, deriva-se um fallback determinístico
+  // a partir de JWT_SECRET (ver hashPhoneCode) para não adicionar uma env
+  // obrigatória que quebre o boot. Defina em produção para desacoplar do JWT.
+  PHONE_CODE_SECRET: z.string().min(16).optional(),
+  // Cloudinary (upload de avatar). Deixe vazio para desabilitar o upload em dev.
+  CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
+  CLOUDINARY_API_KEY: z.string().optional().default(""),
+  CLOUDINARY_API_SECRET: z.string().optional().default(""),
 });
 
 // Validar variáveis de ambiente

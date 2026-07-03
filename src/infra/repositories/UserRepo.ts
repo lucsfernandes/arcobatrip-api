@@ -1,4 +1,5 @@
 import { DataSource, Repository } from "typeorm";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { CreateUserPayload, IUserRepo, UpdateUserPayload } from "../../application/usecases/auth/IUserRepo";
 import { IUser, IUserPublic } from "../../domain/entities/User/IUser";
 import { User } from "../../domain/entities/User/user.entity";
@@ -67,7 +68,9 @@ export class UserRepo implements IUserRepo {
   }
 
   async update(id: string, payload: UpdateUserPayload): Promise<IUserPublic | null> {
-    await this.userRepository.update(id, payload);
+    // `birthDate` may arrive as a `YYYY-MM-DD` string — valid input for a
+    // Postgres `date` column at runtime, hence the cast to TypeORM's write type.
+    await this.userRepository.update(id, payload as QueryDeepPartialEntity<User>);
 
     const updatedUser = await this.userRepository.findOne({
       where: { id }

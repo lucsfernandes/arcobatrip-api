@@ -2,6 +2,7 @@ import { Router } from "express";
 import { v1AuthRouter, v1AuthRouterSwagger } from "../routers/v1AuthRouter";
 import { v1TripsRouter } from "../routers/trips/v1TripsRouter";
 import { v1NotificationsRouter } from "../routers/notifications/v1NotificationsRouter";
+import { v1UsersRouter } from "../routers/users/v1UsersRouter";
 import { meRouter } from "../routers/auth/meRouter";
 
 const v1Router = Router();
@@ -18,6 +19,9 @@ v1Router.get("/health", (_req, res) => {
 // Auth (login / signup / logout / refresh / register) under /auth, plus /me at root.
 v1Router.use(v1AuthRouter);
 v1Router.use("/me", meRouter);
+
+// User profile resource (rich profile, avatar, phone verification) under /users.
+v1Router.use("/users", v1UsersRouter);
 
 // Trips and their sub-resources (activities, links, guests, expenses).
 v1Router.use("/trips", v1TripsRouter);

@@ -8,6 +8,11 @@ export interface IUser {
   password?: string;
   birthDate?: Date | null;
   avatarUrl?: string | null;
+  avatarPublicId?: string | null;
+  bio?: string | null;
+  city?: string | null;
+  country?: string | null;
+  phoneVerified: boolean;
   accent?: string | null;
   isActive: boolean;
   emailVerifiedAt?: Date | null;
@@ -23,6 +28,11 @@ export interface IUserPublic {
   email: string;
   birthDate?: Date | null;
   avatarUrl?: string | null;
+  avatarPublicId?: string | null;
+  bio?: string | null;
+  city?: string | null;
+  country?: string | null;
+  phoneVerified: boolean;
   accent?: string | null;
   isActive: boolean;
   emailVerifiedAt?: Date | null;

@@ -6,6 +6,7 @@ import { env } from "../../../main/config/env";
 import logger from "../../../main/logger";
 import {
   NotificationEmail,
+  PhoneVerificationEmail,
   ResetPasswordEmail,
   VerifyEmail,
   WelcomeEmail,
@@ -43,6 +44,14 @@ export class ResendEmailService implements IEmailService {
   ): Promise<void> {
     const html = await render(React.createElement(ResetPasswordEmail, params));
     await this.send(to, "Redefinição de senha do Zarpa", html);
+  }
+
+  async sendPhoneVerificationCode(
+    to: string,
+    params: { name: string; code: string; ttlMinutes: number }
+  ): Promise<void> {
+    const html = await render(React.createElement(PhoneVerificationEmail, params));
+    await this.send(to, "Seu código de verificação de celular no Zarpa", html);
   }
 
   async sendNotification(

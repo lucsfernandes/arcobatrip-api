@@ -26,6 +26,10 @@ dist/
 # Ignore portainer-stack.yml
 portainer-stack.yml
 
+# Local notes with real credentials — never commit
+CLOUDINARY.md
+.claude/
+
 # dotenv environment variable files
 .env
 .env.development.local

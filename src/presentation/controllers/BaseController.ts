@@ -64,6 +64,18 @@ export abstract class BaseController {
   }
 
   private errorToJson(error: UseCaseError | Error | string, status: number): ErrorEnvelope {
+    // Never leak internal diagnostics (driver/Cloudinary/stack messages) to the
+    // client on 5xx. The real detail is already logged by fail()/clientError()/
+    // execute() via Winston; the wire only gets a stable generic envelope.
+    if (status >= 500) {
+      return {
+        error: {
+          code: "internal_error",
+          message: "Erro interno do servidor",
+        },
+      };
+    }
+
     if (error instanceof UseCaseError) {
       const message =
         typeof error.errors === "object" && error.errors !== null

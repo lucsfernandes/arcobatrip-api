@@ -12,6 +12,12 @@ export type ErrorCode =
   | "email_conflict"
   | "conflict"
   | "bad_request"
+  | "email_immutable"
+  | "invalid_code"
+  | "code_expired"
+  | "too_many_requests"
+  | "too_many_attempts"
+  | "gone"
   | "internal_error";
 
 /**
@@ -48,6 +54,37 @@ export class AppError extends UseCaseError {
     return new AppError(message, 400, "bad_request");
   }
 
+  /** 403 — the email address cannot be changed through the API (support only). */
+  static emailImmutable(
+    message = "O email não pode ser alterado pela API. Fale com o suporte."
+  ): AppError {
+    return new AppError(message, 403, "email_immutable");
+  }
+
+  /** 400 — a submitted verification code did not match. */
+  static invalidCode(message = "Código inválido"): AppError {
+    return new AppError(message, 400, "invalid_code");
+  }
+
+  /** 410 — the verification code expired or no longer exists. */
+  static codeExpired(message = "Código expirado ou inexistente"): AppError {
+    return new AppError(message, 410, "code_expired");
+  }
+
+  /** 429 — resend attempted before the cooldown window elapsed. */
+  static tooManyRequests(
+    message = "Aguarde antes de solicitar um novo código"
+  ): AppError {
+    return new AppError(message, 429, "too_many_requests");
+  }
+
+  /** 429 — too many failed validation attempts; the code was invalidated. */
+  static tooManyAttempts(
+    message = "Muitas tentativas. Solicite um novo código."
+  ): AppError {
+    return new AppError(message, 429, "too_many_attempts");
+  }
+
   static internal(message = "Erro interno do servidor"): AppError {
     return new AppError(message, 500, "internal_error");
   }
@@ -66,6 +103,10 @@ export function defaultCodeForStatus(status: number): ErrorCode {
       return "not_found";
     case 409:
       return "conflict";
+    case 410:
+      return "gone";
+    case 429:
+      return "too_many_requests";
     default:
       return "internal_error";
   }

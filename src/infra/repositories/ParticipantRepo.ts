@@ -24,7 +24,9 @@ export class ParticipantRepo implements IParticipantRepo {
     return ParticipantMap.toDomain(participant);
   }
   async create(payload: CreateParticipantPayload): Promise<IParticipant | null> {
-    const result = await this.participantRepository.create(payload);
+    const participant = this.participantRepository.create(payload);
+
+    const result = await this.participantRepository.save(participant);
 
     if (!result) {
       return null;
@@ -43,13 +45,19 @@ export class ParticipantRepo implements IParticipantRepo {
       return null;
     }
 
-    const result = await this.participantRepository.update(id, payload);
+    await this.participantRepository.update(id, payload);
 
-    if (!result) {
+    const updated = await this.participantRepository.findOne({
+      where: {
+        id
+      }
+    });
+
+    if (!updated) {
       return null;
     }
 
-    return ParticipantMap.toDomain(result.raw);
+    return ParticipantMap.toDomain(updated);
   }
 
   async executeTransaction<T>(action: (manager: EntityManager) => Promise<T>): Promise<T> {

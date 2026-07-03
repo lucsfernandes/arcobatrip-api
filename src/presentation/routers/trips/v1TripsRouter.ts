@@ -4,6 +4,7 @@ import { validateBody } from "../../utils/validator";
 import {
   createTripValidation,
   createActivityValidation,
+  updateActivityValidation,
   createLinkValidation,
   createGuestValidation,
   updateGuestStatusValidation,
@@ -14,6 +15,8 @@ import {
   listTripsController,
   getTripContractController,
   addActivityController,
+  updateActivityController,
+  deleteActivityController,
   addLinkController,
   addGuestController,
   setGuestStatusController,
@@ -42,6 +45,16 @@ v1TripsRouter.get("/:id", (req, res) => {
 // Sub-resources
 v1TripsRouter.post("/:id/activities", validateBody(createActivityValidation), (req, res) => {
   addActivityController.execute(req, res);
+});
+v1TripsRouter.patch(
+  "/:id/activities/:activityId",
+  validateBody(updateActivityValidation),
+  (req, res) => {
+    updateActivityController.execute(req, res);
+  }
+);
+v1TripsRouter.delete("/:id/activities/:activityId", (req, res) => {
+  deleteActivityController.execute(req, res);
 });
 v1TripsRouter.post("/:id/links", validateBody(createLinkValidation), (req, res) => {
   addLinkController.execute(req, res);
