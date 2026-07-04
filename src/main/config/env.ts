@@ -17,6 +17,9 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default("15m"),
   JWT_REFRESH_SECRET: z.string().min(32, "JWT_REFRESH_SECRET é obrigatório e deve ter pelo menos 32 caracteres"),
   JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
+  // URL pública do frontend. Sua origem entra automaticamente na allowlist de CORS.
+  WEB_BASE_URL: z.string().optional().default(""),
+  API_BASE_URL: z.string().optional().default(""),
   RESEND_API_KEY: z.string().optional().default(""),
   EMAIL_FROM: z.string().default("Zarpa <no-reply@zarpa.com>"),
   APP_URL: z.string().default("http://localhost:5173"),

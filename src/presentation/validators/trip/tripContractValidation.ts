@@ -60,7 +60,7 @@ const httpUrl = z
 
 /** Body for `POST /trips/{id}/activities/{activityId}/links`. */
 export const createActivityLinkValidation = z.object({
-  title: z.string().trim().min(1, "Título é obrigatório"),
+  label: z.string().trim().min(1, "Rótulo é obrigatório"),
   url: httpUrl,
 });
 

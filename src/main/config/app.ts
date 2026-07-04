@@ -29,18 +29,42 @@ app.use(express.json());
  *
  * - Requests without an `Origin` header (curl, native mobile apps, health
  *   checks, server-to-server) always pass.
- * - When `CORS_ORIGINS` is set, ONLY those exact origins are allowed.
- * - When `CORS_ORIGINS` is empty (dev), any `localhost` / `127.0.0.1` origin is
- *   allowed on any port (Vite, Expo, etc.). We deliberately do NOT reflect
- *   arbitrary origins (`origin: true`) so a page on `https://evil.com` can never
- *   ride a browser session — only loopback dev origins are trusted.
+ * - The allowlist is the union of:
+ *     1. `CORS_ORIGINS` (comma-separated exact origins), and
+ *     2. the origin of `WEB_BASE_URL` — so the production frontend domain is
+ *        trusted automatically without a second env var (this is the fix for the
+ *        prod frontend being blocked when only WEB_BASE_URL was configured).
+ * - When the allowlist is empty (pure dev with neither var set to a real host),
+ *   any `localhost` / `127.0.0.1` origin is allowed on any port (Vite, Expo).
+ *   We deliberately do NOT reflect arbitrary origins (`origin: true`) so a page
+ *   on `https://evil.com` can never ride a browser session.
  */
-const allowlist = env.CORS_ORIGINS.split(",")
-  .map((origin) => origin.trim())
-  .filter((origin) => origin.length > 0);
+
+/** Extract the bare origin (scheme + host + port) of a URL, or null if invalid. */
+const originOf = (value: string | undefined): string | null => {
+  const trimmed = value?.trim().replace(/^['"]|['"]$/g, "");
+  if (!trimmed) return null;
+  try {
+    return new URL(trimmed).origin;
+  } catch {
+    return null;
+  }
+};
 
 const isDevLoopback = (origin: string): boolean =>
   /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
+
+const allowlist = new Set(
+  [
+    ...env.CORS_ORIGINS.split(","),
+    // WEB_BASE_URL is normalized to its origin so a value with a path/trailing
+    // slash (e.g. "https://zarpa.arcobatrox.com.br/") still matches the browser
+    // Origin header (which is always bare origin, no path/slash).
+    env.WEB_BASE_URL,
+  ]
+    .map((entry) => originOf(entry))
+    .filter((entry): entry is string => entry !== null && !isDevLoopback(entry))
+);
 
 const corsOptions: CorsOptions = {
   origin(requestOrigin, callback) {
@@ -51,8 +75,8 @@ const corsOptions: CorsOptions = {
     }
 
     const allowed =
-      allowlist.length > 0
-        ? allowlist.includes(requestOrigin)
+      allowlist.size > 0
+        ? allowlist.has(requestOrigin) || isDevLoopback(requestOrigin)
         : isDevLoopback(requestOrigin);
 
     if (allowed) {
