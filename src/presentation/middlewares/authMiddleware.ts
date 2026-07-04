@@ -17,18 +17,31 @@ export const authMiddleware = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const authHeader = req.headers.authorization;
+    // Autenticação DUAL: o web envia o access token no cookie HttpOnly
+    // `access_token`; o mobile continua enviando `Authorization: Bearer`. O
+    // cookie tem precedência quando presente; senão caímos no header. As
+    // mensagens/códigos 401 permanecem idênticos para não mudar o contrato.
+    const cookieToken =
+      typeof req.cookies?.access_token === "string" ? req.cookies.access_token : "";
 
-    if (!authHeader) {
-      unauthorized(res, "Token de autenticação não fornecido");
-      return;
-    }
+    let token = cookieToken;
 
-    const [bearer, token] = authHeader.split(" ");
+    if (!token) {
+      const authHeader = req.headers.authorization;
 
-    if (bearer !== "Bearer" || !token) {
-      unauthorized(res, "Formato de token inválido");
-      return;
+      if (!authHeader) {
+        unauthorized(res, "Token de autenticação não fornecido");
+        return;
+      }
+
+      const [bearer, headerToken] = authHeader.split(" ");
+
+      if (bearer !== "Bearer" || !headerToken) {
+        unauthorized(res, "Formato de token inválido");
+        return;
+      }
+
+      token = headerToken;
     }
 
     const isBlacklisted = await tokenService.isTokenBlacklisted(token);

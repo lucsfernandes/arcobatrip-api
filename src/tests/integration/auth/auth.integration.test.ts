@@ -1,5 +1,6 @@
 import request from "supertest";
 import express, { Express } from "express";
+import cookieParser from "cookie-parser";
 import { SignupUseCase } from "../../../application/usecases/auth/signup/SignupUseCase";
 import { LoginUserUseCase } from "../../../application/usecases/auth/login/LoginUserUseCase";
 import { LogoutUserUseCase } from "../../../application/usecases/auth/logout/LogoutUserUseCase";
@@ -23,6 +24,8 @@ describe("Auth Integration Tests (contract envelope)", () => {
 
     app = express();
     app.use(express.json());
+    // cookie-parser popula req.cookies — exercita o fluxo web (cookie HttpOnly).
+    app.use(cookieParser());
 
     const signupUseCase = new SignupUseCase(mockUserRepo, mockTokenService);
     const loginUserUseCase = new LoginUserUseCase(mockUserRepo, mockTokenService);
@@ -76,12 +79,34 @@ describe("Auth Integration Tests (contract envelope)", () => {
     password: "supersecret",
   };
 
+  /** Normaliza o header set-cookie (string | string[]) num array. */
+  const setCookieArray = (res: request.Response): string[] => {
+    const raw = res.headers["set-cookie"];
+    if (!raw) return [];
+    return Array.isArray(raw) ? raw : [raw];
+  };
+
+  /** Extrai o VALOR de um cookie pelo nome a partir do header set-cookie. */
+  const getCookieValue = (
+    res: request.Response,
+    name: string
+  ): string | undefined => {
+    const entry = setCookieArray(res).find((c) => c.startsWith(`${name}=`));
+    return entry ? entry.split(";")[0].split("=")[1] : undefined;
+  };
+
   describe("POST /api/v1/auth/signup", () => {
-    it("creates an account and returns 201 { token, user }", async () => {
+    it("creates an account and returns 201 { token, user } + sets auth cookies", async () => {
       const response = await request(app)
         .post("/api/v1/auth/signup")
         .send(signupPayload)
         .expect(201);
+
+      // Web: cookies HttpOnly emitidos. O refreshToken NÃO vaza no corpo.
+      expect(getCookieValue(response, "access_token")).toBeTruthy();
+      expect(getCookieValue(response, "refresh_token")).toBeTruthy();
+      expect(setCookieArray(response).join(";")).toContain("HttpOnly");
+      expect(response.body.refreshToken).toBeUndefined();
 
       expect(response.body.token).toBeDefined();
       expect(response.body.user.email).toBe(signupPayload.email);
@@ -104,7 +129,7 @@ describe("Auth Integration Tests (contract envelope)", () => {
       await request(app).post("/api/v1/auth/signup").send(signupPayload);
     });
 
-    it("returns 200 { token, user } for valid credentials", async () => {
+    it("returns 200 { token, user } for valid credentials + sets auth cookies", async () => {
       const response = await request(app)
         .post("/api/v1/auth/login")
         .send({ email: signupPayload.email, password: signupPayload.password })
@@ -112,6 +137,10 @@ describe("Auth Integration Tests (contract envelope)", () => {
 
       expect(response.body.token).toBeDefined();
       expect(response.body.user.email).toBe(signupPayload.email);
+      // Web: cookies HttpOnly emitidos; refreshToken continua fora do corpo.
+      expect(getCookieValue(response, "access_token")).toBeTruthy();
+      expect(getCookieValue(response, "refresh_token")).toBeTruthy();
+      expect(response.body.refreshToken).toBeUndefined();
     });
 
     it("returns 401 with the error envelope for invalid credentials", async () => {
@@ -156,13 +185,17 @@ describe("Auth Integration Tests (contract envelope)", () => {
       token = res.body.token;
     });
 
-    it("logs out successfully", async () => {
+    it("logs out successfully and clears the auth cookies", async () => {
       const response = await request(app)
         .post("/api/v1/auth/logout")
         .set("Authorization", `Bearer ${token}`)
         .expect(200);
 
       expect(response.body.message).toBe("Logout realizado com sucesso");
+      // clearCookie emite Set-Cookie com o cookie expirado (valor vazio).
+      const cookies = setCookieArray(response).join(";");
+      expect(cookies).toContain("access_token=;");
+      expect(cookies).toContain("refresh_token=;");
     });
   });
 
@@ -178,7 +211,7 @@ describe("Auth Integration Tests (contract envelope)", () => {
       });
     });
 
-    it("rotates tokens for a valid refresh token", async () => {
+    it("rotates tokens for a valid refresh token (mobile: body)", async () => {
       const response = await request(app)
         .post("/api/v1/auth/refresh")
         .send({ refreshToken })
@@ -187,6 +220,28 @@ describe("Auth Integration Tests (contract envelope)", () => {
       expect(response.body.accessToken).toBeDefined();
       expect(response.body.refreshToken).toBeDefined();
       expect(response.body.refreshToken).not.toBe(refreshToken);
+    });
+
+    it("rotates tokens via the HttpOnly cookie with NO body (web flow)", async () => {
+      // Web: faz login para receber o cookie refresh_token...
+      const login = await request(app)
+        .post("/api/v1/auth/login")
+        .send({ email: signupPayload.email, password: signupPayload.password })
+        .expect(200);
+      const refreshCookie = getCookieValue(login, "refresh_token");
+      expect(refreshCookie).toBeTruthy();
+
+      // ...e renova enviando SÓ o cookie, sem corpo.
+      const response = await request(app)
+        .post("/api/v1/auth/refresh")
+        .set("Cookie", `refresh_token=${refreshCookie}`)
+        .expect(200);
+
+      expect(response.body.accessToken).toBeDefined();
+      expect(response.body.refreshToken).toBeDefined();
+      // Rotação: novos cookies emitidos no refresh.
+      expect(getCookieValue(response, "access_token")).toBeTruthy();
+      expect(getCookieValue(response, "refresh_token")).toBeTruthy();
     });
 
     it("returns 401 envelope for an invalid refresh token", async () => {

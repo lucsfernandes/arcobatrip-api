@@ -34,10 +34,20 @@ const loginPayloadValidation = z.object({
     .min(1, "Senha é obrigatória")
 });
 
-const refreshTokenPayloadValidation = z.object({
-  refreshToken: z.string()
-    .min(1, "Token de atualização é obrigatório")
-});
+// Fluxo DUAL de refresh: o web renova via cookie HttpOnly `refresh_token` e envia
+// o POST /auth/refresh SEM corpo; o mobile continua mandando `refreshToken` no
+// corpo. Por isso o campo é opcional e o corpo inteiro tem `default({})` — uma
+// requisição sem corpo (inclusive sem Content-Type, quando `req.body` é
+// `undefined`) não pode falhar a validação. O controller resolve cookie-ou-corpo
+// e delega ao use case a resposta 401 quando nenhum token está presente.
+const refreshTokenPayloadValidation = z
+  .object({
+    refreshToken: z
+      .string()
+      .min(1, "Token de atualização é obrigatório")
+      .optional(),
+  })
+  .default({});
 
 export {
   registerPayloadValidation,
