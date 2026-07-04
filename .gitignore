@@ -45,3 +45,5 @@ SECURITY_REVIEW.md
 .vscode-test
 
 .playwright-mcp
+
+zarpa-api.postman_collection.json

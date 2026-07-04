@@ -4,6 +4,24 @@ import { z } from "zod";
 // Carregar variáveis de ambiente
 dotenv.config();
 
+/**
+ * Coerção booleana robusta para variáveis de ambiente (string -> boolean).
+ *
+ * NÃO usamos `z.coerce.boolean()` de propósito: ele aplica `Boolean(str)`, então
+ * a string `"false"` viraria `true` (toda string não-vazia é truthy) — um footgun
+ * clássico que quebraria justamente o fluxo de desenvolvimento `COOKIE_SECURE=false`.
+ * Aqui as strings usuais de negação (`"false"`/`"0"`/`"no"`/`"off"`) viram `false`;
+ * qualquer outra string não-vazia vira `true`; ausência usa o default informado.
+ */
+const envBoolean = (defaultValue: boolean) =>
+  z
+    .string()
+    .optional()
+    .transform((value) => {
+      if (value === undefined || value.trim() === "") return defaultValue;
+      return !["false", "0", "no", "off"].includes(value.trim().toLowerCase());
+    });
+
 const envSchema = z.object({
   PORT: z.string().optional().default("3000"),
   TYPEORM_HOST: z.string().default('http://localhost'),
@@ -42,6 +60,19 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
   CLOUDINARY_API_KEY: z.string().optional().default(""),
   CLOUDINARY_API_SECRET: z.string().optional().default(""),
+  // ── Cookies de autenticação (web HttpOnly) ────────────────────────────────
+  // O web passa a usar cookies HttpOnly (access_token / refresh_token); o mobile
+  // continua no header Authorization: Bearer. O backend aceita e emite AMBOS.
+  //
+  // COOKIE_SECURE: envia os cookies apenas por HTTPS. Default true (produção).
+  //   Em DEV http, defina COOKIE_SECURE=false — senão o browser DESCARTA o cookie.
+  COOKIE_SECURE: envBoolean(true),
+  // COOKIE_SAMESITE: proteção CSRF PRINCIPAL desta fase (sem token CSRF explícito).
+  //   "lax" (default) cobre o fluxo normal; "none" EXIGE Secure=true (regra do browser).
+  COOKIE_SAMESITE: z.enum(["lax", "strict", "none"]).default("lax"),
+  // COOKIE_DOMAIN: vazio => host-only (dev). Em produção com subdomínios, ex.:
+  //   ".arcobatrox.com.br". Só é aplicado ao cookie quando NÃO-vazio.
+  COOKIE_DOMAIN: z.string().optional().default(""),
 });
 
 // Validar variáveis de ambiente

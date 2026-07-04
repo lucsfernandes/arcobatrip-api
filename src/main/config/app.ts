@@ -1,6 +1,7 @@
 import express from "express";
 import cors, { type CorsOptions } from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import { v1Router } from "../../presentation/middlewares/routes";
 import { env } from "./env";
 import "reflect-metadata";
@@ -23,6 +24,14 @@ app.set("trust proxy", 1);
 app.use(helmet({ contentSecurityPolicy: false }));
 
 app.use(express.json());
+
+/**
+ * Cookie parser — popula `req.cookies` a partir do header `Cookie`. Necessário
+ * para a autenticação por cookie HttpOnly do web (o `authMiddleware` lê
+ * `req.cookies.access_token`). Sem segredo: não usamos cookies assinados (o JWT
+ * já é assinado/verificado). Registrado ANTES das rotas `/api/v1`.
+ */
+app.use(cookieParser());
 
 /**
  * CORS allowlist.

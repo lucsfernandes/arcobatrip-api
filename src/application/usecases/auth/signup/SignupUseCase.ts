@@ -51,7 +51,11 @@ export class SignupUseCase implements IUseCase<SignupRequestDTO, SignupResponseD
         return Result.fail(AppError.internal("Não foi possível criar o usuário"));
       }
 
-      const token = this.tokenService.generateToken({
+      // Par de tokens: o access vai no corpo `{ token }` (contrato do mobile) e
+      // também no cookie HttpOnly de acesso; o refresh vai SOMENTE no cookie
+      // HttpOnly de refresh (o controller o remove do corpo). Já iniciamos a
+      // sessão no signup, então precisamos do refresh para o fluxo de renovação.
+      const { accessToken, refreshToken } = this.tokenService.generateTokenPair({
         userId: user.id,
         email: user.email,
       });
@@ -64,7 +68,8 @@ export class SignupUseCase implements IUseCase<SignupRequestDTO, SignupResponseD
       });
 
       return Result.ok({
-        token,
+        token: accessToken,
+        refreshToken,
         user: UserMap.toContract(user),
       });
     } catch (error) {
