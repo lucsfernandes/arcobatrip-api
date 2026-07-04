@@ -6,7 +6,7 @@ import {
 describe("createActivityLinkValidation", () => {
   it("accepts an https URL", () => {
     const result = createActivityLinkValidation.safeParse({
-      title: "Ingressos",
+      label:"Ingressos",
       url: "https://example.com/tickets",
     });
     expect(result.success).toBe(true);
@@ -14,7 +14,7 @@ describe("createActivityLinkValidation", () => {
 
   it("accepts an http URL", () => {
     const result = createActivityLinkValidation.safeParse({
-      title: "Site",
+      label:"Site",
       url: "http://example.com",
     });
     expect(result.success).toBe(true);
@@ -22,7 +22,7 @@ describe("createActivityLinkValidation", () => {
 
   it("rejects a javascript: pseudo-URL", () => {
     const result = createActivityLinkValidation.safeParse({
-      title: "xss",
+      label:"xss",
       url: "javascript:alert(1)",
     });
     expect(result.success).toBe(false);
@@ -30,7 +30,7 @@ describe("createActivityLinkValidation", () => {
 
   it("rejects a data: URL", () => {
     const result = createActivityLinkValidation.safeParse({
-      title: "data",
+      label:"data",
       url: "data:text/html,<script>alert(1)</script>",
     });
     expect(result.success).toBe(false);
@@ -38,7 +38,7 @@ describe("createActivityLinkValidation", () => {
 
   it("rejects a file: URL", () => {
     const result = createActivityLinkValidation.safeParse({
-      title: "file",
+      label:"file",
       url: "file:///etc/passwd",
     });
     expect(result.success).toBe(false);
@@ -46,15 +46,15 @@ describe("createActivityLinkValidation", () => {
 
   it("rejects a non-URL string", () => {
     const result = createActivityLinkValidation.safeParse({
-      title: "nope",
+      label:"nope",
       url: "not a url",
     });
     expect(result.success).toBe(false);
   });
 
-  it("rejects an empty title", () => {
+  it("rejects an empty label", () => {
     const result = createActivityLinkValidation.safeParse({
-      title: "   ",
+      label:"   ",
       url: "https://example.com",
     });
     expect(result.success).toBe(false);

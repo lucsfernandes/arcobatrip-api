@@ -45,7 +45,10 @@ const envelopeHandler =
  * `express-rate-limit` instance otherwise.
  */
 const buildLimiter = (
-  config: Pick<Options, "windowMs" | "limit"> & { message: string }
+  config: Pick<Options, "windowMs" | "limit"> & {
+    message: string;
+    skipSuccessfulRequests?: boolean;
+  }
 ): RequestHandler => {
   if (isTestEnv) {
     return noop;
@@ -54,6 +57,7 @@ const buildLimiter = (
   return rateLimit({
     windowMs: config.windowMs,
     limit: config.limit,
+    skipSuccessfulRequests: config.skipSuccessfulRequests ?? false,
     standardHeaders: true,
     legacyHeaders: false,
     handler: envelopeHandler(config.message),
@@ -64,13 +68,18 @@ const buildLimiter = (
  * Guards the most brute-force-sensitive credential endpoints
  * (`login`, `signup`, `register`).
  *
- * Budget: 10 requests / 15 min / IP. Generous enough for a human retrying a
- * typo'd password a few times, tight enough to blunt credential-stuffing.
+ * Budget: 20 FAILED requests / 15 min / IP. `skipSuccessfulRequests` means a
+ * successful login/signup (2xx) never counts against the budget, so a legitimate
+ * user is NEVER locked out — only repeated *failures* (credential-stuffing /
+ * brute force) consume it. This fixes real users hitting 429 on correct logins,
+ * especially when several people share one egress IP (NAT/proxy) or a dev shares
+ * localhost with tests.
  */
 export const authLimiter: RequestHandler = buildLimiter({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
-  message: "Muitas tentativas. Tente novamente em alguns minutos.",
+  limit: 20,
+  skipSuccessfulRequests: true,
+  message: "Muitas tentativas malsucedidas. Tente novamente em alguns minutos.",
 });
 
 /**

@@ -19,8 +19,13 @@ services:
    environment:
      - API_BASE_URL=${API_BASE_URL:-http://localhost:3000}
      - WEB_BASE_URL=${WEB_BASE_URL:-http://localhost:3333}
+     # Origens extra permitidas por CORS (além da origem de WEB_BASE_URL, que já
+     # entra automaticamente). Separadas por vírgula. Ex.: domínio do app web.
+     - CORS_ORIGINS=${CORS_ORIGINS:-}
      - PORT=3000
+     # Ambos os segredos JWT são OBRIGATÓRIOS (mín. 32 chars) — a API não sobe sem eles.
      - JWT_SECRET=${JWT_SECRET}
+     - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
      - TYPEORM_HOST=${TYPEORM_HOST:-zarpa-db}
      - TYPEORM_PORT=${TYPEORM_PORT:-5432}
      - TYPEORM_USERNAME=${TYPEORM_USERNAME:-postgres}
@@ -28,6 +33,14 @@ services:
      - TYPEORM_DATABASE=${TYPEORM_DATABASE:-zarpa}
      - TYPEORM_SYNC=${TYPEORM_SYNC:-false}
      - TYPEORM_LOGGING=${TYPEORM_LOGGING:-false}
+     # Email transacional (Resend) e upload de imagens (Cloudinary).
+     - RESEND_API_KEY=${RESEND_API_KEY:-}
+     - EMAIL_FROM=${EMAIL_FROM:-Zarpa <no-reply@zarpa.com>}
+     - APP_URL=${APP_URL:-http://localhost:5173}
+     - PHONE_CODE_SECRET=${PHONE_CODE_SECRET:-}
+     - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-}
+     - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-}
+     - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-}
    networks:
     - app-networks
    depends_on:
