@@ -4,10 +4,12 @@ import { AppError } from "../../../errors/AppError";
 import { ErrorDetail } from "../../../errors/UseCaseError";
 import { ITripContractRepo } from "../../trips/ITripContractRepo";
 import { IExpenseRepo } from "../IExpenseRepo";
+import { ISettledPaymentRepo } from "../../settlements/ISettledPaymentRepo";
 import { CreateExpenseRequestDTO } from "./CreateExpenseRequestDTO";
 import { CreateExpenseResponseDTO } from "./CreateExpenseResponseDTO";
 import { ExpenseContractMap } from "../../../../infra/db/mappers/ExpenseContractMap";
-import { settlementsFor } from "../../../services/settlements";
+import { SettledPaymentContractMap } from "../../../../infra/db/mappers/SettledPaymentContractMap";
+import { pendingSettlements } from "../../../services/settlements";
 
 /**
  * Contract: `POST /trips/{id}/expenses`. Validates that `paidById` and every
@@ -19,7 +21,8 @@ export class CreateExpenseUseCase
 {
   constructor(
     private readonly tripRepo: ITripContractRepo,
-    private readonly expenseRepo: IExpenseRepo
+    private readonly expenseRepo: IExpenseRepo,
+    private readonly settledPaymentRepo: ISettledPaymentRepo
   ) {}
 
   async execute(request: CreateExpenseRequestDTO): Promise<Result<CreateExpenseResponseDTO>> {
@@ -84,9 +87,13 @@ export class CreateExpenseUseCase
     const expenses = (await this.expenseRepo.findByTrip(request.tripId)).map(
       ExpenseContractMap.toContract
     );
+    const settledPayments = (
+      await this.settledPaymentRepo.findByTrip(request.tripId)
+    ).map(SettledPaymentContractMap.toContract);
     const memberIds = (trip.participants ?? []).map((p) => p.id);
-    const settlements = settlementsFor(expenses, memberIds);
+    // Pending settlements already discount the recorded payments.
+    const settlements = pendingSettlements(expenses, memberIds, settledPayments);
 
-    return Result.ok({ expenses, settlements });
+    return Result.ok({ expenses, settlements, settledPayments });
   }
 }

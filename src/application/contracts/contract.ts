@@ -159,6 +159,20 @@ export interface SettlementContract {
   amount: number;
 }
 
+/**
+ * A recorded settlement payment ("pagamento registrado" / acerto de contas):
+ * participant `from` paid participant `to` `amount` reais. Unlike
+ * {@link SettlementContract} (an ephemeral suggestion), these ARE persisted.
+ * They are subtracted from the balances before the pending settlements are
+ * recomputed, so the `settlements` array already discounts them.
+ */
+export interface SettledPaymentContract {
+  id: ID;
+  from: ID;
+  to: ID;
+  amount: number;
+}
+
 export interface NotificationContract {
   id: ID;
   type: NotificationType;
@@ -179,5 +193,11 @@ export interface AuthResponseContract {
 /** Response envelope for `GET`/`POST /trips/{id}/expenses`. */
 export interface ExpensesResponseContract {
   expenses: ExpenseContract[];
+  /**
+   * PENDING "who-pays-whom" lines, already discounting {@link settledPayments}
+   * (each recorded payment is applied to the balances before recomputing).
+   */
   settlements: SettlementContract[];
+  /** Recorded settlement payments (acertos) persisted for the trip. */
+  settledPayments: SettledPaymentContract[];
 }
