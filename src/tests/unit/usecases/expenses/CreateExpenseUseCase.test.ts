@@ -5,12 +5,14 @@ import {
   buildActivity,
 } from "../../../mocks/mockTripContractRepo";
 import { MockExpenseRepo } from "../../../mocks/mockExpenseRepo";
+import { MockSettledPaymentRepo } from "../../../mocks/mockSettledPaymentRepo";
 
 const PARTICIPANT_ID = "participant-owner"; // seeded by buildTrip
 
 describe("CreateExpenseUseCase — activityId tagging", () => {
   let tripRepo: MockTripContractRepo;
   let expenseRepo: MockExpenseRepo;
+  let settledPaymentRepo: MockSettledPaymentRepo;
   let useCase: CreateExpenseUseCase;
 
   const baseRequest = {
@@ -25,13 +27,15 @@ describe("CreateExpenseUseCase — activityId tagging", () => {
   beforeEach(() => {
     tripRepo = new MockTripContractRepo();
     expenseRepo = new MockExpenseRepo();
-    useCase = new CreateExpenseUseCase(tripRepo, expenseRepo);
+    settledPaymentRepo = new MockSettledPaymentRepo();
+    useCase = new CreateExpenseUseCase(tripRepo, expenseRepo, settledPaymentRepo);
     tripRepo.seedTrip(buildTrip());
   });
 
   afterEach(() => {
     tripRepo.clear();
     expenseRepo.clear();
+    settledPaymentRepo.clear();
   });
 
   it("persists a general expense (no activityId)", async () => {

@@ -1,4 +1,8 @@
-import { ExpenseContract, SettlementContract } from "../contracts/contract";
+import {
+  ExpenseContract,
+  SettledPaymentContract,
+  SettlementContract,
+} from "../contracts/contract";
 
 /**
  * Net balance per member: positive means the group owes them money, negative
@@ -67,4 +71,27 @@ export function settlementsFor(
   memberIds: string[]
 ): SettlementContract[] {
   return computeSettlements(computeBalances(expenses, memberIds));
+}
+
+/**
+ * The PENDING settlements for a trip after discounting recorded payments.
+ *
+ * Computes the raw balances from `expenses`, then applies each recorded
+ * `settledPayment` (`bal[from] += amount; bal[to] -= amount` — the payer's debt
+ * shrinks, the receiver is owed less), and finally recomputes the greedy
+ * "who-pays-whom" lines. Replicates VERBATIM what the mobile/web clients did
+ * locally with their `settledPayments` state.
+ */
+export function pendingSettlements(
+  expenses: ExpenseContract[],
+  memberIds: string[],
+  settledPayments: SettledPaymentContract[]
+): SettlementContract[] {
+  const bal = computeBalances(expenses, memberIds);
+  for (const p of settledPayments) {
+    bal[p.from] = (bal[p.from] ?? 0) + p.amount;
+    bal[p.to] = (bal[p.to] ?? 0) - p.amount;
+  }
+  for (const id of Object.keys(bal)) bal[id] = Math.round(bal[id] * 100) / 100;
+  return computeSettlements(bal);
 }

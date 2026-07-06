@@ -13,6 +13,7 @@ import {
   createCommentValidation,
 } from "../../validators/trip/tripContractValidation";
 import { createExpenseValidation } from "../../validators/expense/expenseValidation";
+import { createSettlementValidation } from "../../validators/settlement/settlementValidation";
 import {
   createTripContractController,
   listTripsController,
@@ -38,6 +39,10 @@ import {
   getExpensesController,
   createExpenseController,
 } from "../../../main/factories/expense/expenseFactory";
+import {
+  createSettlementController,
+  deleteSettlementController,
+} from "../../../main/factories/settlement/settlementFactory";
 
 const v1TripsRouter = Router();
 
@@ -148,6 +153,19 @@ v1TripsRouter.get("/:id/expenses", (req, res) => {
 });
 v1TripsRouter.post("/:id/expenses", validateBody(createExpenseValidation), (req, res) => {
   createExpenseController.execute(req, res);
+});
+
+// Settlements ("acerto de contas" — recorded payments). Any participant may
+// record/undo. The pending settlements in GET/POST expenses discount these.
+v1TripsRouter.post(
+  "/:id/settlements",
+  validateBody(createSettlementValidation),
+  (req, res) => {
+    createSettlementController.execute(req, res);
+  }
+);
+v1TripsRouter.delete("/:id/settlements/:settlementId", (req, res) => {
+  deleteSettlementController.execute(req, res);
 });
 
 export { v1TripsRouter };

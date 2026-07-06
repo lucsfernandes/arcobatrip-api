@@ -4,6 +4,7 @@ import { TripRepo } from "../../infra/repositories/TripRepo";
 import { UserRepo } from "../../infra/repositories/UserRepo";
 import { TripContractRepo } from "../../infra/repositories/TripContractRepo";
 import { ExpenseRepo } from "../../infra/repositories/ExpenseRepo";
+import { SettledPaymentRepo } from "../../infra/repositories/SettledPaymentRepo";
 import { NotificationRepo } from "../../infra/repositories/NotificationRepo";
 import { NotificationEmitter } from "../../application/services/NotificationEmitter";
 import { VerificationTokenRepo } from "../../infra/repositories/VerificationTokenRepo";
@@ -17,6 +18,7 @@ const tripRepo = new TripRepo(connector);
 const userRepo = new UserRepo(connector);
 const tripContractRepo = new TripContractRepo(connector);
 const expenseRepo = new ExpenseRepo(connector);
+const settledPaymentRepo = new SettledPaymentRepo(connector);
 const notificationRepo = new NotificationRepo(connector);
 const verificationTokenRepo = new VerificationTokenRepo(connector);
 
@@ -29,6 +31,7 @@ export {
   userRepo,
   tripContractRepo,
   expenseRepo,
+  settledPaymentRepo,
   notificationRepo,
   notificationEmitter,
   verificationTokenRepo,
