@@ -13,7 +13,7 @@ export class UserRepo implements IUserRepo {
   }
 
   async create(payload: CreateUserPayload): Promise<IUserPublic | null> {
-    const { fullName, phone, email, password, birthDate } = payload;
+    const { fullName, phone, email, password, birthDate, avatarUrl, emailVerifiedAt } = payload;
 
     const user = this.userRepository.create({
       fullName,
@@ -21,6 +21,10 @@ export class UserRepo implements IUserRepo {
       email,
       password,
       birthDate,
+      // Preenchidos pelo login social (Google): avatar do perfil e email já
+      // verificado. `undefined` no signup normal — TypeORM ignora e deixa NULL.
+      avatarUrl,
+      emailVerifiedAt,
       isActive: true
     });
 

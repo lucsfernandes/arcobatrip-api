@@ -35,6 +35,9 @@ export class MockUserRepo implements IUserRepo {
       email: payload.email,
       password: payload.password,
       birthDate: payload.birthDate,
+      // Preenchidos pelo login social (Google); undefined no signup normal.
+      avatarUrl: payload.avatarUrl,
+      emailVerifiedAt: payload.emailVerifiedAt,
       phoneVerified: false,
       isActive: true,
       createdAt: new Date(),

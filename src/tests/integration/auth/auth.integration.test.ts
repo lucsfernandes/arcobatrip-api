@@ -102,11 +102,11 @@ describe("Auth Integration Tests (contract envelope)", () => {
         .send(signupPayload)
         .expect(201);
 
-      // Web: cookies HttpOnly emitidos. O refreshToken NÃO vaza no corpo.
+      // Web: cookies HttpOnly emitidos. Mobile: o refreshToken TAMBÉM vai no corpo.
       expect(getCookieValue(response, "access_token")).toBeTruthy();
       expect(getCookieValue(response, "refresh_token")).toBeTruthy();
       expect(setCookieArray(response).join(";")).toContain("HttpOnly");
-      expect(response.body.refreshToken).toBeUndefined();
+      expect(response.body.refreshToken).toBeDefined();
 
       expect(response.body.token).toBeDefined();
       expect(response.body.user.email).toBe(signupPayload.email);
@@ -137,10 +137,10 @@ describe("Auth Integration Tests (contract envelope)", () => {
 
       expect(response.body.token).toBeDefined();
       expect(response.body.user.email).toBe(signupPayload.email);
-      // Web: cookies HttpOnly emitidos; refreshToken continua fora do corpo.
+      // Web: cookies HttpOnly emitidos; mobile: refreshToken TAMBÉM no corpo.
       expect(getCookieValue(response, "access_token")).toBeTruthy();
       expect(getCookieValue(response, "refresh_token")).toBeTruthy();
-      expect(response.body.refreshToken).toBeUndefined();
+      expect(response.body.refreshToken).toBeDefined();
     });
 
     it("returns 401 with the error envelope for invalid credentials", async () => {
