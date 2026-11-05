@@ -24,16 +24,19 @@ export class LoginUserController extends BaseController {
 
     const value = result.getValue();
 
-    // Web: emite os cookies HttpOnly (access + refresh). Mobile: ignora os
-    // cookies e usa o `token` do corpo abaixo. O `refreshToken` fica só no cookie.
+    // Web: emite os cookies HttpOnly (access + refresh) e usa-os. Mobile: ignora
+    // os cookies e lê `token` + `refreshToken` do corpo abaixo (não tem acesso ao
+    // cookie), renovando a sessão via POST /auth/refresh com o refreshToken.
     setAuthCookies(res, {
       accessToken: value.accessToken,
       refreshToken: value.refreshToken,
     });
 
-    // Map the rich use-case result into the contract envelope { token, user }.
+    // Map the rich use-case result into the contract envelope
+    // { token, refreshToken, user }.
     const response: AuthResponseContract = {
       token: value.accessToken,
+      refreshToken: value.refreshToken,
       user: UserMap.toContract(value.user),
     };
     return this.ok(res, response);
