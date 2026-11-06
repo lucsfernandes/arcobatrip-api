@@ -1,11 +1,11 @@
 import { Router } from "express";
 import { z } from "zod";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToSwagger } from "../../utils/zodToSwagger";
 import { getTripDetailController } from "../../../main/factories/trip/tripFactory";
 
 const getTripDetailRouter = Router();
 
-const getTripDetailSwaggerSchema = zodToJsonSchema(z.string(), {
+const getTripDetailSwaggerSchema = zodToSwagger(z.string(), {
   name: "GetTripDetailSchema"
 });
 

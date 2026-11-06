@@ -83,7 +83,7 @@ try {
 } catch (error) {
   console.error("❌ Erro na configuração das variáveis de ambiente:");
   if (error instanceof z.ZodError) {
-    error.errors.forEach((err) => {
+    error.issues.forEach((err) => {
       console.error(`  - ${err.path.join('.')}: ${err.message}`);
     });
   }

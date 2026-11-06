@@ -1,5 +1,5 @@
 import { Router } from "express";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToSwagger } from "../../utils/zodToSwagger";
 import { validateBody } from "../../utils/validator";
 import { authLimiter } from "../../middlewares/rateLimiters";
 import { signupValidation } from "../../validators/auth/signupValidation";
@@ -7,7 +7,7 @@ import { signupController } from "../../../main/factories/auth/authFactory";
 
 const signupRouter = Router();
 
-const signupSwaggerSchema = zodToJsonSchema(signupValidation, { name: "SignupSchema" });
+const signupSwaggerSchema = zodToSwagger(signupValidation, { name: "SignupSchema" });
 
 const signupSwagger = {
   post: {

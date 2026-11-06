@@ -1,5 +1,5 @@
 import { Router } from "express";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToSwagger } from "../../utils/zodToSwagger";
 import { validateBody } from "../../utils/validator";
 import { emailLimiter } from "../../middlewares/rateLimiters";
 import { forgotPasswordValidation } from "../../validators/auth/forgotPasswordValidation";
@@ -7,7 +7,7 @@ import { forgotPasswordController } from "../../../main/factories/auth/authFacto
 
 const forgotPasswordRouter = Router();
 
-const forgotPasswordSwaggerSchema = zodToJsonSchema(forgotPasswordValidation, {
+const forgotPasswordSwaggerSchema = zodToSwagger(forgotPasswordValidation, {
   name: "ForgotPasswordSchema",
 });
 

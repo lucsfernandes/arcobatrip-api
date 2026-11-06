@@ -1,12 +1,12 @@
 import { Router } from "express";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToSwagger } from "../../utils/zodToSwagger";
 import { validateBody } from "../../utils/validator";
 import { tripPayloadValidation } from "../../validators/trip/tripPayloadValidation";
 import { createTripController } from "../../../main/factories/trip/tripFactory";
 
 const createTripRouter = Router();
 
-const createTripSwaggerSchema = zodToJsonSchema(tripPayloadValidation, {
+const createTripSwaggerSchema = zodToSwagger(tripPayloadValidation, {
   name: "CreateTripSchema",
 });
 

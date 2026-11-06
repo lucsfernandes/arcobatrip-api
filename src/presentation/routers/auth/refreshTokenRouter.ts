@@ -1,12 +1,12 @@
 import { Router } from "express";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToSwagger } from "../../utils/zodToSwagger";
 import { validateBody } from "../../utils/validator";
 import { refreshTokenPayloadValidation } from "../../validators/auth/authPayloadValidation";
 import { refreshTokenController } from "../../../main/factories/auth/authFactory";
 
 const refreshTokenRouter = Router();
 
-const refreshTokenSwaggerSchema = zodToJsonSchema(refreshTokenPayloadValidation, {
+const refreshTokenSwaggerSchema = zodToSwagger(refreshTokenPayloadValidation, {
   name: "RefreshTokenSchema",
 });
 
