@@ -76,7 +76,7 @@ export class TripContractRepo implements ITripContractRepo {
   async findTripById(id: string): Promise<Trip | null> {
     return this.tripRepository.findOne({
       where: { id },
-      relations: ["participants", "activities", "links"],
+      relations: { participants: true, activities: true, links: true },
     });
   }
 

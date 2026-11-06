@@ -58,7 +58,7 @@ export class TripRepo implements ITripRepo {
   async getTripDetail(tripId: string): Promise<ITrip | null> {
     const trip = await this.tripRepository.findOne({
       where: { id: tripId },
-      relations: ["participants"]
+      relations: { participants: true }
     });
 
     if (!trip) {
