@@ -18,6 +18,8 @@ export type ErrorCode =
   | "too_many_requests"
   | "too_many_attempts"
   | "gone"
+  | "google_not_configured"
+  | "google_email_unverified"
   | "internal_error";
 
 /**
@@ -87,6 +89,23 @@ export class AppError extends UseCaseError {
 
   static internal(message = "Erro interno do servidor"): AppError {
     return new AppError(message, 500, "internal_error");
+  }
+
+  /**
+   * 503 — Google Sign-In is not configured on the server (`GOOGLE_CLIENT_ID`
+   * empty). A clear, stable code instead of a crash or a misleading 401.
+   */
+  static googleNotConfigured(
+    message = "Login com Google não está disponível no momento"
+  ): AppError {
+    return new AppError(message, 503, "google_not_configured");
+  }
+
+  /** 401 — the Google account has no e-mail, or Google did not verify it. */
+  static googleEmailUnverified(
+    message = "A conta Google não possui um e-mail verificado"
+  ): AppError {
+    return new AppError(message, 401, "google_email_unverified");
   }
 }
 

@@ -7,6 +7,7 @@ import { ConfirmEmailUseCase } from "../../../application/usecases/auth/confirmE
 import { ForgotPasswordUseCase } from "../../../application/usecases/auth/forgotPassword/ForgotPasswordUseCase";
 import { ResendVerificationUseCase } from "../../../application/usecases/auth/resendVerification/ResendVerificationUseCase";
 import { ResetPasswordUseCase } from "../../../application/usecases/auth/resetPassword/ResetPasswordUseCase";
+import { GoogleSignInUseCase } from "../../../application/usecases/auth/socialGoogle/GoogleSignInUseCase";
 import { RegisterUserController } from "../../../presentation/controllers/Auth/RegisterUserController";
 import { SignupController } from "../../../presentation/controllers/Auth/SignupController";
 import { LoginUserController } from "../../../presentation/controllers/Auth/LoginUserController";
@@ -17,6 +18,8 @@ import { ConfirmEmailController } from "../../../presentation/controllers/Auth/C
 import { ForgotPasswordController } from "../../../presentation/controllers/Auth/ForgotPasswordController";
 import { ResendVerificationController } from "../../../presentation/controllers/Auth/ResendVerificationController";
 import { ResetPasswordController } from "../../../presentation/controllers/Auth/ResetPasswordController";
+import { GoogleSignInController } from "../../../presentation/controllers/Auth/GoogleSignInController";
+import { googleTokenVerifier } from "../../../infra/services/GoogleTokenVerifier";
 import { userRepo } from "../typeOrmRepoFactory";
 import { tokenService } from "../../../infra/services/TokenService";
 import { emailService } from "../../../infra/services/email/ResendEmailService";
@@ -35,6 +38,7 @@ const confirmEmailUseCase = new ConfirmEmailUseCase(userRepo, verificationTokenR
 const forgotPasswordUseCase = new ForgotPasswordUseCase(userRepo, accountEmailEmitter);
 const resendVerificationUseCase = new ResendVerificationUseCase(userRepo, accountEmailEmitter);
 const resetPasswordUseCase = new ResetPasswordUseCase(userRepo, verificationTokenRepo);
+const googleSignInUseCase = new GoogleSignInUseCase(userRepo, tokenService, googleTokenVerifier);
 
 // Controllers
 const registerUserController = new RegisterUserController(registerUserUseCase);
@@ -47,6 +51,7 @@ const confirmEmailController = new ConfirmEmailController(confirmEmailUseCase);
 const forgotPasswordController = new ForgotPasswordController(forgotPasswordUseCase);
 const resendVerificationController = new ResendVerificationController(resendVerificationUseCase);
 const resetPasswordController = new ResetPasswordController(resetPasswordUseCase);
+const googleSignInController = new GoogleSignInController(googleSignInUseCase);
 
 export {
   registerUserController,
@@ -59,4 +64,5 @@ export {
   forgotPasswordController,
   resendVerificationController,
   resetPasswordController,
+  googleSignInController,
 };

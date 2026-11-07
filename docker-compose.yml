@@ -37,6 +37,7 @@ services:
      - RESEND_API_KEY=${RESEND_API_KEY:-}
      - EMAIL_FROM=${EMAIL_FROM:-Zarpa <no-reply@zarpa.com>}
      - APP_URL=${APP_URL:-http://localhost:5173}
+     - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
      - PHONE_CODE_SECRET=${PHONE_CODE_SECRET:-}
      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-}
      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-}

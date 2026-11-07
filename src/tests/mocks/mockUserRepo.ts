@@ -35,6 +35,8 @@ export class MockUserRepo implements IUserRepo {
       email: payload.email,
       password: payload.password,
       birthDate: payload.birthDate,
+      avatarUrl: payload.avatarUrl,
+      emailVerifiedAt: payload.emailVerifiedAt,
       phoneVerified: false,
       isActive: true,
       createdAt: new Date(),

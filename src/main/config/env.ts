@@ -41,6 +41,10 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional().default(""),
   EMAIL_FROM: z.string().default("Zarpa <no-reply@zarpa.com>"),
   APP_URL: z.string().default("http://localhost:5173"),
+  // Google Sign-In: OAuth client ids separated by commas (web, android, ios).
+  // Every id is an accepted token audience. Empty => POST /auth/social/google
+  // answers 503 `google_not_configured` instead of failing at boot.
+  GOOGLE_CLIENT_ID: z.string().optional().default(""),
   // CORS: lista de origens permitidas separadas por vírgula
   // (ex.: "http://localhost:3001,http://localhost:8081").
   // Vazio => modo dev: reflete uma allowlist de localhosts conhecidos (ver app.ts).

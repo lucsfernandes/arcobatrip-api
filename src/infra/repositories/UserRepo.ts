@@ -13,7 +13,7 @@ export class UserRepo implements IUserRepo {
   }
 
   async create(payload: CreateUserPayload): Promise<IUserPublic | null> {
-    const { fullName, phone, email, password, birthDate } = payload;
+    const { fullName, phone, email, password, birthDate, avatarUrl, emailVerifiedAt } = payload;
 
     const user = this.userRepository.create({
       fullName,
@@ -21,6 +21,10 @@ export class UserRepo implements IUserRepo {
       email,
       password,
       birthDate,
+      // Set by social sign-in (Google): profile picture and an e-mail the
+      // provider already verified.
+      avatarUrl,
+      emailVerifiedAt,
       isActive: true
     });
 
