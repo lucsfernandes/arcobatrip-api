@@ -25,16 +25,18 @@ export class SignupController extends BaseController {
     const value = result.getValue();
 
     // Web: emite os cookies HttpOnly (access + refresh) para a sessão nascer já
-    // autenticada. Mobile: ignora os cookies e usa o `token` do corpo.
+    // autenticada e usa-os. Mobile: ignora os cookies e lê `token` + `refreshToken`
+    // do corpo, renovando a sessão via POST /auth/refresh com o refreshToken.
     setAuthCookies(res, {
       accessToken: value.token,
       refreshToken: value.refreshToken,
     });
 
-    // 201 com o contrato EXATO `{ token, user }` — o `refreshToken` fica só no
-    // cookie, nunca é exposto no corpo (mantém o contrato do mobile intacto).
+    // 201 com o contrato `{ token, refreshToken, user }`. O `refreshToken` também
+    // vai no corpo (além do cookie) para o mobile, que não acessa o cookie.
     const responseBody: AuthResponseContract = {
       token: value.token,
+      refreshToken: value.refreshToken,
       user: value.user,
     };
     return this.created(res, responseBody);

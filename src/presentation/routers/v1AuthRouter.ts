@@ -4,6 +4,7 @@ import { signupRouter, signupSwagger } from "./auth/signupRouter";
 import { loginRouter, loginSwagger } from "./auth/loginRouter";
 import { logoutRouter, logoutSwagger } from "./auth/logoutRouter";
 import { refreshTokenRouter, refreshTokenSwagger } from "./auth/refreshTokenRouter";
+import { socialGoogleRouter, socialGoogleSwagger } from "./auth/socialGoogleRouter";
 import { meRouter, meSwagger } from "./auth/meRouter";
 import { confirmEmailRouter, confirmEmailSwagger } from "./auth/confirmEmailRouter";
 import { forgotPasswordRouter, forgotPasswordSwagger } from "./auth/forgotPasswordRouter";
@@ -18,6 +19,7 @@ const v1AuthRouterSwagger = {
   '/v1/auth/login': loginSwagger,
   '/v1/auth/logout': logoutSwagger,
   '/v1/auth/refresh': refreshTokenSwagger,
+  '/v1/auth/social/google': socialGoogleSwagger,
   '/v1/auth/me': meSwagger,
   '/v1/auth/verify-email': confirmEmailSwagger,
   '/v1/auth/forgot-password': forgotPasswordSwagger,
@@ -30,6 +32,7 @@ v1AuthRouter.use('/auth/signup', signupRouter);
 v1AuthRouter.use('/auth/login', loginRouter);
 v1AuthRouter.use('/auth/logout', logoutRouter);
 v1AuthRouter.use('/auth/refresh', refreshTokenRouter);
+v1AuthRouter.use('/auth/social/google', socialGoogleRouter);
 v1AuthRouter.use('/auth/me', meRouter);
 v1AuthRouter.use('/auth/verify-email', confirmEmailRouter);
 v1AuthRouter.use('/auth/forgot-password', forgotPasswordRouter);

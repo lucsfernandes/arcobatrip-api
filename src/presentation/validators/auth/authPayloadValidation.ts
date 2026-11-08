@@ -49,8 +49,14 @@ const refreshTokenPayloadValidation = z
   })
   .default({});
 
+// POST /auth/social/google — o app envia o ID token (OIDC) do Google no corpo.
+const googleSignInPayloadValidation = z.object({
+  idToken: z.string().min(1, "idToken é obrigatório"),
+});
+
 export {
   registerPayloadValidation,
   loginPayloadValidation,
-  refreshTokenPayloadValidation
+  refreshTokenPayloadValidation,
+  googleSignInPayloadValidation
 };

@@ -3,6 +3,7 @@ import { SignupUseCase } from "../../../application/usecases/auth/signup/SignupU
 import { LoginUserUseCase } from "../../../application/usecases/auth/login/LoginUserUseCase";
 import { LogoutUserUseCase } from "../../../application/usecases/auth/logout/LogoutUserUseCase";
 import { RefreshTokenUseCase } from "../../../application/usecases/auth/refresh/RefreshTokenUseCase";
+import { GoogleSignInUseCase } from "../../../application/usecases/auth/socialGoogle/GoogleSignInUseCase";
 import { ConfirmEmailUseCase } from "../../../application/usecases/auth/confirmEmail/ConfirmEmailUseCase";
 import { ForgotPasswordUseCase } from "../../../application/usecases/auth/forgotPassword/ForgotPasswordUseCase";
 import { ResendVerificationUseCase } from "../../../application/usecases/auth/resendVerification/ResendVerificationUseCase";
@@ -12,6 +13,7 @@ import { SignupController } from "../../../presentation/controllers/Auth/SignupC
 import { LoginUserController } from "../../../presentation/controllers/Auth/LoginUserController";
 import { LogoutUserController } from "../../../presentation/controllers/Auth/LogoutUserController";
 import { RefreshTokenController } from "../../../presentation/controllers/Auth/RefreshTokenController";
+import { GoogleSignInController } from "../../../presentation/controllers/Auth/GoogleSignInController";
 import { GetMeController } from "../../../presentation/controllers/Auth/GetMeController";
 import { ConfirmEmailController } from "../../../presentation/controllers/Auth/ConfirmEmailController";
 import { ForgotPasswordController } from "../../../presentation/controllers/Auth/ForgotPasswordController";
@@ -19,6 +21,7 @@ import { ResendVerificationController } from "../../../presentation/controllers/
 import { ResetPasswordController } from "../../../presentation/controllers/Auth/ResetPasswordController";
 import { userRepo } from "../typeOrmRepoFactory";
 import { tokenService } from "../../../infra/services/TokenService";
+import { googleTokenVerifier } from "../../../infra/services/GoogleTokenVerifier";
 import { emailService } from "../../../infra/services/email/ResendEmailService";
 import { AccountEmailEmitter } from "../../../application/services/AccountEmailEmitter";
 import { verificationTokenRepo } from "../typeOrmRepoFactory";
@@ -31,6 +34,7 @@ const signupUseCase = new SignupUseCase(userRepo, tokenService, accountEmailEmit
 const loginUserUseCase = new LoginUserUseCase(userRepo, tokenService);
 const logoutUserUseCase = new LogoutUserUseCase(tokenService);
 const refreshTokenUseCase = new RefreshTokenUseCase(tokenService);
+const googleSignInUseCase = new GoogleSignInUseCase(userRepo, tokenService, googleTokenVerifier);
 const confirmEmailUseCase = new ConfirmEmailUseCase(userRepo, verificationTokenRepo);
 const forgotPasswordUseCase = new ForgotPasswordUseCase(userRepo, accountEmailEmitter);
 const resendVerificationUseCase = new ResendVerificationUseCase(userRepo, accountEmailEmitter);
@@ -42,6 +46,7 @@ const signupController = new SignupController(signupUseCase);
 const loginUserController = new LoginUserController(loginUserUseCase);
 const logoutUserController = new LogoutUserController(logoutUserUseCase);
 const refreshTokenController = new RefreshTokenController(refreshTokenUseCase);
+const googleSignInController = new GoogleSignInController(googleSignInUseCase);
 const getMeController = new GetMeController(userRepo);
 const confirmEmailController = new ConfirmEmailController(confirmEmailUseCase);
 const forgotPasswordController = new ForgotPasswordController(forgotPasswordUseCase);
@@ -54,6 +59,7 @@ export {
   loginUserController,
   logoutUserController,
   refreshTokenController,
+  googleSignInController,
   getMeController,
   confirmEmailController,
   forgotPasswordController,

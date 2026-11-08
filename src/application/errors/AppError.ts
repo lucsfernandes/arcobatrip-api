@@ -18,6 +18,8 @@ export type ErrorCode =
   | "too_many_requests"
   | "too_many_attempts"
   | "gone"
+  | "google_not_configured"
+  | "google_email_unverified"
   | "internal_error";
 
 /**
@@ -83,6 +85,25 @@ export class AppError extends UseCaseError {
     message = "Muitas tentativas. Solicite um novo código."
   ): AppError {
     return new AppError(message, 429, "too_many_attempts");
+  }
+
+  /**
+   * 400 — Google Sign-In não está configurado no servidor (`GOOGLE_CLIENT_ID`
+   * vazio). Usamos 4xx (e não 5xx) DE PROPÓSITO: o {@link BaseController} mascara
+   * todo 5xx como `internal_error`, então um 5xx esconderia este código estável.
+   * Assim o cliente recebe `google_not_configured` e mostra uma mensagem clara.
+   */
+  static googleNotConfigured(
+    message = "Login com Google não está configurado no servidor"
+  ): AppError {
+    return new AppError(message, 400, "google_not_configured");
+  }
+
+  /** 401 — o email da conta Google está ausente ou não foi verificado pelo Google. */
+  static googleEmailUnverified(
+    message = "A conta Google não possui um email verificado"
+  ): AppError {
+    return new AppError(message, 401, "google_email_unverified");
   }
 
   static internal(message = "Erro interno do servidor"): AppError {

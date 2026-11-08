@@ -3,13 +3,9 @@ import { AuthResponseContract } from "../../../contracts/contract";
 /**
  * Resultado do caso de uso de signup.
  *
- * Superset do contrato de rede {@link AuthResponseContract} (`{ token, user }`):
- * carrega um `refreshToken` EXTRA que a camada HTTP usa apenas para setar o
- * cookie HttpOnly de refresh. Esse `refreshToken` NÃO faz parte do corpo JSON —
- * o `SignupController` o remove ao montar a resposta, preservando 1:1 o contrato
- * `{ token, user }` do qual o mobile depende. O contrato canônico permanece
- * intocado (não adicionamos campos a `AuthResponseContract`).
+ * Alinhado 1:1 ao contrato de rede {@link AuthResponseContract}
+ * (`{ token, refreshToken, user }`). O `refreshToken` vai TANTO no corpo JSON
+ * (consumido pelo mobile, que não acessa cookies) quanto no cookie HttpOnly de
+ * refresh emitido pelo `SignupController` (consumido pelo web).
  */
-export interface SignupResponseDTO extends AuthResponseContract {
-  refreshToken: string;
-}
+export type SignupResponseDTO = AuthResponseContract;
