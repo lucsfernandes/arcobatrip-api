@@ -1,12 +1,12 @@
 import { Router } from "express";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToSwagger } from "../../utils/zodToSwagger";
 import { validateBody } from "../../utils/validator";
 import { verifyEmailValidation } from "../../validators/auth/verifyEmailValidation";
 import { confirmEmailController } from "../../../main/factories/auth/authFactory";
 
 const confirmEmailRouter = Router();
 
-const confirmEmailSwaggerSchema = zodToJsonSchema(verifyEmailValidation, {
+const confirmEmailSwaggerSchema = zodToSwagger(verifyEmailValidation, {
   name: "ConfirmEmailSchema",
 });
 

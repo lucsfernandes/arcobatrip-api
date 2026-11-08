@@ -1,12 +1,12 @@
 import { Router } from "express";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToSwagger } from "../../utils/zodToSwagger";
 import { validateBody } from "../../utils/validator";
 import { resetPasswordValidation } from "../../validators/auth/resetPasswordValidation";
 import { resetPasswordController } from "../../../main/factories/auth/authFactory";
 
 const resetPasswordRouter = Router();
 
-const resetPasswordSwaggerSchema = zodToJsonSchema(resetPasswordValidation, {
+const resetPasswordSwaggerSchema = zodToSwagger(resetPasswordValidation, {
   name: "ResetPasswordSchema",
 });
 

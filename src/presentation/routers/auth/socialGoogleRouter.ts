@@ -1,5 +1,5 @@
 import { Router } from "express";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToSwagger } from "../../utils/zodToSwagger";
 import { validateBody } from "../../utils/validator";
 import { authLimiter } from "../../middlewares/rateLimiters";
 import { googleSignInPayloadValidation } from "../../validators/auth/authPayloadValidation";
@@ -7,23 +7,31 @@ import { googleSignInController } from "../../../main/factories/auth/authFactory
 
 const socialGoogleRouter = Router();
 
-const socialGoogleSwaggerSchema = zodToJsonSchema(googleSignInPayloadValidation, {
+const socialGoogleSwaggerSchema = zodToSwagger(googleSignInPayloadValidation, {
   name: "GoogleSignInSchema",
 });
 
 const socialGoogleSwagger = {
   post: {
     summary: "Sign in with Google (OIDC ID token)",
+    description:
+      "Verifies a Google ID token. Known e-mail → signs in to that account; unknown e-mail → creates a password-less account. Returns the same body as login.",
     tags: ["Auth"],
     responses: {
       200: {
-        description: "Sign-in successful. Returns { token, refreshToken, user }",
+        description: "Signed in. Returns { token, refreshToken, user }",
       },
       400: {
-        description: "Field validation error / Google Sign-In not configured",
+        description: "Field validation error",
       },
       401: {
-        description: "Invalid ID token or unverified Google email",
+        description: "Invalid/expired ID token, or the Google e-mail is not verified",
+      },
+      403: {
+        description: "User inactive",
+      },
+      503: {
+        description: "Google Sign-In is not configured on the server (GOOGLE_CLIENT_ID)",
       },
       500: {
         description: "Internal server error",

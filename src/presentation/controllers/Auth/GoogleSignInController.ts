@@ -6,9 +6,9 @@ import { AuthResponseContract } from "../../../application/contracts/contract";
 import { setAuthCookies } from "../../http/authCookies";
 
 /**
- * `POST /auth/social/google`. Verifies a Google OIDC ID token and issues a
- * session with the SAME body shape as login (`{ token, refreshToken, user }`),
- * also setting the HttpOnly cookies so the web can reuse this endpoint.
+ * `POST /auth/social/google`. Verifies a Google ID token and opens a session
+ * with the SAME body as login (`{ token, refreshToken, user }`), also setting
+ * the HttpOnly cookies so the web can reuse the endpoint.
  */
 export class GoogleSignInController extends BaseController {
   constructor(private googleSignInUseCase: GoogleSignInUseCase) {
@@ -16,29 +16,24 @@ export class GoogleSignInController extends BaseController {
   }
 
   async executeImpl(req: Request, res: Response): Promise<Response> {
-    const { body } = req;
-
-    const result = await this.googleSignInUseCase.execute({
-      idToken: body.idToken,
-    });
+    const result = await this.googleSignInUseCase.execute({ idToken: req.body.idToken });
 
     if (result.isFailure) {
       return this.fail(res, result.errorValue());
     }
 
-    const value = result.getValue();
+    const session = result.getValue();
 
-    // Web: emite os cookies HttpOnly (access + refresh). Mobile: lê `token` +
-    // `refreshToken` do corpo abaixo. Mesmo comportamento do LoginUserController.
+    // Web: HttpOnly cookies. Mobile: `token` + `refreshToken` from the body.
     setAuthCookies(res, {
-      accessToken: value.accessToken,
-      refreshToken: value.refreshToken,
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
     });
 
     const response: AuthResponseContract = {
-      token: value.accessToken,
-      refreshToken: value.refreshToken,
-      user: UserMap.toContract(value.user),
+      token: session.accessToken,
+      refreshToken: session.refreshToken,
+      user: UserMap.toContract(session.user),
     };
     return this.ok(res, response);
   }

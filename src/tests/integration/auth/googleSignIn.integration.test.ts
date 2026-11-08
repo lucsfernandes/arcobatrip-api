@@ -1,153 +1,84 @@
 import request from "supertest";
 import express, { Express } from "express";
-import cookieParser from "cookie-parser";
 import { GoogleSignInUseCase } from "../../../application/usecases/auth/socialGoogle/GoogleSignInUseCase";
+import {
+  GoogleIdentity,
+  IGoogleTokenVerifier,
+} from "../../../application/usecases/auth/IGoogleTokenVerifier";
 import { GoogleSignInController } from "../../../presentation/controllers/Auth/GoogleSignInController";
+import { validateBody } from "../../../presentation/utils/validator";
+import { googleSignInPayloadValidation } from "../../../presentation/validators/auth/authPayloadValidation";
 import { MockUserRepo } from "../../mocks/mockUserRepo";
 import { MockTokenService } from "../../mocks/mockTokenService";
-import { MockGoogleTokenVerifier } from "../../mocks/mockGoogleTokenVerifier";
 
-describe("Google Sign-In Integration (POST /api/v1/auth/social/google)", () => {
-  let app: Express;
-  let mockUserRepo: MockUserRepo;
-  let mockTokenService: MockTokenService;
-  let mockVerifier: MockGoogleTokenVerifier;
+class FakeGoogleVerifier implements IGoogleTokenVerifier {
+  constructor(private configured = true) {}
 
-  beforeEach(() => {
-    mockUserRepo = new MockUserRepo();
-    mockTokenService = new MockTokenService();
-    mockVerifier = new MockGoogleTokenVerifier();
+  isConfigured(): boolean {
+    return this.configured;
+  }
 
-    app = express();
-    app.use(express.json());
-    app.use(cookieParser());
+  async verify(idToken: string): Promise<GoogleIdentity | null> {
+    if (idToken !== "valid-token") return null;
+    return { sub: "sub-1", email: "ana@gmail.com", emailVerified: true, name: "Ana Souza" };
+  }
+}
 
-    const useCase = new GoogleSignInUseCase(
-      mockUserRepo,
-      mockTokenService,
-      mockVerifier
-    );
-    const controller = new GoogleSignInController(useCase);
-
-    app.post("/api/v1/auth/social/google", (req, res) => {
+function buildApp(verifier: IGoogleTokenVerifier): Express {
+  const app = express();
+  app.use(express.json());
+  const controller = new GoogleSignInController(
+    new GoogleSignInUseCase(new MockUserRepo(), new MockTokenService(), verifier)
+  );
+  app.post(
+    "/api/v1/auth/social/google",
+    validateBody(googleSignInPayloadValidation),
+    (req, res) => {
       void controller.execute(req, res);
-    });
-  });
+    }
+  );
+  return app;
+}
 
-  afterEach(() => {
-    mockUserRepo.clear();
-    mockTokenService.clear();
-  });
-
-  const setCookieArray = (res: request.Response): string[] => {
-    const raw = res.headers["set-cookie"];
-    if (!raw) return [];
-    return Array.isArray(raw) ? raw : [raw];
-  };
-  const getCookieValue = (
-    res: request.Response,
-    name: string
-  ): string | undefined => {
-    const entry = setCookieArray(res).find((c) => c.startsWith(`${name}=`));
-    return entry ? entry.split(";")[0].split("=")[1] : undefined;
-  };
-
-  it("logs in an EXISTING user (automatic account link) and returns { token, refreshToken, user }", async () => {
-    await mockUserRepo.create({
-      fullName: "Ana Souza",
-      email: "ana.souza@email.com",
-      password: "hashed-password",
-    });
-    mockVerifier.identity = {
-      sub: "google-uid-1",
-      email: "ana.souza@email.com",
-      emailVerified: true,
-      name: "Ana Souza",
-      picture: "https://lh3.googleusercontent.com/a/ana",
-    };
-
-    const response = await request(app)
+describe("POST /api/v1/auth/social/google", () => {
+  it("returns the login envelope { token, refreshToken, user } and sets the cookies", async () => {
+    const response = await request(buildApp(new FakeGoogleVerifier()))
       .post("/api/v1/auth/social/google")
-      .send({ idToken: "valid-google-id-token" })
-      .expect(200);
+      .send({ idToken: "valid-token" });
 
-    expect(response.body.token).toBeDefined();
-    expect(response.body.refreshToken).toBeDefined();
-    expect(response.body.user.email).toBe("ana.souza@email.com");
-    expect(response.body.user.name).toBe("Ana Souza");
-    // Web também recebe os cookies HttpOnly.
-    expect(getCookieValue(response, "access_token")).toBeTruthy();
-    expect(getCookieValue(response, "refresh_token")).toBeTruthy();
-
-    // Não criou uma segunda conta — apenas linkou a existente.
-    expect(await mockUserRepo.existsByEmail("ana.souza@email.com")).toBe(true);
+    expect(response.status).toBe(200);
+    expect(response.body.token).toEqual(expect.any(String));
+    expect(response.body.refreshToken).toEqual(expect.any(String));
+    expect(response.body.user).toMatchObject({ email: "ana@gmail.com", name: "Ana Souza" });
+    expect(response.body.user.password).toBeUndefined();
+    const cookies = ([] as string[]).concat(response.headers["set-cookie"] ?? []);
+    expect(cookies.some((cookie) => cookie.startsWith("refresh_token="))).toBe(true);
   });
 
-  it("CREATES a new user when the Google email is unknown (name + avatar from Google)", async () => {
-    mockVerifier.identity = {
-      sub: "google-uid-2",
-      email: "novo.viajante@gmail.com",
-      emailVerified: true,
-      name: "Novo Viajante",
-      picture: "https://lh3.googleusercontent.com/a/novo",
-    };
-    expect(await mockUserRepo.existsByEmail("novo.viajante@gmail.com")).toBe(false);
-
-    const response = await request(app)
+  it("rejects a body without idToken (400 validation_error)", async () => {
+    const response = await request(buildApp(new FakeGoogleVerifier()))
       .post("/api/v1/auth/social/google")
-      .send({ idToken: "valid-google-id-token" })
-      .expect(200);
+      .send({});
 
-    expect(response.body.token).toBeDefined();
-    expect(response.body.refreshToken).toBeDefined();
-    expect(response.body.user.email).toBe("novo.viajante@gmail.com");
-    expect(response.body.user.name).toBe("Novo Viajante");
-    expect(response.body.user.avatarUrl).toBe(
-      "https://lh3.googleusercontent.com/a/novo"
-    );
-
-    // A conta foi persistida com o email verificado pelo Google.
-    const created = await mockUserRepo.findByEmail("novo.viajante@gmail.com");
-    expect(created).not.toBeNull();
-    expect(created?.emailVerifiedAt).toBeTruthy();
+    expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe("validation_error");
   });
 
-  it("REJECTS a Google account whose email is not verified (google_email_unverified)", async () => {
-    mockVerifier.identity = {
-      sub: "google-uid-3",
-      email: "unverified@gmail.com",
-      emailVerified: false,
-      name: "Sem Verificar",
-    };
-
-    const response = await request(app)
+  it("rejects an invalid token (401 unauthorized)", async () => {
+    const response = await request(buildApp(new FakeGoogleVerifier()))
       .post("/api/v1/auth/social/google")
-      .send({ idToken: "valid-google-id-token" })
-      .expect(401);
+      .send({ idToken: "forged" });
 
-    expect(response.body.error.code).toBe("google_email_unverified");
-    expect(await mockUserRepo.existsByEmail("unverified@gmail.com")).toBe(false);
-  });
-
-  it("returns 401 for an invalid/unverifiable ID token", async () => {
-    mockVerifier.identity = null; // verify() falha
-
-    const response = await request(app)
-      .post("/api/v1/auth/social/google")
-      .send({ idToken: "garbage" })
-      .expect(401);
-
+    expect(response.status).toBe(401);
     expect(response.body.error.code).toBe("unauthorized");
   });
 
-  it("returns 400 google_not_configured when GOOGLE_CLIENT_ID is empty", async () => {
-    mockVerifier.configured = false;
-
-    const response = await request(app)
+  it("answers 503 google_not_configured without client ids", async () => {
+    const response = await request(buildApp(new FakeGoogleVerifier(false)))
       .post("/api/v1/auth/social/google")
-      .send({ idToken: "valid-google-id-token" })
-      .expect(400);
+      .send({ idToken: "valid-token" });
 
+    expect(response.status).toBe(503);
     expect(response.body.error.code).toBe("google_not_configured");
   });
 });

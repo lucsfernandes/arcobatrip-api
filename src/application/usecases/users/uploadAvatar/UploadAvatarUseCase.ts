@@ -1,4 +1,4 @@
-import { fromBuffer } from "file-type";
+import { isSupportedImageBuffer } from "../../../services/storage/imageValidation";
 import { IUseCase } from "../../IUseCase";
 import { Result } from "../../Result";
 import { AppError } from "../../../errors/AppError";
@@ -10,14 +10,6 @@ import { UploadAvatarRequestDTO } from "./UploadAvatarRequestDTO";
 import { UploadAvatarResponseDTO } from "./UploadAvatarResponseDTO";
 
 const AVATAR_FOLDER = "zarpa/avatars";
-
-/** Real image mimetypes accepted for an avatar, inferred from the buffer's magic
- * bytes (the multipart header mimetype is spoofable and NOT trusted here). */
-const ALLOWED_AVATAR_MIMES: ReadonlySet<string> = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-]);
 
 /**
  * Replace the authenticated user's avatar. Contract: `POST /users/me/avatar`.
@@ -42,8 +34,7 @@ export class UploadAvatarUseCase
       // fileFilter only checks the client-supplied mimetype header, which is
       // trivially spoofable — a non-image payload must be rejected before it ever
       // reaches storage.
-      const detected = await fromBuffer(fileBuffer);
-      if (!detected || !ALLOWED_AVATAR_MIMES.has(detected.mime)) {
+      if (!(await isSupportedImageBuffer(fileBuffer))) {
         return Result.fail(
           AppError.validation("Formato inválido. Envie uma imagem JPEG, PNG ou WebP.", [
             {

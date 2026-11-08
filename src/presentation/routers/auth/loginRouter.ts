@@ -1,5 +1,5 @@
 import { Router } from "express";
-import zodToJsonSchema from "zod-to-json-schema";
+import { zodToSwagger } from "../../utils/zodToSwagger";
 import { validateBody } from "../../utils/validator";
 import { authLimiter } from "../../middlewares/rateLimiters";
 import { loginPayloadValidation } from "../../validators/auth/authPayloadValidation";
@@ -7,7 +7,7 @@ import { loginUserController } from "../../../main/factories/auth/authFactory";
 
 const loginRouter = Router();
 
-const loginSwaggerSchema = zodToJsonSchema(loginPayloadValidation, {
+const loginSwaggerSchema = zodToSwagger(loginPayloadValidation, {
   name: "LoginUserSchema",
 });
 

@@ -67,7 +67,11 @@ export abstract class BaseController {
     // Never leak internal diagnostics (driver/Cloudinary/stack messages) to the
     // client on 5xx. The real detail is already logged by fail()/clientError()/
     // execute() via Winston; the wire only gets a stable generic envelope.
-    if (status >= 500) {
+    // Exception: a deliberate 503 raised by a use case with an explicit code
+    // (e.g. `google_not_configured`) — its message is our own fixed text.
+    const isIntentionalUnavailable =
+      status === 503 && error instanceof UseCaseError && error.code !== undefined;
+    if (status >= 500 && !isIntentionalUnavailable) {
       return {
         error: {
           code: "internal_error",

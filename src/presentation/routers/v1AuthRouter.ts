@@ -10,6 +10,7 @@ import { confirmEmailRouter, confirmEmailSwagger } from "./auth/confirmEmailRout
 import { forgotPasswordRouter, forgotPasswordSwagger } from "./auth/forgotPasswordRouter";
 import { resendVerificationRouter, resendVerificationSwagger } from "./auth/resendVerificationRouter";
 import { resetPasswordRouter, resetPasswordSwagger } from "./auth/resetPasswordRouter";
+import { socialGoogleRouter, socialGoogleSwagger } from "./auth/socialGoogleRouter";
 
 const v1AuthRouter = Router();
 
@@ -25,6 +26,7 @@ const v1AuthRouterSwagger = {
   '/v1/auth/forgot-password': forgotPasswordSwagger,
   '/v1/auth/resend-verification': resendVerificationSwagger,
   '/v1/auth/reset-password': resetPasswordSwagger,
+  '/v1/auth/social/google': socialGoogleSwagger,
 };
 
 v1AuthRouter.use('/auth/register', registerRouter);
@@ -38,5 +40,6 @@ v1AuthRouter.use('/auth/verify-email', confirmEmailRouter);
 v1AuthRouter.use('/auth/forgot-password', forgotPasswordRouter);
 v1AuthRouter.use('/auth/resend-verification', resendVerificationRouter);
 v1AuthRouter.use('/auth/reset-password', resetPasswordRouter);
+v1AuthRouter.use('/auth/social/google', socialGoogleRouter);
 
 export { v1AuthRouter, v1AuthRouterSwagger };

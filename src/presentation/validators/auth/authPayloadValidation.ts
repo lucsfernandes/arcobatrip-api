@@ -49,9 +49,9 @@ const refreshTokenPayloadValidation = z
   })
   .default({});
 
-// POST /auth/social/google — o app envia o ID token (OIDC) do Google no corpo.
+// POST /auth/social/google — the app sends the Google OIDC ID token (a JWT).
 const googleSignInPayloadValidation = z.object({
-  idToken: z.string().min(1, "idToken é obrigatório"),
+  idToken: z.string().min(1, "Token do Google é obrigatório").max(4096, "Token do Google inválido"),
 });
 
 export {

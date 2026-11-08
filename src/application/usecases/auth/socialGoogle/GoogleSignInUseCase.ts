@@ -10,17 +10,26 @@ import { GoogleSignInRequestDTO } from "./GoogleSignInRequestDTO";
 import { GoogleSignInResponseDTO } from "./GoogleSignInResponseDTO";
 import { IUserPublic } from "../../../../domain/entities/User/IUser";
 
+const BCRYPT_ROUNDS = 12;
+
+/** bcrypt hash of a random secret nobody knows — makes password login impossible. */
+async function unusablePasswordHash(): Promise<string> {
+  const randomSecret = crypto.randomBytes(32).toString("hex");
+  return bcrypt.hash(randomSecret, BCRYPT_ROUNDS);
+}
+
 /**
  * Google Sign-In (OIDC). Contract: `POST /auth/social/google`.
  *
- * The mobile app obtains a Google ID token and posts it here. We verify it with
- * {@link IGoogleTokenVerifier}, then:
- *  - existing email → automatic account link (issue a session), or
- *  - unknown email → create a password-less social account (email pre-verified,
- *    avatar from the Google picture).
+ * The app obtains a Google ID token and posts it here. After verifying it:
+ *  - known e-mail → links to that account and issues a session;
+ *  - unknown e-mail → creates a password-less account (e-mail already verified
+ *    by Google, avatar from the Google picture).
  *
- * Mirrors {@link LoginUserUseCase}: returns the same `{ accessToken, refreshToken,
- * user }` triple the login controller emits.
+ * Account pre-takeover guard: if the existing account never confirmed its
+ * e-mail, whoever created it may not own the address. Google proves ownership
+ * now, so the e-mail is marked verified and the old password is replaced by an
+ * unusable one (the real owner can set a password via "Esqueci a senha").
  */
 export class GoogleSignInUseCase
   implements IUseCase<GoogleSignInRequestDTO, GoogleSignInResponseDTO>
@@ -31,10 +40,7 @@ export class GoogleSignInUseCase
     private readonly googleVerifier: IGoogleTokenVerifier
   ) {}
 
-  async execute(
-    request: GoogleSignInRequestDTO
-  ): Promise<Result<GoogleSignInResponseDTO>> {
-    // Falha clara (não crash) quando GOOGLE_CLIENT_ID não está configurado.
+  async execute(request: GoogleSignInRequestDTO): Promise<Result<GoogleSignInResponseDTO>> {
     if (!this.googleVerifier.isConfigured()) {
       return Result.fail(AppError.googleNotConfigured());
     }
@@ -42,51 +48,48 @@ export class GoogleSignInUseCase
     try {
       const identity = await this.googleVerifier.verify(request.idToken);
       if (!identity) {
-        return Result.fail(
-          AppError.unauthorized("Não foi possível validar o login do Google")
-        );
+        return Result.fail(AppError.unauthorized("Não foi possível validar o login do Google"));
       }
 
-      // Só confiamos no email quando o próprio Google o marcou como verificado.
+      // Only trust the e-mail when Google itself marks it as verified.
       const email = identity.email?.trim();
       if (!email || identity.emailVerified !== true) {
         return Result.fail(AppError.googleEmailUnverified());
       }
 
-      // Conta já existe → link automático: apenas emitimos uma sessão.
-      let user: IUserPublic | null = await this.userRepo.findByEmail(email);
+      const existingUser = await this.userRepo.findByEmail(email);
+      let signedInUser: IUserPublic | null;
 
-      if (!user) {
-        // Conta nova (login social, SEM senha). A coluna `password` é NOT NULL,
-        // então gravamos o hash de um segredo aleatório: satisfaz o schema e, como
-        // ninguém conhece o valor de origem, o login por senha fica impossível
-        // para esta conta. O email já vem verificado pelo Google.
-        const randomSecret = crypto.randomBytes(32).toString("hex");
-        const salt = await bcrypt.genSalt(12);
-        const hashedPassword = await bcrypt.hash(randomSecret, salt);
-
-        // Nome do Google, ou derivado do email quando o Google não o fornece.
-        const fullName = identity.name?.trim() || email.split("@")[0];
-
-        user = await this.userRepo.create({
-          fullName,
+      if (existingUser) {
+        if (!existingUser.isActive) {
+          return Result.fail(AppError.forbidden("Usuário inativo. Entre em contato com o suporte"));
+        }
+        signedInUser = existingUser.emailVerifiedAt
+          ? existingUser
+          : await this.userRepo.update(existingUser.id, {
+              emailVerifiedAt: new Date(),
+              password: await unusablePasswordHash(),
+            });
+      } else {
+        signedInUser = await this.userRepo.create({
+          fullName: identity.name?.trim() || email.split("@")[0],
           email,
-          password: hashedPassword,
-          avatarUrl: identity.picture ?? undefined,
+          password: await unusablePasswordHash(),
+          avatarUrl: identity.picture ?? null,
           emailVerifiedAt: new Date(),
         });
+      }
 
-        if (!user) {
-          return Result.fail(AppError.internal("Não foi possível criar o usuário"));
-        }
+      if (!signedInUser) {
+        return Result.fail(AppError.internal("Não foi possível concluir o login com Google"));
       }
 
       const { accessToken, refreshToken } = this.tokenService.generateTokenPair({
-        userId: user.id,
-        email: user.email,
+        userId: signedInUser.id,
+        email: signedInUser.email,
       });
 
-      return Result.ok({ user, accessToken, refreshToken });
+      return Result.ok({ user: signedInUser, accessToken, refreshToken });
     } catch (error) {
       return Result.fail(AppError.internal((error as Error).message));
     }

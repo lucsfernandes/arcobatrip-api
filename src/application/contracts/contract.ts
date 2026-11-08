@@ -189,9 +189,10 @@ export interface AuthResponseContract {
   token: string;
   /**
    * Long-lived refresh token. Exposed in the JSON body so the mobile app (React
-   * Native — ignores cookies) can renew its short-lived `token` via
-   * `POST /auth/refresh`. The web ALSO receives it as the HttpOnly `refresh_token`
-   * cookie and keeps using the cookie; this field is additive, not a replacement.
+   * Native — no access to the HttpOnly cookie) can renew its short-lived `token`
+   * via `POST /auth/refresh`, which already returns the rotated pair in the body.
+   * The web ALSO receives it as the HttpOnly `refresh_token` cookie and keeps
+   * using the cookie; this field is additive, not a replacement.
    */
   refreshToken: string;
   user: UserContract;

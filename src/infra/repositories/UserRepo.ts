@@ -21,8 +21,8 @@ export class UserRepo implements IUserRepo {
       email,
       password,
       birthDate,
-      // Preenchidos pelo login social (Google): avatar do perfil e email já
-      // verificado. `undefined` no signup normal — TypeORM ignora e deixa NULL.
+      // Set by social sign-in (Google): profile picture and an e-mail the
+      // provider already verified.
       avatarUrl,
       emailVerifiedAt,
       isActive: true
