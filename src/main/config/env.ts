@@ -60,11 +60,6 @@ const envSchema = z.object({
   // a partir de JWT_SECRET (ver hashPhoneCode) para não adicionar uma env
   // obrigatória que quebre o boot. Defina em produção para desacoplar do JWT.
   PHONE_CODE_SECRET: z.string().min(16).optional(),
-  // Google Sign-In (OIDC). Lista de client IDs OAuth separados por vírgula (web +
-  // android + ios) — todos são aceitos como `audience` ao verificar o ID token no
-  // endpoint POST /auth/social/google. Vazio => o endpoint responde
-  // `google_not_configured` (400) em vez de crashar.
-  GOOGLE_CLIENT_ID: z.string().optional().default(""),
   // Cloudinary (upload de avatar). Deixe vazio para desabilitar o upload em dev.
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
   CLOUDINARY_API_KEY: z.string().optional().default(""),
