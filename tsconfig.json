@@ -18,8 +18,6 @@
     "noImplicitAny": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
-    "ignoreDeprecations": "6.0",
-    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
     "types": [
