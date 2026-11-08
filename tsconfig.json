@@ -1,12 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "_version": "21.0.0",
   "compilerOptions": {
     "target": "ES2022",
     "lib": [
       "es2022"
     ],
-    "module": "commonjs",
+    "module": "node16",
+    "moduleResolution": "node16",
     "jsx": "react-jsx",
     "rootDir": "src",
     "resolveJsonModule": true,
@@ -35,8 +35,7 @@
     ]
   },
   "include": [
-    "src/**/*",
-    "tests/**/*"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
