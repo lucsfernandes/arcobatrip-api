@@ -143,6 +143,22 @@ describe("Auth Integration Tests (contract envelope)", () => {
       expect(response.body.refreshToken).toBeDefined();
     });
 
+    it("includes the avatar and accent in the login user", async () => {
+      const stored = await mockUserRepo.findByEmailWithPassword(signupPayload.email);
+      await mockUserRepo.update(stored!.id, {
+        avatarUrl: "https://res.cloudinary.com/demo/avatar.jpg",
+        accent: "#16c0e9",
+      });
+
+      const response = await request(app)
+        .post("/api/v1/auth/login")
+        .send({ email: signupPayload.email, password: signupPayload.password })
+        .expect(200);
+
+      expect(response.body.user.avatarUrl).toBe("https://res.cloudinary.com/demo/avatar.jpg");
+      expect(response.body.user.accent).toBe("#16c0e9");
+    });
+
     it("returns 401 with the error envelope for invalid credentials", async () => {
       const response = await request(app)
         .post("/api/v1/auth/login")
