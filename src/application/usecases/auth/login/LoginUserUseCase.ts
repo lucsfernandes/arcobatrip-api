@@ -56,14 +56,25 @@ export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUser
       });
 
       return Result.ok({
+        // The full public user: the clients render the session user right after
+        // login (avatar in the header, accent for the initials fallback), so
+        // `avatarUrl`/`accent` must be here — they used to be dropped, and the
+        // mobile Home/Profile showed initials instead of the photo.
         user: {
           id: user.id,
           fullName: user.fullName,
           phone: user.phone,
           email: user.email,
           birthDate: user.birthDate,
+          avatarUrl: user.avatarUrl,
+          avatarPublicId: user.avatarPublicId,
+          bio: user.bio,
+          city: user.city,
+          country: user.country,
+          accent: user.accent,
           phoneVerified: user.phoneVerified ?? false,
           isActive: user.isActive,
+          emailVerifiedAt: user.emailVerifiedAt,
           createdAt: user.createdAt,
           updatedAt: user.updatedAt
         },

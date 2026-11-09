@@ -41,6 +41,24 @@ describe("LoginUserUseCase", () => {
   } as User);
 
   describe("Sucesso", () => {
+    it("returns the photo and accent so the app header shows the avatar", async () => {
+      mockUserRepo.addUser(
+        createTestUser({
+          avatarUrl: "https://res.cloudinary.com/demo/avatar.jpg",
+          accent: "#16c0e9",
+        })
+      );
+
+      const result = await loginUserUseCase.execute({
+        email: "joao@test.com",
+        password: testPassword,
+      });
+
+      expect(result.isSuccess).toBe(true);
+      expect(result.getValue().user.avatarUrl).toBe("https://res.cloudinary.com/demo/avatar.jpg");
+      expect(result.getValue().user.accent).toBe("#16c0e9");
+    });
+
     it("deve fazer login com credenciais válidas", async () => {
       const user = createTestUser();
       mockUserRepo.addUser(user);
