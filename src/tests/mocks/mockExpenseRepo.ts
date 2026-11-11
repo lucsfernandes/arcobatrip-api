@@ -6,6 +6,11 @@ export class MockExpenseRepo implements IExpenseRepo {
   public created: CreateExpenseData[] = [];
   private expenses: Expense[] = [];
 
+  /** Seed a pre-existing expense. */
+  seed(expense: Expense): void {
+    this.expenses.push(expense);
+  }
+
   async findByTrip(tripId: string): Promise<Expense[]> {
     return this.expenses.filter((e) => e.tripId === tripId);
   }

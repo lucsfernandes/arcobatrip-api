@@ -1,4 +1,10 @@
-import { tripContractRepo, userRepo, notificationEmitter } from "../typeOrmRepoFactory";
+import {
+  tripContractRepo,
+  userRepo,
+  notificationEmitter,
+  expenseRepo,
+  settledPaymentRepo,
+} from "../typeOrmRepoFactory";
 import { storageService } from "../../../infra/services/storage/CloudinaryStorageService";
 
 import { CreateTripContractUseCase } from "../../../application/usecases/trips/createTrip/CreateTripContractUseCase";
@@ -7,6 +13,8 @@ import { GetTripUseCase } from "../../../application/usecases/trips/getTrip/GetT
 import { AddActivityUseCase } from "../../../application/usecases/trips/addActivity/AddActivityUseCase";
 import { UpdateActivityUseCase } from "../../../application/usecases/trips/updateActivity/UpdateActivityUseCase";
 import { DeleteActivityUseCase } from "../../../application/usecases/trips/deleteActivity/DeleteActivityUseCase";
+import { DeleteTripUseCase } from "../../../application/usecases/trips/deleteTrip/DeleteTripUseCase";
+import { RemoveGuestUseCase } from "../../../application/usecases/trips/removeGuest/RemoveGuestUseCase";
 import { AddLinkUseCase } from "../../../application/usecases/trips/addLink/AddLinkUseCase";
 import { AddGuestUseCase } from "../../../application/usecases/trips/addGuest/AddGuestUseCase";
 import { SetGuestStatusUseCase } from "../../../application/usecases/trips/setGuestStatus/SetGuestStatusUseCase";
@@ -27,6 +35,8 @@ import { GetTripController } from "../../../presentation/controllers/Trip/GetTri
 import { AddActivityController } from "../../../presentation/controllers/Trip/AddActivityController";
 import { UpdateActivityController } from "../../../presentation/controllers/Trip/UpdateActivityController";
 import { DeleteActivityController } from "../../../presentation/controllers/Trip/DeleteActivityController";
+import { DeleteTripController } from "../../../presentation/controllers/Trip/DeleteTripController";
+import { RemoveGuestController } from "../../../presentation/controllers/Trip/RemoveGuestController";
 import { AddLinkController } from "../../../presentation/controllers/Trip/AddLinkController";
 import { AddGuestController } from "../../../presentation/controllers/Trip/AddGuestController";
 import { SetGuestStatusController } from "../../../presentation/controllers/Trip/SetGuestStatusController";
@@ -66,6 +76,12 @@ const deleteCommentUseCase = new DeleteCommentUseCase(tripContractRepo);
 const addActivityLinkUseCase = new AddActivityLinkUseCase(tripContractRepo);
 const listActivityLinksUseCase = new ListActivityLinksUseCase(tripContractRepo);
 const deleteActivityLinkUseCase = new DeleteActivityLinkUseCase(tripContractRepo);
+const deleteTripUseCase = new DeleteTripUseCase(tripContractRepo);
+const removeGuestUseCase = new RemoveGuestUseCase(
+  tripContractRepo,
+  expenseRepo,
+  settledPaymentRepo
+);
 
 const createTripContractController = new CreateTripContractController(createTripUseCase);
 const listTripsController = new ListTripsController(listTripsUseCase);
@@ -94,6 +110,8 @@ const listActivityLinksController = new ListActivityLinksController(
 const deleteActivityLinkController = new DeleteActivityLinkController(
   deleteActivityLinkUseCase
 );
+const deleteTripController = new DeleteTripController(deleteTripUseCase);
+const removeGuestController = new RemoveGuestController(removeGuestUseCase);
 
 export {
   createTripContractController,
@@ -115,4 +133,6 @@ export {
   addActivityLinkController,
   listActivityLinksController,
   deleteActivityLinkController,
+  deleteTripController,
+  removeGuestController,
 };

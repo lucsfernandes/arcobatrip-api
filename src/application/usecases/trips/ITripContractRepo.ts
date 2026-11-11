@@ -75,6 +75,13 @@ export interface ITripContractRepo {
   createTrip(data: CreateTripData): Promise<Trip>;
   findTripsForUserEmail(email: string): Promise<Trip[]>;
   findTripById(id: string): Promise<Trip | null>;
+  /**
+   * Soft-deletes the trip (sets `deleted_at`) and the notifications that point
+   * to it, in one transaction. Nothing is erased: every sub-resource route looks
+   * the trip up first, so its activities, links, expenses and payments become
+   * unreachable with it.
+   */
+  softDeleteTrip(tripId: string): Promise<void>;
   /** Persists the trip cover (banner) handles and returns the hydrated trip. */
   updateTripCover(tripId: string, data: TripCoverData): Promise<Trip>;
   addActivity(tripId: string, data: NewActivityData): Promise<Activity>;
@@ -89,6 +96,11 @@ export interface ITripContractRepo {
   addGuest(tripId: string, data: NewGuestData): Promise<Participant>;
   findGuest(tripId: string, guestId: string): Promise<Participant | null>;
   saveGuest(guest: Participant): Promise<Participant>;
+  /**
+   * Soft-deletes a guest and, when the guest has an account, the trip invite
+   * notification sent to them, in one transaction.
+   */
+  softDeleteGuest(guest: Participant): Promise<void>;
 
   // --- Activity links (Item 7c) ---
   /** Persists a link tagged to an activity (`activity_id` set). */
