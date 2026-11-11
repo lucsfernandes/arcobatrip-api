@@ -103,18 +103,35 @@ describe("GoogleSignInUseCase", () => {
     expect(stored?.password).toBe(existingUser().password);
   });
 
-  it("takes over an UNCONFIRMED account safely: verifies it and voids the old password", async () => {
+  it("does NOT link an UNCONFIRMED account: keeps the password and answers 409", async () => {
+    // Account pre-takeover guard: whoever created this account may not own the
+    // e-mail, so Google does not take it over (and no confirmation link is
+    // sent, which could make the owner confirm someone else's account).
     userRepo.addUser(existingUser({ emailVerifiedAt: null }));
 
     const result = await buildUseCase(new FakeGoogleVerifier(googleIdentity)).execute({
       idToken: "valid-token",
     });
 
-    expect(result.isSuccess).toBe(true);
-    expect(result.getValue().user.emailVerifiedAt).toBeInstanceOf(Date);
+    expect(result.isFailure).toBe(true);
+    expect(result.errorValue().statusCode).toBe(409);
+    expect(result.errorValue().code).toBe("account_email_unconfirmed");
+
     const stored = await userRepo.findByEmailWithPassword("ana@gmail.com");
-    expect(stored?.password).not.toBe(existingUser().password);
-    expect(await bcrypt.compare("any-guess", stored!.password)).toBe(false);
+    expect(stored?.password).toBe(existingUser().password);
+    expect(stored?.emailVerifiedAt ?? null).toBeNull();
+  });
+
+  it("keeps the password of a CONFIRMED account, so both sign-in methods work", async () => {
+    userRepo.addUser(existingUser());
+
+    const result = await buildUseCase(new FakeGoogleVerifier(googleIdentity)).execute({
+      idToken: "valid-token",
+    });
+
+    expect(result.isSuccess).toBe(true);
+    const stored = await userRepo.findByEmailWithPassword("ana@gmail.com");
+    expect(stored?.password).toBe(existingUser().password);
   });
 
   it("refuses an inactive account (403)", async () => {

@@ -24,11 +24,11 @@ class FakeGoogleVerifier implements IGoogleTokenVerifier {
   }
 }
 
-function buildApp(verifier: IGoogleTokenVerifier): Express {
+function buildApp(verifier: IGoogleTokenVerifier, userRepo = new MockUserRepo()): Express {
   const app = express();
   app.use(express.json());
   const controller = new GoogleSignInController(
-    new GoogleSignInUseCase(new MockUserRepo(), new MockTokenService(), verifier)
+    new GoogleSignInUseCase(userRepo, new MockTokenService(), verifier)
   );
   app.post(
     "/api/v1/auth/social/google",
@@ -80,5 +80,28 @@ describe("POST /api/v1/auth/social/google", () => {
 
     expect(response.status).toBe(503);
     expect(response.body.error.code).toBe("google_not_configured");
+  });
+
+  it("answers 409 account_email_unconfirmed for an unconfirmed account, without a session", async () => {
+    const userRepo = new MockUserRepo();
+    userRepo.addUser({
+      id: "user-ana",
+      fullName: "Ana (cadastro)",
+      email: "ana@gmail.com",
+      password: "$2b$12$existing.hash.of.a.known.password.xxxxxxxxxxxxxxxxxxxxx",
+      isActive: true,
+      phoneVerified: false,
+      emailVerifiedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as never);
+
+    const res = await request(buildApp(new FakeGoogleVerifier(), userRepo))
+      .post("/api/v1/auth/social/google")
+      .send({ idToken: "valid-token" });
+
+    expect(res.status).toBe(409);
+    expect(res.body.error.code).toBe("account_email_unconfirmed");
+    expect(res.headers["set-cookie"]).toBeUndefined();
   });
 });

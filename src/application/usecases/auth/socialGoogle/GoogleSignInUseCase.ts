@@ -27,9 +27,18 @@ async function unusablePasswordHash(): Promise<string> {
  *    by Google, avatar from the Google picture).
  *
  * Account pre-takeover guard: if the existing account never confirmed its
- * e-mail, whoever created it may not own the address. Google proves ownership
- * now, so the e-mail is marked verified and the old password is replaced by an
- * unusable one (the real owner can set a password via "Esqueci a senha").
+ * e-mail, whoever created it (and knows its password) may not own the address.
+ * Linking it to Google would let that person keep signing in with the
+ * password, so the account is NOT taken over and its password is NOT touched:
+ * the call answers 409 `account_email_unconfirmed`, telling the user to sign
+ * in with the password and confirm the e-mail, or to reset the password.
+ *
+ * No confirmation link is sent from here on purpose: that would prompt the
+ * e-mail's owner to confirm an account someone else may have created, leaving
+ * that person's password in place. A password reset proves ownership AND
+ * replaces the password, so it also confirms the e-mail.
+ *
+ * A confirmed account always keeps its password, so both sign-in methods work.
  */
 export class GoogleSignInUseCase
   implements IUseCase<GoogleSignInRequestDTO, GoogleSignInResponseDTO>
@@ -64,12 +73,10 @@ export class GoogleSignInUseCase
         if (!existingUser.isActive) {
           return Result.fail(AppError.forbidden("Usuário inativo. Entre em contato com o suporte"));
         }
-        signedInUser = existingUser.emailVerifiedAt
-          ? existingUser
-          : await this.userRepo.update(existingUser.id, {
-              emailVerifiedAt: new Date(),
-              password: await unusablePasswordHash(),
-            });
+        if (!existingUser.emailVerifiedAt) {
+          return Result.fail(AppError.accountEmailUnconfirmed());
+        }
+        signedInUser = existingUser;
       } else {
         signedInUser = await this.userRepo.create({
           fullName: identity.name?.trim() || email.split("@")[0],
