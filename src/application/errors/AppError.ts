@@ -20,6 +20,7 @@ export type ErrorCode =
   | "gone"
   | "google_not_configured"
   | "google_email_unverified"
+  | "account_email_unconfirmed"
   | "internal_error";
 
 /**
@@ -106,6 +107,16 @@ export class AppError extends UseCaseError {
     message = "A conta Google não possui um e-mail verificado"
   ): AppError {
     return new AppError(message, 401, "google_email_unverified");
+  }
+
+  /**
+   * 409 — Google sign-in for an e-mail whose account exists but was never
+   * confirmed. The account is not taken over and its password is untouched.
+   */
+  static accountEmailUnconfirmed(
+    message = "Já existe uma conta com este e-mail que ainda não foi confirmada. Entre com seu e-mail e senha e confirme o e-mail, ou use \"Esqueci a senha\". Depois disso, você também poderá entrar com o Google."
+  ): AppError {
+    return new AppError(message, 409, "account_email_unconfirmed");
   }
 }
 

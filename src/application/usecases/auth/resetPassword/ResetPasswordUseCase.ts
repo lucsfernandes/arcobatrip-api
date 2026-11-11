@@ -12,6 +12,11 @@ import { ResetPasswordResponseDTO } from "./ResetPasswordResponseDTO";
  * Set a new password from a reset link. Contract: `POST /auth/reset-password`.
  * Validates the password length, verifies the hashed token, re-hashes the new
  * password (bcryptjs, 12 rounds — matching signup) and burns the token.
+ *
+ * The link was delivered to the account's e-mail, so using it proves the user
+ * owns that address: an unconfirmed e-mail becomes confirmed. This is safe
+ * because the password is replaced in the same step — a password set by
+ * someone else before ownership was proven does not survive.
  */
 export class ResetPasswordUseCase
   implements IUseCase<ResetPasswordRequestDTO, ResetPasswordResponseDTO>
@@ -45,8 +50,10 @@ export class ResetPasswordUseCase
       const salt = await bcrypt.genSalt(12);
       const hashedPassword = await bcrypt.hash(password, salt);
 
+      const user = await this.userRepo.findById(verificationToken.userId);
       await this.userRepo.update(verificationToken.userId, {
         password: hashedPassword,
+        ...(user && !user.emailVerifiedAt ? { emailVerifiedAt: new Date() } : {}),
       });
       await this.verificationTokenRepo.markUsed(verificationToken);
 
