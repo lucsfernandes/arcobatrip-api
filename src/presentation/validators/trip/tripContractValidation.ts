@@ -1,8 +1,15 @@
 import { z } from "zod";
 
+/** Longest destination accepted; the web limits the field to the same value. */
+export const DESTINATION_MAX_LENGTH = 100;
+
 /** Body for `POST /trips` — mirrors the contract `CreateTripRequest`. */
 export const createTripValidation = z.object({
-  destination: z.string().min(1, "Destino é obrigatório"),
+  destination: z
+    .string()
+    .trim()
+    .min(1, "Destino é obrigatório")
+    .max(DESTINATION_MAX_LENGTH, `Destino deve ter no máximo ${DESTINATION_MAX_LENGTH} caracteres`),
   startDate: z.string().min(1, "Data de ida é obrigatória"),
   endDate: z.string().min(1, "Data de volta é obrigatória"),
   guestEmails: z.array(z.string().email("Email de convidado inválido")).optional(),
