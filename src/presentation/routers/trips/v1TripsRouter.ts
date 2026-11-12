@@ -34,6 +34,8 @@ import {
   addActivityLinkController,
   listActivityLinksController,
   deleteActivityLinkController,
+  deleteTripController,
+  removeGuestController,
 } from "../../../main/factories/trip/tripContractFactory";
 import {
   getExpensesController,
@@ -58,6 +60,10 @@ v1TripsRouter.post("/", validateBody(createTripValidation), (req, res) => {
 });
 v1TripsRouter.get("/:id", (req, res) => {
   getTripContractController.execute(req, res);
+});
+// Owner only; soft delete (the rows get `deleted_at`, nothing is erased).
+v1TripsRouter.delete("/:id", (req, res) => {
+  deleteTripController.execute(req, res);
 });
 
 // Trip banner (owner only). Reuses the single-image multipart middleware (field
@@ -146,6 +152,10 @@ v1TripsRouter.patch(
     setGuestStatusController.execute(req, res);
   }
 );
+// Owner only, pending guests only (409 for host, confirmed or in the accounts).
+v1TripsRouter.delete("/:id/guests/:guestId", (req, res) => {
+  removeGuestController.execute(req, res);
+});
 
 // Expenses (nested under a trip)
 v1TripsRouter.get("/:id/expenses", (req, res) => {

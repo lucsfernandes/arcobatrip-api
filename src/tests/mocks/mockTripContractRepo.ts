@@ -31,6 +31,10 @@ export class MockTripContractRepo implements ITripContractRepo {
   public softDeletedLinks: string[] = [];
   /** ids passed to softDeleteComment, for assertions. */
   public softDeletedComments: string[] = [];
+  /** ids passed to softDeleteTrip, for assertions. */
+  public softDeletedTrips: string[] = [];
+  /** ids of guests passed to softDeleteGuest, for assertions. */
+  public softDeletedGuests: string[] = [];
 
   seedTrip(trip: Trip): void {
     this.trips.push(trip);
@@ -56,11 +60,19 @@ export class MockTripContractRepo implements ITripContractRepo {
     this.softDeleted = [];
     this.softDeletedLinks = [];
     this.softDeletedComments = [];
+    this.softDeletedTrips = [];
+    this.softDeletedGuests = [];
     this.addedGuests = [];
   }
 
   async findTripById(id: string): Promise<Trip | null> {
-    return this.trips.find((t) => t.id === id) ?? null;
+    return this.trips.find((t) => t.id === id && !t.deletedAt) ?? null;
+  }
+
+  async softDeleteTrip(tripId: string): Promise<void> {
+    this.softDeletedTrips.push(tripId);
+    const trip = this.trips.find((t) => t.id === tripId);
+    if (trip) trip.deletedAt = new Date();
   }
 
   async findActivity(tripId: string, activityId: string): Promise<Activity | null> {
@@ -216,8 +228,16 @@ export class MockTripContractRepo implements ITripContractRepo {
       tripId,
     } as Participant;
   }
-  async findGuest(_tripId: string, _guestId: string): Promise<Participant | null> {
-    throw new Error("not implemented in mock");
+  async findGuest(tripId: string, guestId: string): Promise<Participant | null> {
+    const trip = this.trips.find((t) => t.id === tripId);
+    return (
+      (trip?.participants ?? []).find((p) => p.id === guestId && !p.deletedAt) ?? null
+    );
+  }
+
+  async softDeleteGuest(guest: Participant): Promise<void> {
+    this.softDeletedGuests.push(guest.id);
+    guest.deletedAt = new Date();
   }
   async saveGuest(_guest: Participant): Promise<Participant> {
     throw new Error("not implemented in mock");

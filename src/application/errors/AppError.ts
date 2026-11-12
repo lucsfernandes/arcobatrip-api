@@ -53,6 +53,11 @@ export class AppError extends UseCaseError {
     return new AppError(message, 409, "email_conflict");
   }
 
+  /** 409 — the request clashes with the resource's current state. */
+  static conflict(message = "Conflito com o estado atual do recurso"): AppError {
+    return new AppError(message, 409, "conflict");
+  }
+
   static badRequest(message = "Requisição inválida"): AppError {
     return new AppError(message, 400, "bad_request");
   }

@@ -15,6 +15,8 @@ import { Participant } from "../../domain/entities/Participant/participant.entit
 import { Activity } from "../../domain/entities/Activity/activity.entity";
 import { Link } from "../../domain/entities/Link/link.entity";
 import { ActivityComment } from "../../domain/entities/ActivityComment/activityComment.entity";
+import { Notification } from "../../domain/entities/Notification/notification.entity";
+import { User } from "../../domain/entities/User/user.entity";
 
 export class TripContractRepo implements ITripContractRepo {
   private tripRepository: Repository<Trip>;
@@ -77,6 +79,13 @@ export class TripContractRepo implements ITripContractRepo {
     return this.tripRepository.findOne({
       where: { id },
       relations: { participants: true, activities: true, links: true },
+    });
+  }
+
+  async softDeleteTrip(tripId: string): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      await manager.softDelete(Trip, { id: tripId });
+      await manager.softDelete(Notification, { tripId });
     });
   }
 
@@ -159,6 +168,21 @@ export class TripContractRepo implements ITripContractRepo {
 
   async saveGuest(guest: Participant): Promise<Participant> {
     return this.participantRepository.save(guest);
+  }
+
+  async softDeleteGuest(guest: Participant): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      await manager.softDelete(Participant, { id: guest.id });
+      // The invite notification only exists when the guest has an account.
+      const user = await manager.findOne(User, { where: { email: guest.email } });
+      if (user) {
+        await manager.softDelete(Notification, {
+          tripId: guest.tripId,
+          userId: user.id,
+          type: "convite",
+        });
+      }
+    });
   }
 
   // --- Activity links (Item 7c) ---
