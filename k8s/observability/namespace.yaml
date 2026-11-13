@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: observability
+  labels:
+    app.kubernetes.io/name: observability
+    app.kubernetes.io/part-of: arcobatrox
+    app.kubernetes.io/managed-by: kustomize
+    # Same bar as the app namespaces: non-root, no privileges, seccomp.
+    pod-security.kubernetes.io/enforce: restricted

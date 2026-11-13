@@ -1,0 +1,197 @@
+# Grafana Alloy — reads the logs of the Zarpa pods through the Kubernetes API
+# (no hostPath, no root) and pushes them to Loki.
+#
+# What it does to each line:
+#   1. JSON lines (API and the web's server errors) give their `log_type`
+#      (access | app) and `level` as labels. Lines without `log_type` — the
+#      plain-text output of Next.js and of npm — are labelled `app`.
+#   2. Masks, as a last line of defence, what must never be stored: e-mail
+#      addresses, JWTs, Bearer credentials, tokens in a query string and the
+#      64-character tokens of e-mailed links. Next.js prints its own error line
+#      with the raw message, which the app cannot silence.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: alloy
+  namespace: observability
+---
+# Least privilege: read the pods and their logs of the `zarpa` namespace only.
+# A Role (not a ClusterRole), living in `zarpa`, bound to Alloy's account.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: alloy-read-pod-logs
+  namespace: zarpa
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: alloy-read-pod-logs
+  namespace: zarpa
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: alloy-read-pod-logs
+subjects:
+  - kind: ServiceAccount
+    name: alloy
+    namespace: observability
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alloy-config
+  namespace: observability
+data:
+  config.alloy: |
+    // Only the Zarpa pods (API and web), in the `zarpa` namespace.
+    discovery.kubernetes "pods" {
+      role = "pod"
+      namespaces {
+        names = ["zarpa"]
+      }
+    }
+
+    discovery.relabel "zarpa" {
+      targets = discovery.kubernetes.pods.targets
+
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+        regex         = "zarpa-api|zarpa-frontend"
+        action        = "keep"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+        target_label  = "app"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label  = "namespace"
+      }
+      rule {
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "pod"
+      }
+    }
+
+    loki.source.kubernetes "zarpa" {
+      targets    = discovery.relabel.zarpa.output
+      forward_to = [loki.process.zarpa.receiver]
+    }
+
+    loki.process "zarpa" {
+      // Mask secrets and personal data first, on the raw line.
+      stage.replace {
+        expression = "([A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+)"
+        replace    = "[email]"
+      }
+      stage.replace {
+        expression = "(eyJ[A-Za-z0-9_-]{5,}\\.[A-Za-z0-9_-]{5,}\\.[A-Za-z0-9_-]*)"
+        replace    = "[REDACTED]"
+      }
+      stage.replace {
+        expression = "(?i)Bearer\\s+([A-Za-z0-9._~+/=-]+)"
+        replace    = "[REDACTED]"
+      }
+      stage.replace {
+        expression = "(?i)[?&](?:[a-z_]*token|code|key|password|secret|signature)=([^&#\\s\"']+)"
+        replace    = "[REDACTED]"
+      }
+      stage.replace {
+        expression = "(?i)\\b([0-9a-f]{64})\\b"
+        replace    = "[REDACTED]"
+      }
+
+      // JSON lines carry their own type and level.
+      stage.json {
+        expressions = { log_type = "log_type", level = "level" }
+      }
+      stage.labels {
+        values = { log_type = "", level = "" }
+      }
+      // Plain-text lines (no log_type) are technical logs.
+      stage.match {
+        selector = "{log_type=\"\"}"
+        stage.static_labels {
+          values = { log_type = "app" }
+        }
+      }
+
+      forward_to = [loki.write.local.receiver]
+    }
+
+    loki.write "local" {
+      endpoint {
+        url = "http://loki.observability.svc.cluster.local:3100/loki/api/v1/push"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alloy
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: alloy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: alloy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: alloy
+    spec:
+      serviceAccountName: alloy
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: alloy
+          image: grafana/alloy:v1.7.1
+          args:
+            - run
+            - /etc/alloy/config.alloy
+            - --storage.path=/var/lib/alloy
+            - --server.http.listen-addr=0.0.0.0:12345
+            - --disable-reporting
+          ports:
+            - name: http
+              containerPort: 12345
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 20m
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/alloy
+            - name: storage
+              mountPath: /var/lib/alloy
+      volumes:
+        - name: config
+          configMap:
+            name: alloy-config
+        - name: storage
+          emptyDir: {}
