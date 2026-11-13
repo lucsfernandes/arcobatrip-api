@@ -1,0 +1,17 @@
+# Observability stack (Loki + Alloy + Grafana). Applied BY HAND, not by the
+# deploy workflow:  kubectl apply -k k8s/observability
+# See docs/OBSERVABILIDADE.md before the first apply (Secret of the Grafana admin).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/part-of: arcobatrox
+
+resources:
+  - namespace.yaml
+  - loki.yaml
+  - alloy.yaml
+  - grafana.yaml
+  - networkpolicy.yaml

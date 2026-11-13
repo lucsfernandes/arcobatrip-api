@@ -1,0 +1,38 @@
+# Inside `observability`, only what is needed talks:
+#   Alloy -> Loki (push), Grafana -> Loki (queries), port-forward -> Grafana.
+# Port-forward goes through the kubelet, which NetworkPolicy does not block.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: loki
+  namespace: observability
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: loki
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: alloy
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: grafana
+      ports:
+        - port: 3100
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: grafana-and-alloy-no-ingress
+  namespace: observability
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values: ["grafana", "alloy"]
+  policyTypes: ["Ingress"]
+  ingress: []
