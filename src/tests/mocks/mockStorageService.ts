@@ -10,6 +10,10 @@ export class MockStorageService implements IStorageService {
   public deleted: string[] = [];
   /** When true, `uploadImage` rejects — to exercise error paths. */
   public failUpload = false;
+  /** Set to `false` to behave like a Cloudinary without credentials. */
+  public configured = true;
+  /** Public ids whose `deleteImage` rejects (the provider is unreachable). */
+  public failDeleteFor = new Set<string>();
   private seq = 0;
 
   async uploadImage(buffer: Buffer, options?: UploadImageOptions): Promise<StoredImage> {
@@ -21,7 +25,14 @@ export class MockStorageService implements IStorageService {
     return { url: `https://cdn.test/${publicId}.jpg`, publicId };
   }
 
+  isConfigured(): boolean {
+    return this.configured;
+  }
+
   async deleteImage(publicId: string): Promise<void> {
+    if (this.failDeleteFor.has(publicId)) {
+      throw new Error("provider unreachable");
+    }
     this.deleted.push(publicId);
   }
 
@@ -29,6 +40,8 @@ export class MockStorageService implements IStorageService {
     this.uploads = [];
     this.deleted = [];
     this.failUpload = false;
+    this.failDeleteFor.clear();
+    this.configured = true;
     this.seq = 0;
   }
 }

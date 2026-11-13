@@ -27,4 +27,6 @@ export interface IUserRepo {
   findByEmailWithPassword(email: string): Promise<User | null>;
   update(id: string, payload: UpdateUserPayload): Promise<IUserPublic | null>;
   existsByEmail(email: string): Promise<boolean>;
+  /** Whether an account with this id still exists (a deleted account's tokens must stop working). */
+  existsById(id: string): Promise<boolean>;
 }

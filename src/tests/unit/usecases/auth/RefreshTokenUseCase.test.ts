@@ -1,17 +1,24 @@
 import { RefreshTokenUseCase } from "../../../../application/usecases/auth/refresh/RefreshTokenUseCase";
 import { MockTokenService } from "../../../mocks/mockTokenService";
+import { MockUserRepo } from "../../../mocks/mockUserRepo";
+import { User } from "../../../../domain/entities/User/user.entity";
 
 describe("RefreshTokenUseCase", () => {
   let refreshTokenUseCase: RefreshTokenUseCase;
   let mockTokenService: MockTokenService;
+  let mockUserRepo: MockUserRepo;
 
   beforeEach(() => {
     mockTokenService = new MockTokenService();
-    refreshTokenUseCase = new RefreshTokenUseCase(mockTokenService);
+    mockUserRepo = new MockUserRepo();
+    // The tokens below belong to this account, which exists.
+    mockUserRepo.addUser({ id: "user-123", email: "test@test.com", isActive: true } as User);
+    refreshTokenUseCase = new RefreshTokenUseCase(mockTokenService, mockUserRepo);
   });
 
   afterEach(() => {
     mockTokenService.clear();
+    mockUserRepo.clear();
   });
 
   describe("Sucesso", () => {
@@ -58,6 +65,7 @@ describe("RefreshTokenUseCase", () => {
 
     it("deve retornar tokens com o mesmo userId do token original", async () => {
       const userId = "user-456";
+      mockUserRepo.addUser({ id: userId, email: "test@test.com", isActive: true } as User);
       const refreshToken = mockTokenService.generateRefreshToken({
         userId,
         email: "test@test.com"
@@ -161,6 +169,21 @@ describe("RefreshTokenUseCase", () => {
         refreshToken: newRefreshToken 
       });
       expect(secondResult.isSuccess).toBe(true);
+    });
+  });
+
+  describe("conta excluída", () => {
+    it("recusa um refresh token válido cuja conta não existe mais, e não emite tokens novos", async () => {
+      const refreshToken = mockTokenService.generateRefreshToken({
+        userId: "user-123",
+        email: "test@test.com",
+      });
+      mockUserRepo.clear(); // the account was deleted
+
+      const result = await refreshTokenUseCase.execute({ refreshToken });
+
+      expect(result.isFailure).toBe(true);
+      expect(result.errorValue().statusCode).toBe(401);
     });
   });
 });

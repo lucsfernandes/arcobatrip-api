@@ -3,11 +3,15 @@ import { LoginUserUseCase } from "../../../../application/usecases/auth/login/Lo
 import { MockUserRepo } from "../../../mocks/mockUserRepo";
 import { MockTokenService } from "../../../mocks/mockTokenService";
 import { User } from "../../../../domain/entities/User/user.entity";
+import { AuditLog } from "../../../../application/services/AuditLog";
+import { AuditEvents } from "../../../../application/services/auditEvents";
+import { MockAuditLogRepo } from "../../../mocks/mockAuditLogRepo";
 
 describe("LoginUserUseCase", () => {
   let loginUserUseCase: LoginUserUseCase;
   let mockUserRepo: MockUserRepo;
   let mockTokenService: MockTokenService;
+  let auditRepo: MockAuditLogRepo;
 
   const testPassword = "Senha@123";
   let hashedPassword: string;
@@ -19,7 +23,8 @@ describe("LoginUserUseCase", () => {
   beforeEach(() => {
     mockUserRepo = new MockUserRepo();
     mockTokenService = new MockTokenService();
-    loginUserUseCase = new LoginUserUseCase(mockUserRepo, mockTokenService);
+    auditRepo = new MockAuditLogRepo();
+    loginUserUseCase = new LoginUserUseCase(mockUserRepo, mockTokenService, new AuditLog(auditRepo));
   });
 
   afterEach(() => {
@@ -141,6 +146,57 @@ describe("LoginUserUseCase", () => {
 
       expect(result.isFailure).toBe(true);
       expect(result.errorValue().statusCode).toBe(403);
+    });
+  });
+
+  describe("Auditoria", () => {
+    it("records a login with no e-mail in text", async () => {
+      mockUserRepo.addUser(createTestUser());
+
+      await loginUserUseCase.execute({ email: "joao@test.com", password: testPassword });
+
+      expect(auditRepo.events).toHaveLength(1);
+      expect(auditRepo.events[0]).toMatchObject({
+        event: AuditEvents.AuthLogin,
+        outcome: "ok",
+        details: { method: "password" },
+      });
+      expect(JSON.stringify(auditRepo.events[0])).not.toContain("joao");
+    });
+
+    it("records a failed login for a wrong password and for an unknown e-mail alike", async () => {
+      mockUserRepo.addUser(createTestUser());
+
+      await loginUserUseCase.execute({ email: "joao@test.com", password: "wrong-password" });
+      await loginUserUseCase.execute({ email: "nobody@test.com", password: "whatever" });
+
+      expect(auditRepo.events.map((e) => e.event)).toEqual([
+        AuditEvents.AuthLoginFailed,
+        AuditEvents.AuthLoginFailed,
+      ]);
+      expect(auditRepo.events.every((e) => e.outcome === "failed")).toBe(true);
+      expect(auditRepo.events[0].subjectRef).not.toBe(auditRepo.events[1].subjectRef);
+    });
+
+    it("records an inactive account's failed login", async () => {
+      mockUserRepo.addUser(createTestUser({ isActive: false }));
+
+      const result = await loginUserUseCase.execute({ email: "joao@test.com", password: testPassword });
+
+      expect(result.isFailure).toBe(true);
+      expect(auditRepo.events[0]).toMatchObject({
+        event: AuditEvents.AuthLoginFailed,
+        details: { reason: "inactive" },
+      });
+    });
+
+    it("still logs the user in when the audit trail is down", async () => {
+      mockUserRepo.addUser(createTestUser());
+      auditRepo.failOnCreate = true;
+
+      const result = await loginUserUseCase.execute({ email: "joao@test.com", password: testPassword });
+
+      expect(result.isSuccess).toBe(true);
     });
   });
 });

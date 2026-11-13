@@ -32,4 +32,10 @@ export interface IStorageService {
   uploadImage(buffer: Buffer, options?: UploadImageOptions): Promise<StoredImage>;
   /** Delete a previously uploaded image by its provider handle. Idempotent. */
   deleteImage(publicId: string): Promise<void>;
+  /**
+   * Whether the provider has credentials. When `false`, `deleteImage` does
+   * nothing (it does not fail), so callers that must be sure an image is gone
+   * (account deletion) treat it as not removed. Optional: absent means "yes".
+   */
+  isConfigured?(): boolean;
 }

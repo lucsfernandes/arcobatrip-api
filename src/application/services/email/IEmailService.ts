@@ -8,6 +8,11 @@ export interface IEmailService {
   sendWelcome(to: string, params: { name: string }): Promise<void>;
   sendEmailVerification(to: string, params: { name: string; verifyUrl: string }): Promise<void>;
   sendPasswordReset(to: string, params: { name: string; resetUrl: string }): Promise<void>;
+  /** Link that confirms the deletion of the account (single use, short lived). */
+  sendAccountDeletion(
+    to: string,
+    params: { name: string; confirmUrl: string; ttlMinutes: number }
+  ): Promise<void>;
   /** 6-digit code that verifies the user's phone number (delivered by email). */
   sendPhoneVerificationCode(
     to: string,

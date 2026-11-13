@@ -61,6 +61,33 @@ export class AccountEmailEmitter {
     }
   }
 
+  /**
+   * Issue a single-use link that confirms the deletion of the account and send
+   * it. A new request invalidates the previous link. Unlike the other e-mails,
+   * a failure to create the link propagates (the request fails instead of
+   * pretending). Delivery itself stays best-effort, like every e-mail here: the
+   * e-mail service logs a failed send and never throws.
+   */
+  async sendAccountDeletion(user: AccountEmailUser): Promise<void> {
+    await this.verificationTokenRepo.invalidateAllForUser(user.id, "account_deletion");
+
+    const rawToken = generateRawToken();
+    const expiresAt = new Date(Date.now() + env.ACCOUNT_DELETION_TOKEN_TTL_MIN * 60 * 1000);
+
+    await this.verificationTokenRepo.create({
+      userId: user.id,
+      tokenHash: hashToken(rawToken),
+      type: "account_deletion",
+      expiresAt,
+    });
+
+    await this.emailService.sendAccountDeletion(user.email, {
+      name: user.fullName,
+      confirmUrl: `${env.APP_URL}/delete-account?token=${rawToken}`,
+      ttlMinutes: env.ACCOUNT_DELETION_TOKEN_TTL_MIN,
+    });
+  }
+
   /** Issue a single-use password-reset link and send it. */
   async sendPasswordReset(user: AccountEmailUser): Promise<void> {
     try {

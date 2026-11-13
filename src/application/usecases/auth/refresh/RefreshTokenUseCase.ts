@@ -2,12 +2,16 @@ import { IUseCase } from "../../IUseCase";
 import { Result } from "../../Result";
 import { UseCaseError } from "../../../errors/UseCaseError";
 import { ITokenService } from "../ITokenService";
+import { IUserRepo } from "../IUserRepo";
 import { RefreshTokenRequestDTO } from "./RefreshTokenRequestDTO";
 import { RefreshTokenResponseDTO } from "./RefreshTokenResponseDTO";
 import { env } from "../../../../main/config/env";
 
 export class RefreshTokenUseCase implements IUseCase<RefreshTokenRequestDTO, RefreshTokenResponseDTO> {
-  constructor(private tokenService: ITokenService) {}
+  constructor(
+    private tokenService: ITokenService,
+    private userRepo: IUserRepo
+  ) {}
 
   async execute(request: RefreshTokenRequestDTO): Promise<Result<RefreshTokenResponseDTO>> {
     const { refreshToken } = request;
@@ -21,6 +25,11 @@ export class RefreshTokenUseCase implements IUseCase<RefreshTokenRequestDTO, Ref
     // Verificar e decodificar o refresh token
     const decoded = this.tokenService.verifyRefreshToken(refreshToken);
     if (!decoded) {
+      return Result.fail(new UseCaseError("Token de atualização inválido ou expirado", 401));
+    }
+
+    // A deleted account must not get new tokens out of an old refresh token.
+    if (!(await this.userRepo.existsById(decoded.userId))) {
       return Result.fail(new UseCaseError("Token de atualização inválido ou expirado", 401));
     }
 

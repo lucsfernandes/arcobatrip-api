@@ -5,6 +5,8 @@ import { AppError } from "../../../errors/AppError";
 import { IUserRepo } from "../IUserRepo";
 import { IVerificationTokenRepo } from "../IVerificationTokenRepo";
 import { hashToken } from "../../../utils/token";
+import { IAuditLog } from "../../../services/AuditLog";
+import { AuditEvents } from "../../../services/auditEvents";
 import { ResetPasswordRequestDTO } from "./ResetPasswordRequestDTO";
 import { ResetPasswordResponseDTO } from "./ResetPasswordResponseDTO";
 
@@ -23,7 +25,8 @@ export class ResetPasswordUseCase
 {
   constructor(
     private readonly userRepo: IUserRepo,
-    private readonly verificationTokenRepo: IVerificationTokenRepo
+    private readonly verificationTokenRepo: IVerificationTokenRepo,
+    private readonly audit?: IAuditLog
   ) {}
 
   async execute(
@@ -56,6 +59,10 @@ export class ResetPasswordUseCase
         ...(user && !user.emailVerifiedAt ? { emailVerifiedAt: new Date() } : {}),
       });
       await this.verificationTokenRepo.markUsed(verificationToken);
+
+      if (user) {
+        await this.audit?.record(AuditEvents.AuthPasswordChanged, user.email, { via: "reset" });
+      }
 
       return Result.ok({ message: "Senha redefinida com sucesso." });
     } catch (error) {

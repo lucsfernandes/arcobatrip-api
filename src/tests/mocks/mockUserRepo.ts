@@ -77,6 +77,10 @@ export class MockUserRepo implements IUserRepo {
     return toPublic(this.users[userIndex]);
   }
 
+  async existsById(id: string): Promise<boolean> {
+    return this.users.some(u => u.id === id);
+  }
+
   async existsByEmail(email: string): Promise<boolean> {
     return this.users.some(u => u.email === email);
   }
@@ -84,6 +88,10 @@ export class MockUserRepo implements IUserRepo {
   // Test helpers
   clear(): void {
     this.users = [];
+  }
+
+  removeUser(id: string): void {
+    this.users = this.users.filter(u => u.id !== id);
   }
 
   addUser(user: User): void {

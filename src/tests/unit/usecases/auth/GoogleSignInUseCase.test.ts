@@ -7,6 +7,9 @@ import {
 import { MockUserRepo } from "../../../mocks/mockUserRepo";
 import { MockTokenService } from "../../../mocks/mockTokenService";
 import { User } from "../../../../domain/entities/User/user.entity";
+import { AuditLog } from "../../../../application/services/AuditLog";
+import { AuditEvents } from "../../../../application/services/auditEvents";
+import { MockAuditLogRepo } from "../../../mocks/mockAuditLogRepo";
 
 /** Fake verifier: returns `identity` for the token "valid-token", null otherwise. */
 class FakeGoogleVerifier implements IGoogleTokenVerifier {
@@ -173,5 +176,38 @@ describe("GoogleSignInUseCase", () => {
     expect(result.isFailure).toBe(true);
     expect(result.errorValue().statusCode).toBe(503);
     expect(result.errorValue().code).toBe("google_not_configured");
+  });
+
+  describe("auditoria", () => {
+    it("records a Google login with the method and no e-mail in text", async () => {
+      const auditRepo = new MockAuditLogRepo();
+      const useCase = new GoogleSignInUseCase(
+        userRepo,
+        tokenService,
+        new FakeGoogleVerifier(googleIdentity),
+        new AuditLog(auditRepo)
+      );
+
+      const result = await useCase.execute({ idToken: "valid-token" });
+
+      expect(result.isSuccess).toBe(true);
+      expect(auditRepo.events).toHaveLength(1);
+      expect(auditRepo.events[0]).toMatchObject({ event: AuditEvents.AuthLogin, details: { method: "google" } });
+      expect(JSON.stringify(auditRepo.events[0])).not.toContain("ana@gmail.com");
+    });
+
+    it("records nothing when the Google token is invalid", async () => {
+      const auditRepo = new MockAuditLogRepo();
+      const useCase = new GoogleSignInUseCase(
+        userRepo,
+        tokenService,
+        new FakeGoogleVerifier(googleIdentity),
+        new AuditLog(auditRepo)
+      );
+
+      await useCase.execute({ idToken: "bad-token" });
+
+      expect(auditRepo.events).toHaveLength(0);
+    });
   });
 });

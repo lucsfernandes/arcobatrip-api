@@ -7,6 +7,8 @@ import { LoginUserRequestDTO } from "./LoginUserRequestDTO";
 import { LoginUserResponseDTO } from "./LoginUserResponseDTO";
 import { ITokenService } from "../ITokenService";
 import { env } from "../../../../main/config/env";
+import { IAuditLog } from "../../../services/AuditLog";
+import { AuditEvents } from "../../../services/auditEvents";
 
 /**
  * Fixed bcrypt hash (cost 12) of an arbitrary throwaway string. Used ONLY as a
@@ -18,7 +20,8 @@ const DUMMY_PASSWORD_HASH = "$2b$12$oR9QqvF1EZt.hQgZS7zTluwOKxb0SfcVlgK35MGC2j.B
 export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUserResponseDTO> {
   constructor(
     private userRepo: IUserRepo,
-    private tokenService: ITokenService
+    private tokenService: ITokenService,
+    private audit?: IAuditLog
   ) {}
 
   async execute(request: LoginUserRequestDTO): Promise<Result<LoginUserResponseDTO>> {
@@ -33,6 +36,9 @@ export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUser
       // para nivelar o timing do bcrypt e não revelar a existência da conta.
       if (!user) {
         await bcrypt.compare(password, DUMMY_PASSWORD_HASH);
+        // Recorded on both failure paths (unknown e-mail and wrong password) so
+        // they keep the same cost and the response time stays level.
+        await this.audit?.record(AuditEvents.AuthLoginFailed, email, { reason: "invalid_credentials" }, "failed");
         return Result.fail(new UseCaseError("Credenciais inválidas", 401));
       }
 
@@ -40,14 +46,18 @@ export class LoginUserUseCase implements IUseCase<LoginUserRequestDTO, LoginUser
       // já provou conhecer as credenciais válidas pode observar o status "inativo".
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
+        await this.audit?.record(AuditEvents.AuthLoginFailed, email, { reason: "invalid_credentials" }, "failed");
         return Result.fail(new UseCaseError("Credenciais inválidas", 401));
       }
 
       // Conta desativada — só revelado após credenciais corretas (não vaza
       // existência a quem não conhece a senha).
       if (!user.isActive) {
+        await this.audit?.record(AuditEvents.AuthLoginFailed, email, { reason: "inactive" }, "failed");
         return Result.fail(new UseCaseError("Usuário inativo. Entre em contato com o suporte", 403));
       }
+
+      await this.audit?.record(AuditEvents.AuthLogin, user.email, { method: "password" });
 
       // Gerar par de tokens JWT
       const tokenPair = this.tokenService.generateTokenPair({

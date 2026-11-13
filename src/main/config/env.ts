@@ -53,6 +53,8 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().optional().default(""),
   EMAIL_VERIFICATION_TOKEN_TTL_MIN: z.coerce.number().default(1440),
   PASSWORD_RESET_TOKEN_TTL_MIN: z.coerce.number().default(60),
+  // Validade do link de confirmação da exclusão de conta (uso único).
+  ACCOUNT_DELETION_TOKEN_TTL_MIN: z.coerce.number().default(60),
   // Verificação de celular por email (código numérico de 6 dígitos)
   PHONE_VERIFICATION_CODE_TTL_MIN: z.coerce.number().default(15),
   PHONE_VERIFICATION_RESEND_COOLDOWN_SEC: z.coerce.number().default(60),
@@ -62,6 +64,10 @@ const envSchema = z.object({
   // a partir de JWT_SECRET (ver hashPhoneCode) para não adicionar uma env
   // obrigatória que quebre o boot. Defina em produção para desacoplar do JWT.
   PHONE_CODE_SECRET: z.string().min(16).optional(),
+  // Segredo HMAC do hash de e-mail usado como `subject_ref` na auditoria
+  // (`audit_events`). OPCIONAL: ausente => fallback derivado de JWT_SECRET. Defina em
+  // produção; trocá-lo muda todas as referências já gravadas.
+  AUDIT_HASH_SECRET: z.string().min(16).optional(),
   // Cloudinary (upload de avatar). Deixe vazio para desabilitar o upload em dev.
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
   CLOUDINARY_API_KEY: z.string().optional().default(""),

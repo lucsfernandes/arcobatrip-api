@@ -24,21 +24,21 @@ import { tokenService } from "../../../infra/services/TokenService";
 import { googleTokenVerifier } from "../../../infra/services/GoogleTokenVerifier";
 import { emailService } from "../../../infra/services/email/ResendEmailService";
 import { AccountEmailEmitter } from "../../../application/services/AccountEmailEmitter";
-import { verificationTokenRepo } from "../typeOrmRepoFactory";
+import { verificationTokenRepo, auditLog } from "../typeOrmRepoFactory";
 
 const accountEmailEmitter = new AccountEmailEmitter(emailService, verificationTokenRepo);
 
 // Use Cases
 const registerUserUseCase = new RegisterUserUseCase(userRepo, tokenService, accountEmailEmitter);
 const signupUseCase = new SignupUseCase(userRepo, tokenService, accountEmailEmitter);
-const loginUserUseCase = new LoginUserUseCase(userRepo, tokenService);
+const loginUserUseCase = new LoginUserUseCase(userRepo, tokenService, auditLog);
 const logoutUserUseCase = new LogoutUserUseCase(tokenService);
-const refreshTokenUseCase = new RefreshTokenUseCase(tokenService);
+const refreshTokenUseCase = new RefreshTokenUseCase(tokenService, userRepo);
 const confirmEmailUseCase = new ConfirmEmailUseCase(userRepo, verificationTokenRepo);
 const forgotPasswordUseCase = new ForgotPasswordUseCase(userRepo, accountEmailEmitter);
 const resendVerificationUseCase = new ResendVerificationUseCase(userRepo, accountEmailEmitter);
-const resetPasswordUseCase = new ResetPasswordUseCase(userRepo, verificationTokenRepo);
-const googleSignInUseCase = new GoogleSignInUseCase(userRepo, tokenService, googleTokenVerifier);
+const resetPasswordUseCase = new ResetPasswordUseCase(userRepo, verificationTokenRepo, auditLog);
+const googleSignInUseCase = new GoogleSignInUseCase(userRepo, tokenService, googleTokenVerifier, auditLog);
 
 // Controllers
 const registerUserController = new RegisterUserController(registerUserUseCase);
