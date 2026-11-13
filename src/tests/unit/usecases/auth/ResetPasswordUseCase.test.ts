@@ -3,6 +3,9 @@ import { ResetPasswordUseCase } from "../../../../application/usecases/auth/rese
 import { hashToken } from "../../../../application/utils/token";
 import { MockUserRepo } from "../../../mocks/mockUserRepo";
 import { MockVerificationTokenRepo } from "../../../mocks/mockVerificationTokenRepo";
+import { AuditLog } from "../../../../application/services/AuditLog";
+import { AuditEvents } from "../../../../application/services/auditEvents";
+import { MockAuditLogRepo } from "../../../mocks/mockAuditLogRepo";
 import { User } from "../../../../domain/entities/User/user.entity";
 
 /**
@@ -85,5 +88,34 @@ describe("ResetPasswordUseCase", () => {
     const stored = await userRepo.findByEmailWithPassword("ana@gmail.com");
     expect(stored?.emailVerifiedAt ?? null).toBeNull();
     expect(stored?.password).toBe(user().password);
+  });
+
+  it("records the password change in the audit trail, without the e-mail in text", async () => {
+    userRepo.addUser(user());
+    const token = await resetLink();
+    const auditRepo = new MockAuditLogRepo();
+
+    const result = await new ResetPasswordUseCase(userRepo, tokenRepo, new AuditLog(auditRepo)).execute({
+      token,
+      password: "NovaSenha@2026",
+    });
+
+    expect(result.isSuccess).toBe(true);
+    expect(auditRepo.events).toHaveLength(1);
+    expect(auditRepo.events[0]).toMatchObject({ event: AuditEvents.AuthPasswordChanged, details: { via: "reset" } });
+    expect(JSON.stringify(auditRepo.events[0])).not.toContain("ana@gmail.com");
+  });
+
+  it("records nothing when the link is invalid", async () => {
+    userRepo.addUser(user());
+    await resetLink("the-real-token");
+    const auditRepo = new MockAuditLogRepo();
+
+    await new ResetPasswordUseCase(userRepo, tokenRepo, new AuditLog(auditRepo)).execute({
+      token: "a-guessed-token",
+      password: "NovaSenha@2026",
+    });
+
+    expect(auditRepo.events).toHaveLength(0);
   });
 });

@@ -8,6 +8,8 @@ import { SettledPaymentRepo } from "../../infra/repositories/SettledPaymentRepo"
 import { NotificationRepo } from "../../infra/repositories/NotificationRepo";
 import { NotificationEmitter } from "../../application/services/NotificationEmitter";
 import { VerificationTokenRepo } from "../../infra/repositories/VerificationTokenRepo";
+import { AuditLogRepo } from "../../infra/repositories/AuditLogRepo";
+import { AuditLog } from "../../application/services/AuditLog";
 
 const connector = AppDataSource;
 
@@ -21,6 +23,10 @@ const expenseRepo = new ExpenseRepo(connector);
 const settledPaymentRepo = new SettledPaymentRepo(connector);
 const notificationRepo = new NotificationRepo(connector);
 const verificationTokenRepo = new VerificationTokenRepo(connector);
+const auditLogRepo = new AuditLogRepo(connector);
+
+/** Audit trail (LGPD art. 37): e-mails are stored only as a keyed hash. */
+const auditLog = new AuditLog(auditLogRepo);
 
 /** Shared notification fan-out used by the trip use cases. */
 const notificationEmitter = new NotificationEmitter(userRepo, notificationRepo);
@@ -35,4 +41,6 @@ export {
   notificationRepo,
   notificationEmitter,
   verificationTokenRepo,
+  auditLogRepo,
+  auditLog,
 };

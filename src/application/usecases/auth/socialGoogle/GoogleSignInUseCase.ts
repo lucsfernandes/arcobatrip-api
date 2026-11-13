@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { IUseCase } from "../../IUseCase";
+import { IAuditLog } from "../../../services/AuditLog";
+import { AuditEvents } from "../../../services/auditEvents";
 import { Result } from "../../Result";
 import { AppError } from "../../../errors/AppError";
 import { IUserRepo } from "../IUserRepo";
@@ -46,7 +48,8 @@ export class GoogleSignInUseCase
   constructor(
     private readonly userRepo: IUserRepo,
     private readonly tokenService: ITokenService,
-    private readonly googleVerifier: IGoogleTokenVerifier
+    private readonly googleVerifier: IGoogleTokenVerifier,
+    private readonly audit?: IAuditLog
   ) {}
 
   async execute(request: GoogleSignInRequestDTO): Promise<Result<GoogleSignInResponseDTO>> {
@@ -90,6 +93,8 @@ export class GoogleSignInUseCase
       if (!signedInUser) {
         return Result.fail(AppError.internal("Não foi possível concluir o login com Google"));
       }
+
+      await this.audit?.record(AuditEvents.AuthLogin, signedInUser.email, { method: "google" });
 
       const { accessToken, refreshToken } = this.tokenService.generateTokenPair({
         userId: signedInUser.id,
