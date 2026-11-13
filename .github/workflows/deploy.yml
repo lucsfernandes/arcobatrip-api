@@ -66,6 +66,7 @@ jobs:
             CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
             CORS_ORIGINS: ${{ secrets.CORS_ORIGINS }}
             GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+            AUDIT_HASH_SECRET: ${{ secrets.AUDIT_HASH_SECRET }}
 
         run: |
           kubectl create secret generic zarpa-secret -n zarpa \
@@ -91,6 +92,7 @@ jobs:
             --from-literal=CLOUDINARY_URL="${CLOUDINARY_URL}" \
             --from-literal=CORS_ORIGINS="${CORS_ORIGINS}" \
             --from-literal=GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}" \
+            --from-literal=AUDIT_HASH_SECRET="${AUDIT_HASH_SECRET}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Replace image placeholder

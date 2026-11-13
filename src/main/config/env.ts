@@ -67,7 +67,12 @@ const envSchema = z.object({
   // Segredo HMAC do hash de e-mail usado como `subject_ref` na auditoria
   // (`audit_events`). OPCIONAL: ausente => fallback derivado de JWT_SECRET. Defina em
   // produção; trocá-lo muda todas as referências já gravadas.
-  AUDIT_HASH_SECRET: z.string().min(16).optional(),
+  // Vazio conta como ausente: o deploy grava a variável mesmo quando o secret não
+  // existe no GitHub, e um valor vazio não pode derrubar o boot.
+  AUDIT_HASH_SECRET: z.preprocess(
+    (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+    z.string().min(16).optional()
+  ),
   // Cloudinary (upload de avatar). Deixe vazio para desabilitar o upload em dev.
   CLOUDINARY_CLOUD_NAME: z.string().optional().default(""),
   CLOUDINARY_API_KEY: z.string().optional().default(""),
