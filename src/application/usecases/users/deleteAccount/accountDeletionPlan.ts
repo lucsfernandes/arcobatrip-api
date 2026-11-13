@@ -10,19 +10,36 @@
  *  - Otherwise the trip, its activities and links stay; only the user's ties go:
  *      · activities the user created lose their author;
  *      · the user's comments are deleted (D4);
- *      · the user's participant row is deleted, or anonymized when it appears
- *        in an expense or a recorded payment, so the others' accounts still
- *        add up (D3);
+ *      · the user's participant row is deleted, or fully anonymized when it
+ *        appears in an expense or a recorded payment, so the others' accounts
+ *        still add up (D3): no name, e-mail, photo or colour is kept;
  *      · if the user organised the trip, the organisation passes to the oldest
  *        confirmed participant (D2).
  *  - Already soft-deleted trips, guests and activities are included.
  */
 
-/** Suffix kept after the name of a participant who left but is still in the accounts (D3). */
-export const REMOVED_MARK = "(Participante removido)";
+/**
+ * The only name an anonymized participant keeps (D3, revised 2026-11-13: full
+ * anonymity, no trace of the real name, to stay clear of the LGPD).
+ */
+export const REMOVED_NAME = "Participante removido";
 
-export function anonymizedName(name: string): string {
-  return name.endsWith(REMOVED_MARK) ? name : `${name} ${REMOVED_MARK}`;
+/** Whether a participant's name is one this planner gave (so it holds no real name). */
+export function isRemovedName(name: string): boolean {
+  return name === REMOVED_NAME || new RegExp(`^${REMOVED_NAME} \\d+$`).test(name);
+}
+
+/**
+ * The name for the next anonymized participant of a trip, given the names
+ * already taken there: "Participante removido", then "… 2", "… 3", so the others
+ * can still tell two removed people apart in the accounts.
+ */
+export function anonymizedName(takenNames: Iterable<string>): string {
+  const taken = new Set(takenNames);
+  if (!taken.has(REMOVED_NAME)) return REMOVED_NAME;
+  let n = 2;
+  while (taken.has(`${REMOVED_NAME} ${n}`)) n += 1;
+  return `${REMOVED_NAME} ${n}`;
 }
 
 /** A unique address with no personal data (`.invalid` is a reserved, never-routable TLD). */
@@ -126,9 +143,18 @@ export function buildDeletionPlan(snapshot: AccountSnapshot): AccountDeletionPla
 
     const removeParticipantIds: string[] = [];
     const anonymize: { participantId: string; name: string }[] = [];
+    // Names already given to people removed earlier from this trip.
+    const takenNames = trip.participants
+      .filter((p) => !mineIds.has(p.id) && isRemovedName(p.name))
+      .map((p) => p.name);
     for (const p of mine) {
-      if (inAccounts(p.id)) anonymize.push({ participantId: p.id, name: anonymizedName(p.name) });
-      else removeParticipantIds.push(p.id);
+      if (inAccounts(p.id)) {
+        const name = anonymizedName(takenNames);
+        takenNames.push(name);
+        anonymize.push({ participantId: p.id, name });
+      } else {
+        removeParticipantIds.push(p.id);
+      }
     }
 
     const wasOrganiser = mine.some((p) => p.isOwner && !p.deleted);

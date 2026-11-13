@@ -1,5 +1,6 @@
 import {
-  REMOVED_MARK,
+  REMOVED_NAME,
+  isRemovedName,
   SnapshotParticipant,
   SnapshotTrip,
   anonymizedEmail,
@@ -115,14 +116,49 @@ describe("buildDeletionPlan — shared trips stay for the others", () => {
 
     expect(result.unlinkTrips[0].removeParticipantIds).toEqual([]);
     expect(result.unlinkTrips[0].anonymize).toEqual([
-      { participantId: "p-maria", name: `Maria Souza ${REMOVED_MARK}` },
+      { participantId: "p-maria", name: REMOVED_NAME },
     ]);
     expect(result.counts).toMatchObject({ participantsAnonymized: 1, participantsRemoved: 0 });
   });
 
-  it("keeps the name with the mark and never adds the mark twice", () => {
-    expect(anonymizedName("Maria Souza")).toBe("Maria Souza (Participante removido)");
-    expect(anonymizedName("Maria Souza (Participante removido)")).toBe("Maria Souza (Participante removido)");
+  it("keeps no trace of the real name (D3: full anonymity)", () => {
+    const result = plan(
+      trip({
+        participants: [person({ id: "p-ana", isOwner: true }), maria()],
+        expenses: [{ paidById: "p-maria", splitBetween: ["p-ana"] }],
+      })
+    );
+    const [entry] = result.unlinkTrips[0].anonymize;
+    expect(entry.name).toBe("Participante removido");
+    expect(entry.name).not.toMatch(/maria|souza/i);
+  });
+
+  it("numbers removed participants so the others can tell them apart", () => {
+    expect(anonymizedName([])).toBe("Participante removido");
+    expect(anonymizedName(["Participante removido"])).toBe("Participante removido 2");
+    expect(anonymizedName(["Participante removido", "Participante removido 2"])).toBe("Participante removido 3");
+    expect(anonymizedName(["Participante removido", "Participante removido 3"])).toBe("Participante removido 2");
+  });
+
+  it("takes the next free number when someone was already removed from the trip", () => {
+    const result = plan(
+      trip({
+        participants: [
+          person({ id: "p-ana", isOwner: true }),
+          person({ id: "p-old", name: "Participante removido", email: "removed-p-old@removed.invalid" }),
+          maria(),
+        ],
+        expenses: [{ paidById: "p-maria", splitBetween: ["p-ana", "p-old"] }],
+      })
+    );
+    expect(result.unlinkTrips[0].anonymize[0].name).toBe("Participante removido 2");
+  });
+
+  it("does not mistake a real name for a removed one", () => {
+    expect(isRemovedName("Participante removido")).toBe(true);
+    expect(isRemovedName("Participante removido 12")).toBe(true);
+    expect(isRemovedName("Participante removido (Maria)")).toBe(false);
+    expect(isRemovedName("Maria")).toBe(false);
   });
 
   it("replaces the e-mail with a unique address that holds no personal data", () => {
