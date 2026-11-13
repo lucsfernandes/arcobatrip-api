@@ -24,6 +24,8 @@ const envBoolean = (defaultValue: boolean) =>
 
 const envSchema = z.object({
   PORT: z.string().optional().default("3000"),
+  // Nível mínimo dos logs (winston): error | warn | info | http | verbose | debug | silly.
+  LOG_LEVEL: z.enum(["error", "warn", "info", "http", "verbose", "debug", "silly"]).default("info"),
   TYPEORM_HOST: z.string().default('http://localhost'),
   TYPEORM_PORT: z.coerce.number().default(5432),
   TYPEORM_USERNAME: z.string().min(1, "TYPEORM_USERNAME é obrigatório"),
