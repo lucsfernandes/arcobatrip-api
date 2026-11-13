@@ -15,6 +15,16 @@ export class MockAuditLogRepo implements IAuditLogRepo {
     this.events.push({ ...data, occurredAt: new Date() });
   }
 
+  async findLatest(
+    event: string,
+    subjectRef: string
+  ): Promise<{ details: Record<string, unknown> } | null> {
+    const found = this.events
+      .filter((e) => e.event === event && e.subjectRef === subjectRef)
+      .sort((a, b) => b.occurredAt.getTime() - a.occurredAt.getTime())[0];
+    return found ? { details: found.details } : null;
+  }
+
   async deleteOlderThan(eventPrefix: string, cutoff: Date): Promise<number> {
     const before = this.events.length;
     this.events = this.events.filter(

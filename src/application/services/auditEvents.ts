@@ -4,6 +4,7 @@ export const AuditEvents = {
   AccountDeletionConfirmed: "account.deletion_confirmed",
   AccountDeleted: "account.deleted",
   AccountDeletionFailed: "account.deletion_failed",
+  AccountImagesRetried: "account.images_retried",
   AuthLogin: "auth.login",
   AuthLoginFailed: "auth.login_failed",
   AuthPasswordChanged: "auth.password_changed",

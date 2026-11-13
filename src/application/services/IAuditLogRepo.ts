@@ -10,6 +10,8 @@ export interface NewAuditEvent {
 
 export interface IAuditLogRepo {
   create(data: NewAuditEvent): Promise<void>;
+  /** The most recent event of this kind for a subject, or `null`. */
+  findLatest(event: string, subjectRef: string): Promise<{ details: Record<string, unknown> } | null>;
   /** Deletes the events of one family older than `cutoff`; returns how many. */
   deleteOlderThan(eventPrefix: string, cutoff: Date): Promise<number>;
 }

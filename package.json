@@ -7,6 +7,8 @@
     "build": "tsc",
     "start": "node dist/main/server.js",
     "dev": "tsx watch --clear-screen=true src/main/server.ts",
+    "account:delete": "tsx src/main/cli/deleteAccount.ts",
+    "account:delete:prod": "node dist/main/cli/deleteAccount.js",
     "test": "jest --runInBand",
     "test:unit": "jest --runInBand tests/unit",
     "test:integration": "jest --runInBand tests/integration",

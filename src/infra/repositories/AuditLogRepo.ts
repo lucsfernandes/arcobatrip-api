@@ -21,6 +21,17 @@ export class AuditLogRepo implements IAuditLogRepo {
     });
   }
 
+  async findLatest(
+    event: string,
+    subjectRef: string
+  ): Promise<{ details: Record<string, unknown> } | null> {
+    const row = await this.repository.findOne({
+      where: { event, subjectRef },
+      order: { occurredAt: "DESC" },
+    });
+    return row ? { details: row.details } : null;
+  }
+
   async deleteOlderThan(eventPrefix: string, cutoff: Date): Promise<number> {
     const result = await this.repository
       .createQueryBuilder()

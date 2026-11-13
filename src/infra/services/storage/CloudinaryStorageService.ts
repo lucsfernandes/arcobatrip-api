@@ -75,6 +75,10 @@ export class CloudinaryStorageService implements IStorageService {
     return { url: result.secure_url, publicId: result.public_id };
   }
 
+  isConfigured(): boolean {
+    return this.configured;
+  }
+
   async deleteImage(publicId: string): Promise<void> {
     if (!this.configured) {
       return;

@@ -61,6 +61,14 @@ export class AuditLog implements IAuditLog {
     }
   }
 
+  /** The latest event of this kind recorded for an e-mail, or `null`. */
+  async latest(
+    event: string,
+    subjectEmail: string
+  ): Promise<{ details: Record<string, unknown> } | null> {
+    return this.repo.findLatest(event, hashAuditSubject(subjectEmail));
+  }
+
   /** Deletes the events whose retention ended; returns how many were removed. */
   async purgeExpired(now: Date = new Date()): Promise<number> {
     let removed = 0;
