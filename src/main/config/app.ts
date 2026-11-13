@@ -3,6 +3,7 @@ import cors, { type CorsOptions } from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { v1Router } from "../../presentation/middlewares/routes";
+import { requestLogger, REQUEST_ID_HEADER } from "../../presentation/middlewares/requestLogger";
 import { env } from "./env";
 import "reflect-metadata";
 
@@ -15,6 +16,12 @@ const app = express();
  * let a client spoof its IP and defeat per-IP limits.
  */
 app.set("trust proxy", 1);
+
+/**
+ * Request id + access log. First, so every response (even a CORS refusal) carries
+ * `X-Request-Id` and every request is logged once.
+ */
+app.use(requestLogger());
 
 /**
  * Security headers. CSP is intentionally disabled: this is a JSON API, so a
@@ -98,6 +105,8 @@ const corsOptions: CorsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Authorization", "Content-Type"],
+  // Lets the browser read the id to quote when something goes wrong.
+  exposedHeaders: [REQUEST_ID_HEADER],
 };
 
 app.use(cors(corsOptions));

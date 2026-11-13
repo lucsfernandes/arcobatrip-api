@@ -75,7 +75,8 @@ export class ResendEmailService implements IEmailService {
   private async send(to: string, subject: string, html: string): Promise<void> {
     if (!this.resend) {
       logger.warn(
-        `[ResendEmailService] RESEND_API_KEY não configurada — email "${subject}" para ${to} não foi enviado.`
+        // No recipient here: an address is personal data and does not belong in a log.
+        `[ResendEmailService] RESEND_API_KEY não configurada — email "${subject}" não foi enviado.`
       );
       return;
     }

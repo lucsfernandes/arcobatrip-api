@@ -1,6 +1,7 @@
 import { env } from '../../main/config/env';
 import { DataSource } from "typeorm";
 import * as path from 'path';
+import { WinstonTypeOrmLogger } from './WinstonTypeOrmLogger';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -13,6 +14,9 @@ const AppDataSource = new DataSource({
   migrations: [path.join(__dirname, '/migrations/*.{ts,js}')],
   synchronize: env.TYPEORM_SYNC, // Evite true em produção
   migrationsRun: !env.TYPEORM_SYNC, // Executar migrations automaticamente quando sync está desabilitado
+  // Through winston and WITHOUT query parameters (see WinstonTypeOrmLogger). Queries are
+  // logged at `debug`, so they only show with LOG_LEVEL=debug.
+  logger: new WinstonTypeOrmLogger(),
   logging: process.env.NODE_ENV !== 'production' ? ['query', 'error'] : ['error'],
   ssl: env.TYPEORM_SSLMODE === 'require' ? { rejectUnauthorized: false } : false,
 })
