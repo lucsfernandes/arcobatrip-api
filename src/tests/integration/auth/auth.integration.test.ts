@@ -30,7 +30,7 @@ describe("Auth Integration Tests (contract envelope)", () => {
     const signupUseCase = new SignupUseCase(mockUserRepo, mockTokenService);
     const loginUserUseCase = new LoginUserUseCase(mockUserRepo, mockTokenService);
     const logoutUserUseCase = new LogoutUserUseCase(mockTokenService);
-    const refreshTokenUseCase = new RefreshTokenUseCase(mockTokenService);
+    const refreshTokenUseCase = new RefreshTokenUseCase(mockTokenService, mockUserRepo);
 
     const signupController = new SignupController(signupUseCase);
     const loginUserController = new LoginUserController(loginUserUseCase);

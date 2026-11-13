@@ -14,6 +14,7 @@ import {
   deleteAvatarController,
   requestPhoneVerificationController,
   verifyPhoneController,
+  requestAccountDeletionController,
 } from "../../../main/factories/user/userFactory";
 
 const v1UsersRouter = Router();
@@ -61,5 +62,11 @@ v1UsersRouter.post(
     await verifyPhoneController.execute(req, res);
   }
 );
+
+// Account deletion (step 1): sends a confirmation link to the account's e-mail.
+// Step 2, `POST /me/deletion/confirm`, is public and lives in its own router.
+v1UsersRouter.post("/me/deletion", emailLimiter, async (req, res) => {
+  await requestAccountDeletionController.execute(req, res);
+});
 
 export { v1UsersRouter };

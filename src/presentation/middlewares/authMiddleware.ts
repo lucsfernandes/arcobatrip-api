@@ -1,9 +1,28 @@
 import { Request, Response, NextFunction } from "express";
 import { tokenService } from "../../infra/services/TokenService";
+import logger from "../../main/logger";
 
 export interface AuthenticatedRequest extends Request {
   userId?: string;
   userEmail?: string;
+}
+
+/**
+ * Whether the account behind a token still exists. A signed token outlives the
+ * account it was issued for (up to 15 min for access, 7 days for refresh), so
+ * after an account is deleted its tokens must stop working at once, on every
+ * replica: the in-memory token blacklist cannot do that.
+ *
+ * Wired once at boot (see `typeOrmRepoFactory`). Until it is, the middleware
+ * REFUSES every request: a missing check must show up as a failure, never as a
+ * silent hole.
+ */
+export type AccountExistsCheck = (userId: string) => Promise<boolean>;
+
+let accountExists: AccountExistsCheck | null = null;
+
+export function setAccountExistsCheck(check: AccountExistsCheck | null): void {
+  accountExists = check;
 }
 
 /** Emit the contract error envelope for a 401. */
@@ -53,6 +72,16 @@ export const authMiddleware = async (
     const decoded = tokenService.verifyToken(token);
 
     if (!decoded) {
+      unauthorized(res, "Token inválido ou expirado");
+      return;
+    }
+
+    if (!accountExists) {
+      logger.error("[authMiddleware] a checagem de conta existente não foi configurada");
+      unauthorized(res, "Erro ao verificar token de autenticação");
+      return;
+    }
+    if (!(await accountExists(decoded.userId))) {
       unauthorized(res, "Token inválido ou expirado");
       return;
     }

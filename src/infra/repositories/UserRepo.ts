@@ -87,6 +87,11 @@ export class UserRepo implements IUserRepo {
     return UserMap.toPublic(updatedUser);
   }
 
+  async existsById(id: string): Promise<boolean> {
+    const count = await this.userRepository.count({ where: { id } });
+    return count > 0;
+  }
+
   async existsByEmail(email: string): Promise<boolean> {
     const count = await this.userRepository.count({
       where: { email }

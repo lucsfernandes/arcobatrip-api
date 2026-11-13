@@ -5,6 +5,7 @@ import { IEmailService } from "../../../application/services/email/IEmailService
 import { env } from "../../../main/config/env";
 import logger from "../../../main/logger";
 import {
+  AccountDeletionEmail,
   NotificationEmail,
   PhoneVerificationEmail,
   ResetPasswordEmail,
@@ -44,6 +45,14 @@ export class ResendEmailService implements IEmailService {
   ): Promise<void> {
     const html = await render(React.createElement(ResetPasswordEmail, params));
     await this.send(to, "Redefinição de senha do Zarpa", html);
+  }
+
+  async sendAccountDeletion(
+    to: string,
+    params: { name: string; confirmUrl: string; ttlMinutes: number }
+  ): Promise<void> {
+    const html = await render(React.createElement(AccountDeletionEmail, params));
+    await this.send(to, "Confirme a exclusão da sua conta no Zarpa", html);
   }
 
   async sendPhoneVerificationCode(

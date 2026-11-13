@@ -9,7 +9,9 @@ import { NotificationRepo } from "../../infra/repositories/NotificationRepo";
 import { NotificationEmitter } from "../../application/services/NotificationEmitter";
 import { VerificationTokenRepo } from "../../infra/repositories/VerificationTokenRepo";
 import { AuditLogRepo } from "../../infra/repositories/AuditLogRepo";
+import { AccountDeletionRepo } from "../../infra/repositories/AccountDeletionRepo";
 import { AuditLog } from "../../application/services/AuditLog";
+import { setAccountExistsCheck } from "../../presentation/middlewares/authMiddleware";
 
 const connector = AppDataSource;
 
@@ -23,7 +25,12 @@ const expenseRepo = new ExpenseRepo(connector);
 const settledPaymentRepo = new SettledPaymentRepo(connector);
 const notificationRepo = new NotificationRepo(connector);
 const verificationTokenRepo = new VerificationTokenRepo(connector);
+
+// Every authenticated request checks the account still exists, so a deleted
+// account's tokens stop working at once (see authMiddleware).
+setAccountExistsCheck((userId) => userRepo.existsById(userId));
 const auditLogRepo = new AuditLogRepo(connector);
+const accountDeletionRepo = new AccountDeletionRepo(connector);
 
 /** Audit trail (LGPD art. 37): e-mails are stored only as a keyed hash. */
 const auditLog = new AuditLog(auditLogRepo);
@@ -43,4 +50,5 @@ export {
   verificationTokenRepo,
   auditLogRepo,
   auditLog,
+  accountDeletionRepo,
 };

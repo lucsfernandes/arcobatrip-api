@@ -13,6 +13,7 @@ export class MockEmailService implements IEmailService {
   public emailVerifications: { to: string; verifyUrl: string }[] = [];
   public passwordResets: { to: string; resetUrl: string }[] = [];
   public phoneCodes: PhoneCodeCall[] = [];
+  public accountDeletions: { to: string; confirmUrl: string; ttlMinutes: number }[] = [];
   public notifications: { to: string; title: string }[] = [];
 
   async sendWelcome(to: string, params: { name: string }): Promise<void> {
@@ -31,6 +32,13 @@ export class MockEmailService implements IEmailService {
     params: { name: string; resetUrl: string }
   ): Promise<void> {
     this.passwordResets.push({ to, resetUrl: params.resetUrl });
+  }
+
+  async sendAccountDeletion(
+    to: string,
+    params: { name: string; confirmUrl: string; ttlMinutes: number }
+  ): Promise<void> {
+    this.accountDeletions.push({ to, confirmUrl: params.confirmUrl, ttlMinutes: params.ttlMinutes });
   }
 
   async sendPhoneVerificationCode(

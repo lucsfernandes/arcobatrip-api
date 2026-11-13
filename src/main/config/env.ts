@@ -51,6 +51,8 @@ const envSchema = z.object({
   CORS_ORIGINS: z.string().optional().default(""),
   EMAIL_VERIFICATION_TOKEN_TTL_MIN: z.coerce.number().default(1440),
   PASSWORD_RESET_TOKEN_TTL_MIN: z.coerce.number().default(60),
+  // Validade do link de confirmação da exclusão de conta (uso único).
+  ACCOUNT_DELETION_TOKEN_TTL_MIN: z.coerce.number().default(60),
   // Verificação de celular por email (código numérico de 6 dígitos)
   PHONE_VERIFICATION_CODE_TTL_MIN: z.coerce.number().default(15),
   PHONE_VERIFICATION_RESEND_COOLDOWN_SEC: z.coerce.number().default(60),

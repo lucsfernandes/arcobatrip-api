@@ -2,6 +2,7 @@ import { NextFunction, Response } from "express";
 import {
   authMiddleware,
   AuthenticatedRequest,
+  setAccountExistsCheck,
 } from "../../../presentation/middlewares/authMiddleware";
 import { tokenService } from "../../../infra/services/TokenService";
 
@@ -45,6 +46,10 @@ function errorMessage(res: MockRes): string {
 
 describe("authMiddleware (dual cookie/bearer)", () => {
   const payload = { userId: "user-123", email: "dual@test.com" };
+
+  // The account behind every token exists unless a test says otherwise.
+  beforeEach(() => setAccountExistsCheck(async () => true));
+  afterEach(() => setAccountExistsCheck(null));
 
   it("autentica via cookie access_token e popula req.userId/userEmail", async () => {
     const token = tokenService.generateToken(payload);
@@ -162,5 +167,59 @@ describe("authMiddleware (dual cookie/bearer)", () => {
     expect(next).not.toHaveBeenCalled();
     expect(res.statusCode).toBe(401);
     expect(errorMessage(res)).toBe("Token inválido ou expirado");
+  });
+
+  describe("conta excluída", () => {
+    it("retorna 401 quando a conta do token não existe mais, mesmo com o token ainda válido", async () => {
+      const token = tokenService.generateToken(payload);
+      setAccountExistsCheck(async (id) => id !== payload.userId);
+      const req = makeReq({ cookies: { access_token: token } });
+      const res = makeRes();
+      const next: NextFunction = jest.fn();
+
+      await authMiddleware(req, res, next);
+
+      expect(next).not.toHaveBeenCalled();
+      expect(res.statusCode).toBe(401);
+      expect(errorMessage(res)).toBe("Token inválido ou expirado");
+      expect(req.userId).toBeUndefined();
+    });
+
+    it("consulta a conta do próprio token", async () => {
+      const token = tokenService.generateToken(payload);
+      const check = jest.fn(async () => true);
+      setAccountExistsCheck(check);
+
+      await authMiddleware(makeReq({ cookies: { access_token: token } }), makeRes(), jest.fn());
+
+      expect(check).toHaveBeenCalledWith(payload.userId);
+    });
+
+    it("nega tudo quando a checagem não foi configurada (nunca pula a checagem em silêncio)", async () => {
+      setAccountExistsCheck(null);
+      const token = tokenService.generateToken(payload);
+      const req = makeReq({ cookies: { access_token: token } });
+      const res = makeRes();
+      const next: NextFunction = jest.fn();
+
+      await authMiddleware(req, res, next);
+
+      expect(next).not.toHaveBeenCalled();
+      expect(res.statusCode).toBe(401);
+    });
+
+    it("nega quando a consulta ao banco falha", async () => {
+      setAccountExistsCheck(async () => {
+        throw new Error("database is down");
+      });
+      const token = tokenService.generateToken(payload);
+      const res = makeRes();
+      const next: NextFunction = jest.fn();
+
+      await authMiddleware(makeReq({ cookies: { access_token: token } }), res, next);
+
+      expect(next).not.toHaveBeenCalled();
+      expect(res.statusCode).toBe(401);
+    });
   });
 });

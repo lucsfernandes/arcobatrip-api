@@ -15,6 +15,8 @@ export class MockAccountDeletionRepo implements IAccountDeletionRepo {
   /** Make `applyPlan` throw, as a failing statement in the transaction would. */
   public failApply = false;
   public transactions = 0;
+  /** Called with each plan that was applied, so a test can reflect it (e.g. drop the user). */
+  public onApply: ((plan: AccountDeletionPlan) => void) | null = null;
 
   async inTransaction<T>(work: (tx: IAccountDeletionTx) => Promise<T>): Promise<T> {
     this.transactions += 1;
@@ -29,6 +31,7 @@ export class MockAccountDeletionRepo implements IAccountDeletionRepo {
     const result = await work(tx);
     // Like a real transaction: what was applied is kept only when `work` succeeded.
     this.applied.push(...applied);
+    applied.forEach((plan) => this.onApply?.(plan));
     return result;
   }
 
@@ -37,5 +40,6 @@ export class MockAccountDeletionRepo implements IAccountDeletionRepo {
     this.applied = [];
     this.failApply = false;
     this.transactions = 0;
+    this.onApply = null;
   }
 }

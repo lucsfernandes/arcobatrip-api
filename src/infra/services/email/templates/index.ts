@@ -4,6 +4,8 @@ export { default as VerifyEmail } from "./VerifyEmail";
 export type { VerifyEmailProps } from "./VerifyEmail";
 export { default as ResetPasswordEmail } from "./ResetPasswordEmail";
 export type { ResetPasswordEmailProps } from "./ResetPasswordEmail";
+export { default as AccountDeletionEmail } from "./AccountDeletionEmail";
+export type { AccountDeletionEmailProps } from "./AccountDeletionEmail";
 export { default as NotificationEmail } from "./NotificationEmail";
 export type { NotificationEmailProps } from "./NotificationEmail";
 export { default as PhoneVerificationEmail } from "./PhoneVerificationEmail";

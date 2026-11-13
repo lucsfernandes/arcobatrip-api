@@ -1,7 +1,8 @@
 export type VerificationTokenType =
   | "password_reset"
   | "email_verification"
-  | "phone_verification";
+  | "phone_verification"
+  | "account_deletion";
 
 export interface IVerificationToken {
   id: string;
